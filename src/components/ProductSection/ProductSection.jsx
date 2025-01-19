@@ -1,4 +1,3 @@
-import React from 'react';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import './ProductSection.css';
@@ -32,37 +31,31 @@ const products = [
 ];
 
 const responsive = {
-  superLargeDesktop: {
-    breakpoint: { max: 4000, min: 1024 },
-    items: 4,
-  },
-  desktop: {
-    breakpoint: { max: 1024, min: 768 },
-    items: 3,
-  },
-  tablet: {
-    breakpoint: { max: 768, min: 464 },
-    items: 2,
-  },
-  mobile: {
-    breakpoint: { max: 464, min: 0 },
-    items: 1,
-  },
+  superLargeDesktop: { breakpoint: { max: 4000, min: 1024 }, items: 4 },
+  desktop: { breakpoint: { max: 1024, min: 768 }, items: 3 },
+  tablet: { breakpoint: { max: 768, min: 464 }, items: 2 },
+  mobile: { breakpoint: { max: 464, min: 0 }, items: 1 },
 };
 
 const ProductSection = () => {
   return (
     <div className="product-section">
-      <h2 className="section-title">Console</h2>
+      <h2 className="section-title">
+        Explore Our <span className="highlight">Consoles</span>
+      </h2>
       <Carousel responsive={responsive} infinite={true} autoPlay={true} autoPlaySpeed={3000}>
         {products.map((product, index) => (
           <div key={index} className="product-card">
             <img src={product.image} alt={product.name} className="product-image" />
-            <h3 className="product-name">{product.name}</h3>
-            <p className="product-price">{product.price}</p>
+            <h3 className="product-name">
+              {product.name.split(' ')[0]} <span className="highlight">{product.name.split(' ').slice(1).join(' ')}</span>
+            </h3>
+            <p className="product-price">
+              <span className="highlight">{product.price}</span>
+            </p>
             <div className="product-buttons">
-              <button className="view-more">View More</button>
-              <button className="add-to-cart">Add To Cart</button>
+              <button className="btn-primary">View More</button>
+              <button className="btn-secondary">Add To Cart</button>
             </div>
           </div>
         ))}
@@ -71,4 +64,4 @@ const ProductSection = () => {
   );
 };
 
-export default ProductSection; 
+export default ProductSection;

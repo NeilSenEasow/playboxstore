@@ -1,58 +1,92 @@
 .product-section {
-  background-color: #111;
-  padding: 40px;
-  color: #fff;
-}
-
-.section-title {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #ff4747;
-  display: inline-block;
-}
-
-.product-card {
-  background-color: #222;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  margin: 10px;
-}
-
-.product-image {
-  width: 100%;
-  height: auto;
-  margin-bottom: 10px;
-}
-
-.product-name {
-  font-size: 1.2rem;
-  color: #ffcc00;
-  margin-bottom: 5px;
-}
-
-.product-price {
-  font-size: 1rem;
-  margin-bottom: 10px;
-}
-
-.product-buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.view-more,
-.add-to-cart {
-  background-color: #000000;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.view-more:hover,
-.add-to-cart:hover {
-  background-color: #cc0000;
-} 
+    text-align: center;
+    background-color: #000; /* Black background */
+    color: white;
+    padding: 50px 20px;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    font-family: 'Georgia', serif;
+    margin-bottom: 30px;
+  }
+  
+  .section-title .highlight {
+    color: red;
+  }
+  
+  .product-card {
+    background-color: #111; /* Slightly lighter black for contrast */
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .product-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4); /* Red shadow on hover */
+  }
+  
+  .product-image {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .product-name {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    font-family: 'Georgia', serif;
+  }
+  
+  .product-name .highlight {
+    color: red;
+  }
+  
+  .product-price {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+  
+  .product-price .highlight {
+    color: red;
+    font-weight: bold;
+  }
+  
+  .product-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .btn-primary, .btn-secondary {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary {
+    background-color: red;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: #ff4d4d; /* Slightly lighter red */
+  }
+  
+  .btn-secondary {
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+  }
+  
+  .btn-secondary:hover {
+    background-color: white;
+    color: black;
+  }
+  
