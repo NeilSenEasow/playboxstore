@@ -1,92 +1,101 @@
 .product-section {
     text-align: center;
-    background-color: #000; /* Black background */
+    background-color: #000; 
     color: white;
     padding: 50px 20px;
-  }
+    margin-bottom: 200px;
+}
   
-  .section-title {
+.section-title {
     font-size: 2.5rem;
     font-family: 'Georgia', serif;
     margin-bottom: 30px;
-  }
+}
   
-  .section-title .highlight {
+.section-title .highlight {
     color: red;
-  }
+}
   
-  .product-card {
-    background-color: #111; /* Slightly lighter black for contrast */
+.product-card {
+    background-color: #111; 
     border-radius: 10px;
     padding: 20px;
     margin: 10px;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .product-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4); /* Red shadow on hover */
-  }
-  
-  .product-image {
-    max-width: 100%;
+    height: 450px; 
+    display: flex;
+    flex-direction: column; 
+    justify-content: space-between; 
+}
+
+.product-image {
+    height: 250px; 
+    width: 100%; 
+    object-fit: cover; 
     border-radius: 10px;
     margin-bottom: 15px;
+}
+ 
+.product-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4); 
+}
+  
+.product-name {
+    max-height: 2.4em; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
-  .product-name {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    font-family: 'Georgia', serif;
-  }
   
-  .product-name .highlight {
+.product-name .highlight {
     color: red;
-  }
+}
   
-  .product-price {
+.product-price {
     font-size: 1.1rem;
     margin-bottom: 20px;
-  }
+}
   
-  .product-price .highlight {
+.product-price .highlight {
     color: red;
     font-weight: bold;
-  }
+}
   
-  .product-buttons {
+.product-buttons {
     display: flex;
     justify-content: center;
     gap: 10px;
-  }
+}
   
-  .btn-primary, .btn-secondary {
+.btn-primary, .btn-secondary {
     padding: 10px 20px;
     font-size: 0.9rem;
     border-radius: 25px;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
-  }
+}
   
-  .btn-primary {
+.btn-primary {
     background-color: red;
     color: white;
-  }
+}
   
-  .btn-primary:hover {
-    background-color: #ff4d4d; /* Slightly lighter red */
-  }
+.btn-primary:hover {
+    background-color: #ff4d4d;
+}
   
-  .btn-secondary {
+.btn-secondary {
     background-color: transparent;
     color: white;
     border: 2px solid white;
-  }
+}
   
-  .btn-secondary:hover {
+.btn-secondary:hover {
     background-color: white;
     color: black;
-  }
+}
   

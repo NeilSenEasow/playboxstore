@@ -5,6 +5,8 @@
   flex-direction: column;
   align-items: center;
   padding: 250px 20px;
+  background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+  animation: fadeIn 1s ease-in-out;
 }
 
 .hero-content {
@@ -26,16 +28,21 @@
   font-size: 3rem;
   font-weight: 800;
   margin-bottom: 20px;
+  opacity: 0;
+  animation: slideInFromBottom 0.8s ease forwards;
 }
 
 .hero-highlight {
-  color: #ff4747; /* Red accent */
+  color: #ff4747;
 }
 
 .hero-description {
   font-size: 1.25rem;
   color: #ccc;
   margin-bottom: 30px;
+  opacity: 0;
+  animation: slideInFromBottom 0.8s ease forwards;
+  animation-delay: 0.4s;
 }
 
 .hero-buttons {
@@ -49,7 +56,9 @@
   font-size: 1rem;
   border-radius: 5px;
   text-decoration: none;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards;
 }
 
 .hero-button.primary {
@@ -59,13 +68,35 @@
 
 .hero-button.primary:hover {
   background-color: #580202;
+  transform: scale(1.05);
 }
 
 .hero-button.secondary {
-  background-color: #ff4747; /* Red accent */
+  background-color: #ff4747;
   color: #fff;
 }
 
 .hero-button.secondary:hover {
   background-color: #cc0000;
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

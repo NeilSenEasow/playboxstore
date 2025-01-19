@@ -6,14 +6,6 @@ import Shop2 from "../../assets/carousel/shop2.png";
 import Shop3 from "../../assets/carousel/shop3.png";
 
 const GameCarousel = () => {
-  const arrowStyles = {
-    position: 'absolute',
-    zIndex: 2,
-    top: 'calc(50% - 15px)',
-    width: 30,
-    height: 30,
-    cursor: 'pointer'
-  };
 
   const renderArrow = (direction, onClickHandler) => (
     <button className={`control-${direction}`} onClick={onClickHandler}></button>
