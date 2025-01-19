@@ -4,7 +4,7 @@ import Hero from './components/Hero/Hero';
 import GameCarousel from './components/Carousel/Carousel';
 import ProductSection from './components/ProductSection/ProductSection';
 import GamesSection from './components/GameSection/GameSection';
-
+import Banner from './components/Banner/Banner';
 function App() {
   return (
     <Router>
@@ -13,7 +13,8 @@ function App() {
         <Hero />
         <GameCarousel />
         <ProductSection />
-        <GamesSection /> {/* Add GamesSection here */}
+        <GamesSection />
+        <Banner />
         <Routes>
           <Route path="/" element={<div>Home Component</div>} />
           <Route path="/sell" element={<div>Sell Component</div>} />
