@@ -11,18 +11,12 @@
   display: inline-block;
 }
 
-.product-list {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
 .product-card {
   background-color: #222;
   padding: 20px;
   border-radius: 10px;
-  width: 200px;
   text-align: center;
+  margin: 10px;
 }
 
 .product-image {

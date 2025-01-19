@@ -1,3 +1,6 @@
+import React from 'react';
+import Carousel from 'react-multi-carousel';
+import 'react-multi-carousel/lib/styles.css';
 import './ProductSection.css';
 
 import Image1 from '../../assets/console/console1.png';
@@ -28,11 +31,30 @@ const products = [
   },
 ];
 
+const responsive = {
+  superLargeDesktop: {
+    breakpoint: { max: 4000, min: 1024 },
+    items: 4,
+  },
+  desktop: {
+    breakpoint: { max: 1024, min: 768 },
+    items: 3,
+  },
+  tablet: {
+    breakpoint: { max: 768, min: 464 },
+    items: 2,
+  },
+  mobile: {
+    breakpoint: { max: 464, min: 0 },
+    items: 1,
+  },
+};
+
 const ProductSection = () => {
   return (
     <div className="product-section">
       <h2 className="section-title">Console</h2>
-      <div className="product-list">
+      <Carousel responsive={responsive} infinite={true} autoPlay={true} autoPlaySpeed={3000}>
         {products.map((product, index) => (
           <div key={index} className="product-card">
             <img src={product.image} alt={product.name} className="product-image" />
@@ -44,7 +66,7 @@ const ProductSection = () => {
             </div>
           </div>
         ))}
-      </div>
+      </Carousel>
     </div>
   );
 };
