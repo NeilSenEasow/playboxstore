@@ -1,0 +1,11 @@
+.highlights {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 20px; 
+    justify-content: center;
+    margin-bottom: 100px;
+}
+
+.highlights img {
+    width: 35%; 
+}

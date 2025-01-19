@@ -5,6 +5,9 @@ import GameCarousel from './components/Carousel/Carousel';
 import ProductSection from './components/ProductSection/ProductSection';
 import GamesSection from './components/GameSection/GameSection';
 import Banner from './components/Banner/Banner';
+import Highlights from './components/Highlights/Highlights';
+import Footer from './components/Footer/Footer';
+
 function App() {
   return (
     <Router>
@@ -15,10 +18,12 @@ function App() {
         <ProductSection />
         <GamesSection />
         <Banner />
-        <Routes>
+        <Highlights />
+        {/* <Routes>
           <Route path="/" element={<div>Home Component</div>} />
           <Route path="/sell" element={<div>Sell Component</div>} />
-        </Routes>
+        </Routes> */}
+        <Footer />
       </div>
     </Router>
   );
