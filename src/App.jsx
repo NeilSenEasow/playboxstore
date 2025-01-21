@@ -21,10 +21,17 @@ function App() {
     setCartItems([...cartItems, item]);
   };
 
+  const handleSearch = (query) => {
+    // Implement search logic here
+    // For example, filter items from a list of products
+    const results = []; // Replace with actual search logic
+    // setSearchResults(results);
+  };
+
   return (
-      <Router>
+    <Router>
       <div>
-        <Navbar cartCount={cartItems.length} />
+        <Navbar cartCount={cartItems.length} onSearch={handleSearch} />
         <Routes>
           <Route path="/" element={
             <>
@@ -36,9 +43,9 @@ function App() {
               <Highlights />
             </>
           } />
-          <Route path="/sell" element={<Sell />} />
-          <Route path="/buy" element={<Buy />} />
-          <Route path="/rent" element={<Rent />} />
+          <Route path="/sell" element={<Sell updateCartCount={updateCartCount} />} />
+          <Route path="/buy" element={<Buy updateCartCount={updateCartCount} />} />
+          <Route path="/rent" element={<Rent updateCartCount={updateCartCount} />} />
           <Route path="/cart" element={<Cart cartItems={cartItems} />} />
         </Routes>
         <Footer />

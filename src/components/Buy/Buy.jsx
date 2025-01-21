@@ -1,6 +1,6 @@
 import React from 'react';
 import './Buy.css';
-
+    
 import PS5Image from '../../assets/games/Game1.png';
 import XboxImage from '../../assets/games/Game2.png';
 import SwitchImage from '../../assets/games/Game3.png';
@@ -32,4 +32,4 @@ const Buy = ({ updateCartCount }) => {
   );
 };
 
-export default Buy; 
+export default Buy;

@@ -1,5 +1,5 @@
 import React from 'react';
-import './Sell.css'; // Create this file for styling if needed
+import './Sell.css';
 
 import PS5Image from '../../assets/games/Game1.png';
 import XboxImage from '../../assets/games/Game2.png';
@@ -32,4 +32,4 @@ const Sell = ({ updateCartCount }) => {
   );
 };
 
-export default Sell; 
+export default Sell;

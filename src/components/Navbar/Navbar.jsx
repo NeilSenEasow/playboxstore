@@ -1,8 +1,17 @@
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 import Logo from '../../assets/logo/logo-play.png';
+import { useState } from 'react';
 
-const Navbar = ({ cartCount }) => {
+const Navbar = ({ cartCount, onSearch }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (event) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+    onSearch(query); // Call the onSearch function passed as a prop
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -26,7 +35,13 @@ const Navbar = ({ cartCount }) => {
       </ul>
       <div className="navbar-actions">
         <div className="search-container">
-          <input type="text" placeholder="Search" className="search-input" />
+          <input
+            type="text"
+            placeholder="Search"
+            className="search-input"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
         </div>
         <div className="notifications">
           <Link to="/cart">

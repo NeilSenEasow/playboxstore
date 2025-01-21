@@ -1,5 +1,5 @@
 import React from 'react';
-import './Rent.css'; // Create this file for styling if needed
+import './Rent.css';
 
 import PS5Image from '../../assets/games/Game1.png';
 import XboxImage from '../../assets/games/Game2.png';
@@ -32,4 +32,4 @@ const Rent = ({ updateCartCount }) => {
   );
 };
 
-export default Rent; 
+export default Rent;
