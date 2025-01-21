@@ -1,0 +1,54 @@
+.sell-container {
+  text-align: center;
+  background-color: #000;
+  color: white;
+  padding: 50px 20px;
+  margin-top: 100px;
+}
+
+.sell-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.sell-item {
+  background-color: #111;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  flex: 0 0 300px;
+  height: 450px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sell-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+}
+
+.sell-item-image {
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.sell-item h3 {
+  max-height: 2.4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sell-item p {
+  font-size: 1.1rem;
+  color: red;
+  font-weight: bold;
+}

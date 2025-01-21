@@ -9,11 +9,9 @@ import Banner from './components/Banner/Banner';
 import Highlights from './components/Highlights/Highlights';
 import Footer from './components/Footer/Footer';
 import Cart from './components/Cart/Cart';
-
-// Placeholder components for new routes
-const Sell = () => <div>Sell Page</div>;
-const Buy = () => <div>Buy Page</div>;
-const Rent = () => <div>Rent Page</div>;
+import Buy from './components/Buy/Buy';
+import Sell from './components/Sell/Sell';
+import Rent from './components/Rent/Rent';
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
