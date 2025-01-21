@@ -6,13 +6,23 @@ const Navbar = ({ cartCount }) => {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <img src={Logo} alt="Logo" style={{ width: '120px', height: '45px', marginRight: '10px' }} />
+        <Link to="/">
+          <img src={Logo} alt="Logo" style={{ width: '120px', height: '45px', marginRight: '10px' }} />
+        </Link>
       </div>
       <ul className="navbar-menu">
-        <li>Home</li>
-        <li>Sell</li>
-        <li>Buy <span className="dropdown-arrow">▼</span></li>
-        <li>Rent</li>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/sell">Sell</Link>
+        </li>
+        <li>
+          <Link to="/buy">Buy <span className="dropdown-arrow">▼</span></Link>
+        </li>
+        <li>
+          <Link to="/rent">Rent</Link>
+        </li>
       </ul>
       <div className="navbar-actions">
         <div className="search-container">

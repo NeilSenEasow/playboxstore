@@ -59,6 +59,20 @@ body {
   margin-right: 500px;
 }
 
+.navbar-menu li a {
+  text-decoration: none;
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.navbar-menu li a:hover {
+  color: red;
+}
+
+.navbar-menu li a:active {
+  color: red;
+}
+
 .navbar-menu li {
   cursor: pointer;
   font-size: 1rem;

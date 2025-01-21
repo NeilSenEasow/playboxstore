@@ -10,6 +10,11 @@ import Highlights from './components/Highlights/Highlights';
 import Footer from './components/Footer/Footer';
 import Cart from './components/Cart/Cart';
 
+// Placeholder components for new routes
+const Sell = () => <div>Sell Page</div>;
+const Buy = () => <div>Buy Page</div>;
+const Rent = () => <div>Rent Page</div>;
+
 function App() {
   const [cartItems, setCartItems] = useState([]);
 
@@ -32,6 +37,9 @@ function App() {
               <Highlights />
             </>
           } />
+          <Route path="/sell" element={<Sell />} />
+          <Route path="/buy" element={<Buy />} />
+          <Route path="/rent" element={<Rent />} />
           <Route path="/cart" element={<Cart cartItems={cartItems} />} />
         </Routes>
         <Footer />
