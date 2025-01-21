@@ -18,7 +18,7 @@ const Navbar = ({ cartCount }) => {
           <Link to="/sell">Sell</Link>
         </li>
         <li>
-          <Link to="/buy">Buy <span className="dropdown-arrow">▼</span></Link>
+          <Link to="/buy">Buy</Link>
         </li>
         <li>
           <Link to="/rent">Rent</Link>
@@ -35,6 +35,7 @@ const Navbar = ({ cartCount }) => {
           </Link>
         </div>
         <button className="sign-in-btn">Sign In</button>
+        <button className="sign-in-btn">Sign Up</button>
       </div>
     </nav>
   );

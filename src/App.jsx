@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
@@ -12,6 +12,7 @@ import Cart from './components/Cart/Cart';
 import Buy from './components/Buy/Buy';
 import Sell from './components/Sell/Sell';
 import Rent from './components/Rent/Rent';
+import './App.css';
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -21,7 +22,7 @@ function App() {
   };
 
   return (
-    <Router>
+      <Router>
       <div>
         <Navbar cartCount={cartItems.length} />
         <Routes>

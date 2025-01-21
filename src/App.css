@@ -40,3 +40,31 @@
 .read-the-docs {
   color: #888;
 } */
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #5e5e5e;
+  border-radius: 10px;
+  height: 10px;
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent; 
+  display: none; 
+}
+
+body {
+  background-color: #000;
+}
+
+button:hover {
+  cursor: crosshair;
+}
