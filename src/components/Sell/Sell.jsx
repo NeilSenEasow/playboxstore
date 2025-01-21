@@ -11,7 +11,7 @@ const sellItems = [
   { id: 3, name: 'Nintendo Switch', price: '₹29,999.00', image: SwitchImage },
 ];
 
-const Sell = () => {
+const Sell = ({ updateCartCount }) => {
   return (
     <div className="sell-container">
       <h1>Sell Page</h1>
@@ -21,6 +21,10 @@ const Sell = () => {
             <img src={item.image} alt={item.name} className="sell-item-image" />
             <h3>{item.name}</h3>
             <p>{item.price}</p>
+            <div className="product-buttons">
+              <button className="btn-primary">View More</button>
+              <button className="btn-secondary" onClick={() => updateCartCount(item)}>Add To Cart</button>
+            </div>
           </div>
         ))}
       </div>
