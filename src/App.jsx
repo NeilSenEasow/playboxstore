@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
@@ -9,14 +10,20 @@ import Highlights from './components/Highlights/Highlights';
 import Footer from './components/Footer/Footer';
 
 function App() {
+  const [cartCount, setCartCount] = useState(0);
+
+  const updateCartCount = () => {
+    setCartCount(cartCount + 1);
+  };
+
   return (
     <Router>
       <div>
-        <Navbar />
+        <Navbar cartCount={cartCount} />
         <Hero />
         <GameCarousel />
-        <ProductSection />
-        <GamesSection />
+        <ProductSection updateCartCount={updateCartCount} />
+        <GamesSection updateCartCount={updateCartCount} />
         <Banner />
         <Highlights />
         <Footer />

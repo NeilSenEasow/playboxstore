@@ -31,7 +31,7 @@ const games = [
   },
 ];
 
-const GamesSection = () => {
+const GamesSection = ({ updateCartCount }) => {
   return (
     <div className="product-section">
       <h2 className="section-title">
@@ -49,7 +49,7 @@ const GamesSection = () => {
             </p>
             <div className="product-buttons">
               <button className="btn-secondary">View More</button>
-              <button className="btn-primary">Add To Cart</button>
+              <button className="btn-primary" onClick={updateCartCount}>Add To Cart</button>
             </div>
           </div>
         ))}

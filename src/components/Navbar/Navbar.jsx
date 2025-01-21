@@ -1,7 +1,7 @@
 import './Navbar.css';
 import Logo from '../../assets/logo/logo-play.png';
 
-const Navbar = () => {
+const Navbar = ({ cartCount }) => {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -18,10 +18,8 @@ const Navbar = () => {
           <input type="text" placeholder="Search" className="search-input" />
         </div>
         <div className="notifications">
-        <span className="notification-icon">
-          🛒
-        </span>
-          <span className="notification-badge">0</span>
+          <span className="notification-icon">🛒</span>
+          <span className="notification-badge">{cartCount}</span>
         </div>
         <button className="sign-in-btn">Sign In</button>
       </div>

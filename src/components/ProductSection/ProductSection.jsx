@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import './ProductSection.css';
@@ -37,7 +38,7 @@ const responsive = {
   mobile: { breakpoint: { max: 464, min: 0 }, items: 1 },
 };
 
-const ProductSection = () => {
+const ProductSection = ({ updateCartCount }) => {
   return (
     <div className="product-section">
       <h2 className="section-title">
@@ -55,7 +56,7 @@ const ProductSection = () => {
             </p>
             <div className="product-buttons">
               <button className="btn-primary">View More</button>
-              <button className="btn-secondary">Add To Cart</button>
+              <button className="btn-secondary" onClick={updateCartCount}>Add To Cart</button>
             </div>
           </div>
         ))}
