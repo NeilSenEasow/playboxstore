@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import './ProductSection.css';
@@ -56,7 +56,7 @@ const ProductSection = ({ updateCartCount }) => {
             </p>
             <div className="product-buttons">
               <button className="btn-primary">View More</button>
-              <button className="btn-secondary" onClick={updateCartCount}>Add To Cart</button>
+              <button className="btn-secondary" onClick={() => updateCartCount(product)}>Add To Cart</button>
             </div>
           </div>
         ))}

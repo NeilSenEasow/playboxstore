@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
 import GameCarousel from './components/Carousel/Carousel';
@@ -8,24 +8,32 @@ import GamesSection from './components/GameSection/GameSection';
 import Banner from './components/Banner/Banner';
 import Highlights from './components/Highlights/Highlights';
 import Footer from './components/Footer/Footer';
+import Cart from './components/Cart/Cart';
 
 function App() {
-  const [cartCount, setCartCount] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
 
-  const updateCartCount = () => {
-    setCartCount(cartCount + 1);
+  const updateCartCount = (item) => {
+    setCartItems([...cartItems, item]);
   };
 
   return (
     <Router>
       <div>
-        <Navbar cartCount={cartCount} />
-        <Hero />
-        <GameCarousel />
-        <ProductSection updateCartCount={updateCartCount} />
-        <GamesSection updateCartCount={updateCartCount} />
-        <Banner />
-        <Highlights />
+        <Navbar cartCount={cartItems.length} />
+        <Routes>
+          <Route path="/" element={
+            <>
+              <Hero />
+              <GameCarousel />
+              <ProductSection updateCartCount={updateCartCount} />
+              <GamesSection updateCartCount={updateCartCount} />
+              <Banner />
+              <Highlights />
+            </>
+          } />
+          <Route path="/cart" element={<Cart cartItems={cartItems} />} />
+        </Routes>
         <Footer />
       </div>
     </Router>

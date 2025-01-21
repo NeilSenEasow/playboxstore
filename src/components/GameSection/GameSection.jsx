@@ -49,7 +49,7 @@ const GamesSection = ({ updateCartCount }) => {
             </p>
             <div className="product-buttons">
               <button className="btn-secondary">View More</button>
-              <button className="btn-primary" onClick={updateCartCount}>Add To Cart</button>
+              <button className="btn-primary" onClick={() => updateCartCount(game)}>Add To Cart</button>
             </div>
           </div>
         ))}

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './Navbar.css';
 import Logo from '../../assets/logo/logo-play.png';
 
@@ -18,8 +19,10 @@ const Navbar = ({ cartCount }) => {
           <input type="text" placeholder="Search" className="search-input" />
         </div>
         <div className="notifications">
-          <span className="notification-icon">🛒</span>
-          <span className="notification-badge">{cartCount}</span>
+          <Link to="/cart">
+            <span className="notification-icon">🛒</span>
+            <span className="notification-badge">{cartCount}</span>
+          </Link>
         </div>
         <button className="sign-in-btn">Sign In</button>
       </div>
