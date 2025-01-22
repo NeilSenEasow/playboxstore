@@ -1,11 +1,12 @@
 import React from "react";
 import "./Checkout.css"
+import { FaHome } from 'react-icons/fa';
 
 function Checkout() {
   return (
     <div className="checkout-container">
       <div className="address-header">
-        <img src="/path-to-house-icon.svg" alt="House icon" />
+        <FaHome size={24} color="#ff4747" />
         <h2>Add address</h2>
       </div>
 
@@ -119,4 +120,4 @@ function Checkout() {
   );
 }
 
-export default Checkout; 
+export default Checkout;
