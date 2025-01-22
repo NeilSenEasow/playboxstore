@@ -104,12 +104,14 @@ const ProductSection = ({ updateCartCount }) => {
               <span className="highlight">{product.price}</span>
             </p>
             <div className="product-buttons">
-              <button className="btn-primary">View More</button>
               <button 
-                className="btn-secondary"
+                className="btn-primary"
                 onClick={() => updateCartCount(product)}
               >
                 Add To Cart
+              </button>
+              <button className="btn-secondary">
+                View More
               </button>
             </div>
           </div>
