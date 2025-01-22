@@ -13,26 +13,48 @@ import Buy from './components/Buy/Buy';
 import Sell from './components/Sell/Sell';
 import Rent from './components/Rent/Rent';
 import Checkout from './components/Checkout/Checkout';
+import SearchResults from './components/SearchResults/SearchResults';
+import { products } from './components/ProductSection/ProductSection';
+import { games } from './components/GameSection/GameSection';
+import { buyItems } from './components/Buy/Buy';
+import { rentItems } from './components/Rent/Rent';
+import { sellItems } from './components/Sell/Sell';
 import './App.css';
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  
+  // Combine all products from different sections
+  const allProducts = [
+    ...products,  // from ProductSection
+    ...games,     // from GameSection
+    ...buyItems,  // from Buy
+    ...rentItems, // from Rent
+    ...sellItems  // from Sell
+  ];
 
   const updateCartCount = (item) => {
     setCartItems([...cartItems, item]);
   };
 
   const handleSearch = (query) => {
-    // Implement search logic here
-    // For example, filter items from a list of products
-    const results = []; // Replace with actual search logic
-    // setSearchResults(results);
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const filtered = allProducts.filter(item => 
+      item.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setSearchResults(filtered);
   };
 
   return (
     <Router>
       <div>
         <Navbar cartCount={cartItems.length} onSearch={handleSearch} />
+        <SearchResults results={searchResults} updateCartCount={updateCartCount} />
         <Routes>
           <Route path="/" element={
             <>

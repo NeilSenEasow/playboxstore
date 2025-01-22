@@ -8,7 +8,7 @@ import Console2 from '../../assets/console/console2.png';
 import Image3 from '../../assets/console/console3.png';
 import Image4 from '../../assets/console/console4.png';
 
-const products = [
+export const products = [
   {
     name: 'Official Sony DualShock',
     price: '₹3,299.00',

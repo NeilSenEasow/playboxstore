@@ -4,7 +4,7 @@ import Game2 from '../../assets/games/Game2.png';
 import Game3 from '../../assets/games/Game3.png';
 import Game4 from '../../assets/games/Game4.png';
 
-const games = [
+export const games = [
   {
     id: 1,
     name: 'GOD OF WAR - PS4',

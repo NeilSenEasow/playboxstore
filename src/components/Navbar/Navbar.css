@@ -140,9 +140,9 @@ body {
 
 .notification-icon {
   font-size: 1.5rem;
-  color: white;
   cursor: pointer;
   position: relative;
+  color: #ff4747 !important;
 }
 
 .notification-badge {
@@ -202,4 +202,10 @@ body {
   .sign-in-btn {
     margin-right: 0;
   }
+}
+
+.search-container form {
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }

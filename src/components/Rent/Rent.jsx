@@ -5,7 +5,7 @@ import PS5Image from '../../assets/games/Game1.png';
 import XboxImage from '../../assets/games/Game2.png';
 import SwitchImage from '../../assets/games/Game3.png';
 
-const rentItems = [
+export const rentItems = [
   { id: 1, name: 'PlayStation 5', price: '₹49,999.00', image: PS5Image },
   { id: 2, name: 'Xbox Series X', price: '₹50,000.00', image: XboxImage },
   { id: 3, name: 'Nintendo Switch', price: '₹29,999.00', image: SwitchImage },
