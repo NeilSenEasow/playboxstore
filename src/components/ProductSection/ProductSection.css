@@ -5,6 +5,9 @@
     padding: 50px 20px;
     margin: 100px auto;
     max-width: 1200px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease-out;
 }
   
 .section-title {
@@ -29,6 +32,10 @@
     flex-direction: column; 
     justify-content: space-between; 
     max-width: 300px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeIn 0.6s ease-out forwards;
+    animation-delay: var(--delay, 0s);
 }
   
 .product-image {
@@ -37,11 +44,16 @@
     object-fit: cover; 
     border-radius: 10px;
     margin-bottom: 15px;
+    transform: scale(0.9);
+    opacity: 0;
+    animation: scaleIn 0.6s ease-out forwards;
+    animation-delay: calc(var(--delay, 0s) + 0.2s);
 }
  
 .product-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4); 
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+    transition: all 0.3s ease;
 }
   
 .product-name {
@@ -78,6 +90,10 @@
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp 0.4s ease forwards;
+    animation-delay: 0.4s;
 }
   
 .btn-primary {
@@ -99,3 +115,118 @@
     background-color: white;
     color: black;
 }
+
+/* Section Animation */
+.animate-section {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Text Animations */
+.animate-text {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.animate-highlight {
+    position: relative;
+    display: inline-block;
+    animation: highlightGlow 2s ease-in-out infinite;
+}
+
+/* Card Animations */
+.animate-card {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.animate-image {
+    transform: scale(0.9);
+    opacity: 0;
+    animation: scaleIn 0.6s ease forwards;
+    animation-delay: 0.2s;
+}
+
+/* Button Animations */
+.animate-button {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp 0.4s ease forwards;
+    animation-delay: 0.4s;
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes highlightGlow {
+    0%, 100% {
+        color: var(--highlight-color, #ff4747);
+        text-shadow: 0 0 5px rgba(255, 71, 71, 0.3);
+    }
+    50% {
+        color: var(--highlight-color-bright, #ff6b6b);
+        text-shadow: 0 0 15px rgba(255, 71, 71, 0.5);
+    }
+}
+
+/* Hover Animations */
+.product-card:hover .animate-image {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .animate-card {
+        animation-delay: 0.1s !important;
+    }
+}
+
+/* Add these to your existing animations */
+
+.product-section.animate-section {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Modify animation classes to work with visibility state */
+.animate-text,
+.animate-highlight,
+.animate-card,
+.animate-image,
+.animate-button {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.animate-section .animate-text,
+.animate-section .animate-highlight,
+.animate-section .animate-card,
+.animate-section .animate-image,
+.animate-section .animate-button {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Rest of your existing animations remain the same */

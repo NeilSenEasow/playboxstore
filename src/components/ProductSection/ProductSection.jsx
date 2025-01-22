@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import './ProductSection.css';
@@ -39,24 +39,78 @@ const responsive = {
 };
 
 const ProductSection = ({ updateCartCount }) => {
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (!hasAnimated) {
+            setHasAnimated(true);
+          }
+        } else {
+          setIsVisible(false);
+        }
+      },
+      { 
+        threshold: 0.1,
+        rootMargin: '-50px 0px'
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, [hasAnimated]);
+
   return (
-    <div className="product-section">
+    <div 
+      className={`product-section ${isVisible ? 'animate-section' : ''}`} 
+      ref={sectionRef}
+    >
       <h2 className="section-title">
         Explore Our <span className="highlight">Consoles</span>
       </h2>
       <Carousel responsive={responsive} infinite={true} autoPlay={true} autoPlaySpeed={3000}>
         {products.map((product, index) => (
-          <div key={index} className="product-card">
-            <img src={product.image} alt={product.name} className="product-image" />
+          <div 
+            key={index}
+            className="product-card"
+            style={{ 
+              animationDelay: `${index * 0.2}s`
+            }}
+          >
+            <img 
+              src={product.image} 
+              alt={product.name} 
+              className="product-image"
+            />
             <h3 className="product-name">
-              {product.name.split(' ')[0]} <span className="highlight">{product.name.split(' ').slice(1).join(' ')}</span>
+              {product.name.split(' ')[0]} 
+              <span className="highlight">
+                {product.name.split(' ').slice(1).join(' ')}
+              </span>
             </h3>
             <p className="product-price">
               <span className="highlight">{product.price}</span>
             </p>
             <div className="product-buttons">
               <button className="btn-primary">View More</button>
-              <button className="btn-secondary" onClick={() => updateCartCount(product)}>Add To Cart</button>
+              <button 
+                className="btn-secondary"
+                onClick={() => updateCartCount(product)}
+              >
+                Add To Cart
+              </button>
             </div>
           </div>
         ))}
