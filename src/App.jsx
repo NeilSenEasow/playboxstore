@@ -12,6 +12,7 @@ import Cart from './components/Cart/Cart';
 import Buy from './components/Buy/Buy';
 import Sell from './components/Sell/Sell';
 import Rent from './components/Rent/Rent';
+import Checkout from './components/Checkout/Checkout';
 import './App.css';
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
           <Route path="/buy" element={<Buy updateCartCount={updateCartCount} />} />
           <Route path="/rent" element={<Rent updateCartCount={updateCartCount} />} />
           <Route path="/cart" element={<Cart cartItems={cartItems} />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
         <Footer />
       </div>

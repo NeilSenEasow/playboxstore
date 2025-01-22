@@ -1,7 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Cart.css'; // Create this file for styling
 
 const Cart = ({ cartItems }) => {
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    navigate('/checkout');
+  };
+
   return (
     <div className="cart-container">
       <h2 className="cart-title">Your Cart</h2>
@@ -21,7 +28,9 @@ const Cart = ({ cartItems }) => {
         </ul>
       )}
       {cartItems.length > 0 && (
-        <button className="checkout-button">Proceed to Checkout</button>
+        <button className="checkout-button" onClick={handleCheckout}>
+          Proceed to Checkout
+        </button>
       )}
     </div>
   );
