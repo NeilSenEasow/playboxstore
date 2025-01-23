@@ -4,24 +4,32 @@ import { BsCart4 } from 'react-icons/bs';
 import { FaTrashAlt } from 'react-icons/fa';  // Trash icon
 import './Cart.css';
 
-const Cart = ({ cartItems, setCartItems }) => {
+const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
   const navigate = useNavigate();
 
   const handleCheckout = () => {
     navigate('/checkout');
   };
 
-  const handleCartClick = () => {
-    navigate('/cart');
-  };
-
-  // Function to delete a specific item
-  const handleDeleteItem = (index) => {
+  const handleDeleteItem = (itemId) => {
     const confirmDelete = window.confirm('Are you sure you want to remove this item from the cart?');
     if (confirmDelete) {
-      const updatedCartItems = cartItems.filter((_, i) => i !== index);
-      setCartItems(updatedCartItems);
+      removeFromCart(itemId);
     }
+  };
+
+  const handleClearCart = () => {
+    const confirmClear = window.confirm('Are you sure you want to clear your cart?');
+    if (confirmClear) {
+      clearCart();
+    }
+  };
+
+  const calculateTotal = () => {
+    return cartItems.reduce((total, item) => {
+      const price = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
+      return total + price;
+    }, 0);
   };
 
   return (
@@ -30,14 +38,19 @@ const Cart = ({ cartItems, setCartItems }) => {
         <h2 className="cart-title">
           <BsCart4 size={30} style={{ marginRight: '10px' }} /> Your Cart
         </h2>
+        {cartItems.length > 0 && (
+          <button className="clear-cart-button" onClick={handleClearCart}>
+            Clear Cart
+          </button>
+        )}
       </div>
       {cartItems.length === 0 ? (
         <p className="empty-cart">Your cart is empty.</p>
       ) : (
         <>
           <ul className="cart-list">
-            {cartItems.map((item, index) => (
-              <li key={index} className="cart-item">
+            {cartItems.map((item) => (
+              <li key={item.id} className="cart-item">
                 <img src={item.image} alt={item.name} className="cart-item-image" />
                 <div className="cart-item-details">
                   <h3 className="cart-item-name">{item.name}</h3>
@@ -45,7 +58,7 @@ const Cart = ({ cartItems, setCartItems }) => {
                 </div>
                 <button 
                   className="delete-item-button"
-                  onClick={() => handleDeleteItem(index)}
+                  onClick={() => handleDeleteItem(item.id)}
                   title="Remove item"
                 >
                   <FaTrashAlt size={18} color="#ff4747" />
@@ -53,9 +66,12 @@ const Cart = ({ cartItems, setCartItems }) => {
               </li>
             ))}
           </ul>
-          <button className="checkout-button" onClick={handleCheckout}>
-            Proceed to Checkout
-          </button>
+          <div className="cart-summary">
+            <p className="cart-total">Total: ₹{calculateTotal().toLocaleString()}</p>
+            <button className="checkout-button" onClick={handleCheckout}>
+              Proceed to Checkout
+            </button>
+          </div>
         </>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
@@ -23,20 +23,51 @@ import RentDetails from './components/RentDetails/RentDetails';
 import './App.css';
 
 function App() {
-  const [cartItems, setCartItems] = useState([]);
+  // Initialize state from localStorage or default values
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem('cartItems');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
   const [searchResults, setSearchResults] = useState([]);
-  
-  // Convert buyItems object to array for search
+  const [userPreferences, setUserPreferences] = useState(() => {
+    const savedPreferences = localStorage.getItem('userPreferences');
+    return savedPreferences ? JSON.parse(savedPreferences) : {
+      recentSearches: [],
+      viewedItems: [],
+      lastVisit: new Date().toISOString()
+    };
+  });
+
+  // Save cart items to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // Save user preferences to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
+  }, [userPreferences]);
+
   const allProducts = [
-    ...products,  // from ProductSection
-    ...games,     // from GameSection
-    ...Object.values(buyItems).flat(),  // Convert buyItems sections to single array
-    ...rentItems, // from Rent
-    ...sellItems  // from Sell
+    ...products,
+    ...games,
+    ...Object.values(buyItems).flat(),
+    ...rentItems,
+    ...sellItems
   ];
 
   const updateCartCount = (item) => {
-    setCartItems([...cartItems, item]);
+    setCartItems(prevItems => {
+      const newItems = [...prevItems, item];
+      return newItems;
+    });
+    
+    // Update viewed items in user preferences
+    setUserPreferences(prev => ({
+      ...prev,
+      viewedItems: [...new Set([...prev.viewedItems, item.id])].slice(-10) // Keep last 10 items
+    }));
   };
 
   const handleSearch = (query) => {
@@ -49,12 +80,48 @@ function App() {
       item.name.toLowerCase().includes(query.toLowerCase())
     );
     setSearchResults(filtered);
+
+    // Save recent searches
+    setUserPreferences(prev => ({
+      ...prev,
+      recentSearches: [...new Set([query, ...prev.recentSearches])].slice(0, 5) // Keep last 5 searches
+    }));
   };
+
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  const removeFromCart = (itemId) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  };
+
+  const clearUserData = () => {
+    localStorage.clear();
+    setCartItems([]);
+    setUserPreferences({
+      recentSearches: [],
+      viewedItems: [],
+      lastVisit: new Date().toISOString()
+    });
+  };
+
+  // Update last visit timestamp
+  useEffect(() => {
+    setUserPreferences(prev => ({
+      ...prev,
+      lastVisit: new Date().toISOString()
+    }));
+  }, []);
 
   return (
     <Router>
       <div>
-        <Navbar cartCount={cartItems.length} onSearch={handleSearch} />
+        <Navbar 
+          cartCount={cartItems.length} 
+          onSearch={handleSearch}
+          recentSearches={userPreferences.recentSearches}
+        />
         <SearchResults results={searchResults} updateCartCount={updateCartCount} />
         <Routes>
           <Route path="/" element={
@@ -71,8 +138,27 @@ function App() {
           <Route path="/buy" element={<Buy updateCartCount={updateCartCount} />} />
           <Route path="/rent" element={<Rent updateCartCount={updateCartCount} />} />
           <Route path="/rent/:id" element={<RentDetails updateCartCount={updateCartCount} />} />
-          <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route 
+            path="/cart" 
+            element={
+              <Cart 
+                cartItems={cartItems} 
+                setCartItems={setCartItems}
+                removeFromCart={removeFromCart}
+                clearCart={clearCart}
+              />
+            } 
+          />
+          <Route 
+            path="/checkout" 
+            element={
+              <Checkout 
+                cartItems={cartItems} 
+                clearCart={clearCart}
+                userPreferences={userPreferences}
+              />
+            } 
+          />
         </Routes>
         <Footer />
       </div>
