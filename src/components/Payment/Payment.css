@@ -1,0 +1,155 @@
+.payment-container {
+  max-width: 800px;
+  margin: 100px auto;
+  padding: 2rem;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  color: white;
+}
+
+.payment-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ff4747;
+}
+
+.order-summary {
+  background-color: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.summary-details {
+  margin-top: 1rem;
+}
+
+.summary-details p {
+  margin: 0.5rem 0;
+  color: #ccc;
+}
+
+.total-amount {
+  font-size: 1.2rem;
+  color: #ff4747 !important;
+  font-weight: bold;
+}
+
+.payment-methods {
+  margin-bottom: 2rem;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.payment-method:hover {
+  background-color: #333;
+}
+
+.payment-method.selected {
+  background-color: #ff4747;
+  color: white;
+}
+
+.card-details {
+  margin-top: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #ccc;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #2a2a2a;
+  color: white;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.pay-now-btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: #ff4747;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 2rem;
+}
+
+.pay-now-btn:not(:disabled):hover {
+  background-color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+.pay-now-btn:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.pay-now-btn.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.pay-now-btn.loading::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: loading 1s infinite;
+}
+
+@keyframes loading {
+  100% {
+    left: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .payment-container {
+    margin: 2rem;
+    padding: 1rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+} 

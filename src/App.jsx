@@ -20,6 +20,7 @@ import { buyItems } from './components/Buy/Buy';
 import { rentItems } from './components/Rent/Rent';
 import { sellItems } from './components/Sell/Sell';
 import RentDetails from './components/RentDetails/RentDetails';
+import Payment from './components/Payment/Payment';
 import './App.css';
 
 function App() {
@@ -156,6 +157,15 @@ function App() {
                 cartItems={cartItems} 
                 clearCart={clearCart}
                 userPreferences={userPreferences}
+              />
+            } 
+          />
+          <Route 
+            path="/payment" 
+            element={
+              <Payment 
+                cartItems={cartItems} 
+                clearCart={clearCart}
               />
             } 
           />

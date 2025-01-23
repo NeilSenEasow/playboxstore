@@ -97,10 +97,70 @@
   width: fit-content;
   margin: 1rem auto;
   transition: background-color 0.2s;
+  position: relative;
+  overflow: hidden;
 }
 
 .confirm-order-btn:hover {
   background-color: #b91c1c;
+}
+
+.confirm-order-btn.submitting {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.confirm-order-btn.submitting::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: loading 1s infinite;
+}
+
+@keyframes loading {
+  100% {
+    left: 100%;
+  }
+}
+
+/* Add hover effect for non-submitting state */
+.confirm-order-btn:not(.submitting):hover {
+  background-color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+/* Add focus styles for accessibility */
+input:focus {
+  outline: none;
+  border-color: #ff4747;
+  box-shadow: 0 0 0 2px rgba(255, 71, 71, 0.2);
+}
+
+/* Add required field indicator */
+label::after {
+  content: '*';
+  color: #ff4747;
+  margin-left: 4px;
+}
+
+.error {
+  border-color: #ff4747 !important;
+}
+
+.error-message {
+  color: #ff4747;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: block;
 }
 
 /* Responsive adjustments */
