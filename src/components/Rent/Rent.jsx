@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Rent.css';
 
 import PS5Image from '../../assets/games/Game1.png';
@@ -32,6 +33,7 @@ export const rentItems = [
 const Rent = ({ updateCartCount }) => {
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -51,6 +53,10 @@ const Rent = ({ updateCartCount }) => {
       }
     };
   }, []);
+
+  const handleViewDetails = (id) => {
+    navigate(`/rent/${id}`);
+  };
 
   return (
     <div className={`rent-container ${isVisible ? 'animate-section' : ''}`} ref={sectionRef}>
@@ -80,7 +86,10 @@ const Rent = ({ updateCartCount }) => {
                 >
                   Book Now
                 </button>
-                <button className="btn-secondary">
+                <button 
+                  className="btn-secondary"
+                  onClick={() => handleViewDetails(item.id)}
+                >
                   View Details
                 </button>
               </div>

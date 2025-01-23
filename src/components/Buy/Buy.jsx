@@ -62,6 +62,8 @@ export const buyItems = [
 const Buy = ({ updateCartCount }) => {
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -81,6 +83,53 @@ const Buy = ({ updateCartCount }) => {
       }
     };
   }, []);
+
+  const handleViewDetails = (item) => {
+    setSelectedItem(item);
+    setShowDetails(true);
+  };
+
+  const ItemDetails = ({ item, onClose }) => (
+    <div className="details-overlay">
+      <div className="details-modal">
+        <button className="close-button" onClick={onClose}>&times;</button>
+        <div className="details-content">
+          <div className="details-image-container">
+            <img src={item.image} alt={item.name} className="details-image" />
+            <span className="condition-badge">{item.condition}</span>
+          </div>
+          <div className="details-info">
+            <h2>{item.name}</h2>
+            <p className="details-price">{item.price}</p>
+            <div className="details-description">
+              <h3>Product Details</h3>
+              <p>{item.description}</p>
+              <div className="details-specs">
+                <h3>Specifications</h3>
+                <ul>
+                  <li>Condition: {item.condition}</li>
+                  <li>Warranty: 1 Year</li>
+                  <li>Delivery: Free Shipping</li>
+                  <li>Return Policy: 7 Days</li>
+                </ul>
+              </div>
+            </div>
+            <div className="details-buttons">
+              <button 
+                className="btn-primary"
+                onClick={() => {
+                  updateCartCount(item);
+                  onClose();
+                }}
+              >
+                Add To Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className={`buy-container ${isVisible ? 'animate-section' : ''}`} ref={sectionRef}>
@@ -111,7 +160,10 @@ const Buy = ({ updateCartCount }) => {
                 >
                   Add To Cart
                 </button>
-                <button className="btn-secondary">
+                <button 
+                  className="btn-secondary"
+                  onClick={() => handleViewDetails(item)}
+                >
                   View Details
                 </button>
               </div>
@@ -119,6 +171,16 @@ const Buy = ({ updateCartCount }) => {
           </div>
         ))}
       </div>
+
+      {showDetails && selectedItem && (
+        <ItemDetails 
+          item={selectedItem} 
+          onClose={() => {
+            setShowDetails(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
     </div>
   );
 };

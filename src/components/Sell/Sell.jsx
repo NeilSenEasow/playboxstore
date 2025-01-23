@@ -59,9 +59,11 @@ export const sellItems = [
   }
 ];
 
-const Sell = ({ updateCartCount }) => {
+const Sell = () => {
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
+  const [showSellForm, setShowSellForm] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -82,12 +84,71 @@ const Sell = ({ updateCartCount }) => {
     };
   }, []);
 
+  const handleSellClick = (item) => {
+    setSelectedItem(item);
+    setShowSellForm(true);
+  };
+
+  const SellForm = ({ item, onClose }) => (
+    <div className="sell-form-overlay">
+      <div className="sell-form">
+        <h2>Sell Similar Item</h2>
+        <p>Reference Item: {item.name}</p>
+        <form>
+          <div className="form-group">
+            <label>Item Condition</label>
+            <select required>
+              <option value="">Select Condition</option>
+              <option value="like-new">Like New</option>
+              <option value="excellent">Excellent</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Description</label>
+            <textarea 
+              placeholder="Describe your item's condition, included accessories, etc."
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Your Price (₹)</label>
+            <input 
+              type="number" 
+              placeholder="Enter your asking price"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Contact Number</label>
+            <input 
+              type="tel" 
+              placeholder="Enter your contact number"
+              required
+            />
+          </div>
+          <div className="form-buttons">
+            <button type="submit" className="btn-primary">Submit</button>
+            <button 
+              type="button" 
+              className="btn-secondary"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+
   return (
     <div className={`sell-container ${isVisible ? 'animate-section' : ''}`} ref={sectionRef}>
       <h1 className="sell-title">
         Pre-Owned <span className="highlight">Gaming Gear</span>
       </h1>
-      <p className="sell-subtitle">Quality checked and verified gaming consoles at the best prices!</p>
+      <p className="sell-subtitle">Want to sell your gaming gear? Check out similar items below!</p>
       
       <div className="sell-items">
         {sellItems.map((item, index) => (
@@ -107,18 +168,28 @@ const Sell = ({ updateCartCount }) => {
               <div className="sell-item-buttons">
                 <button 
                   className="btn-primary"
-                  onClick={() => updateCartCount(item)}
+                  onClick={() => handleSellClick(item)}
                 >
-                  Add To Cart
+                  Sell Similar Item
                 </button>
-                <button className="btn-secondary">
+                {/* <button className="btn-secondary">
                   View Details
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {showSellForm && selectedItem && (
+        <SellForm 
+          item={selectedItem} 
+          onClose={() => {
+            setShowSellForm(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
     </div>
   );
 };

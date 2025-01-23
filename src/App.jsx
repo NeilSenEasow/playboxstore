@@ -19,6 +19,7 @@ import { games } from './components/GameSection/GameSection';
 import { buyItems } from './components/Buy/Buy';
 import { rentItems } from './components/Rent/Rent';
 import { sellItems } from './components/Sell/Sell';
+import RentDetails from './components/RentDetails/RentDetails';
 import './App.css';
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
           <Route path="/sell" element={<Sell updateCartCount={updateCartCount} />} />
           <Route path="/buy" element={<Buy updateCartCount={updateCartCount} />} />
           <Route path="/rent" element={<Rent updateCartCount={updateCartCount} />} />
+          <Route path="/rent/:id" element={<RentDetails updateCartCount={updateCartCount} />} />
           <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
           <Route path="/checkout" element={<Checkout />} />
         </Routes>
