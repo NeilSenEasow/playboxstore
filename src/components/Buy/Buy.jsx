@@ -7,7 +7,6 @@ import SwitchImage from '../../assets/games/Game3.png';
 import PS4Image from '../../assets/games/Game4.png';
 import ControllerImage from '../../assets/console/console1.png';
 import PS3Image from '../../assets/console/console2.png';
-//Chnages
 
 export const buyItems = [
   { 
