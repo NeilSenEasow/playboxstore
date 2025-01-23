@@ -1,6 +1,17 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 const Footer = () => {
+  const handleWhatsAppClick = () => {
+    // Format the phone number (remove any non-numeric characters)
+    const phoneNumber = '8891064395'.replace(/\D/g, '');
+    // Create the WhatsApp URL
+    const whatsappUrl = `https://wa.me/${phoneNumber}`;
+    // Open in a new tab
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -35,7 +46,12 @@ const Footer = () => {
               <li>📞 +91 99999 99999</li>
               <li>✉️ playbox@gmail.com</li>
               <li>📍 HR, Playbox, Gayathiri Building, Technopark phase-1, Trivandrum - 695581</li>
-              <button className="chat-button">Chat with Us ➤</button>
+              <button 
+                className="whatsapp-button"
+                onClick={handleWhatsAppClick}
+              >
+                Chat with us on WhatsApp
+              </button>
             </ul>
           </div>
         </div>
