@@ -25,11 +25,11 @@ function App() {
   const [cartItems, setCartItems] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   
-  // Combine all products from different sections
+  // Convert buyItems object to array for search
   const allProducts = [
     ...products,  // from ProductSection
     ...games,     // from GameSection
-    ...buyItems,  // from Buy
+    ...Object.values(buyItems).flat(),  // Convert buyItems sections to single array
     ...rentItems, // from Rent
     ...sellItems  // from Sell
   ];
