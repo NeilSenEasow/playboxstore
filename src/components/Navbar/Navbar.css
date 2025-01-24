@@ -14,7 +14,7 @@ body {
   justify-content: space-between;
   align-items: center;
   background-color: #2b2b2b;
-  padding: 20px 20px;
+  padding: 20px 40px;
   color: white;
   font-family: 'Arial', sans-serif;
   width: 100%;
@@ -56,7 +56,7 @@ body {
   margin: 0;
   padding: 0;
   gap: 20px;
-  margin-right: 500px;
+  margin-right: 0;
 }
 
 .navbar-menu li a {
@@ -110,20 +110,24 @@ body {
   display: flex;
   align-items: center;
   gap: 15px;
+  margin-left: auto;
 }
 
 .search-container {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
 }
 
 .search-input {
-  padding: 5px 10px;
+  width: 100%;
+  padding: 8px 15px;
   border: 1px solid #444;
-  border-radius: 5px;
+  border-radius: 20px;
   background-color: #2b2b2b;
   color: white;
-  width: 200px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .search-input:hover {
@@ -136,6 +140,7 @@ body {
 
 .notifications {
   position: relative;
+  margin-right: 20px;
 }
 
 .notification-icon {
@@ -156,20 +161,26 @@ body {
   border-radius: 50%;
 }
 
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
 .sign-in-btn {
-  padding: 5px 15px;
-  background-color: white;
-  color: #2b2b2b;
-  border: 1px solid #888;
-  border-radius: 5px;
-  font-weight: bold;
+  padding: 8px 20px;
+  background-color: transparent;
+  color: white;
+  border: 1px solid #ff4747;
+  border-radius: 20px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .sign-in-btn:hover {
-  background-color: #ddd;
-  transform: scale(1.05);
+  background-color: #ff4747;
+  transform: translateY(-2px);
 }
 
 @keyframes fadeIn {
@@ -193,14 +204,26 @@ body {
 }
 
 @media (max-width: 768px) {
+  .navbar {
+    padding: 15px;
+  }
+
   .navbar-menu {
     display: none;
   }
 
-  .search-container,
-  .notifications,
-  .sign-in-btn {
-    margin-right: 0;
+  .search-container {
+    position: relative;
+    left: 0;
+    transform: none;
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .navbar-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
   }
 }
 
