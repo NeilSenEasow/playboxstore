@@ -21,6 +21,7 @@ import { rentItems } from './components/Rent/Rent';
 import { sellItems } from './components/Sell/Sell';
 import RentDetails from './components/RentDetails/RentDetails';
 import Payment from './components/Payment/Payment';
+import Admin from './components/Admin/Admin';
 import './App.css';
 
 function App() {
@@ -168,6 +169,10 @@ function App() {
                 clearCart={clearCart}
               />
             } 
+          />
+          <Route 
+            path="/admin" 
+            element={<Admin />}
           />
         </Routes>
         <Footer />
