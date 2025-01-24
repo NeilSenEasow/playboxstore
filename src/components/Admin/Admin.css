@@ -3,10 +3,12 @@
   margin: 80px auto 0;
   max-width: 1400px;
   color: white;
+  animation: fadeIn 0.5s ease-in;
 }
 
 .admin-header {
   margin-bottom: 2rem;
+  animation: slideIn 0.5s ease-out;
 }
 
 .admin-header h1 {
@@ -25,6 +27,7 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  animation: slideInFromLeft 0.5s ease-out;
 }
 
 .stat-card {
@@ -34,6 +37,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  animation: scaleIn 0.3s ease-out;
 }
 
 .stat-icon {
@@ -74,12 +78,14 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 1.5rem;
+  animation: slideInFromRight 0.5s ease-out;
 }
 
 .chart-card {
   background-color: #1a1a1a;
   padding: 1.5rem;
   border-radius: 10px;
+  animation: scaleIn 0.3s ease-out;
 }
 
 .chart-card h3 {
@@ -108,12 +114,14 @@
   transition: height 0.3s ease;
   border-radius: 4px 4px 0 0;
   min-height: 10px;
+  animation: growUp 0.5s ease-out;
 }
 
 .device-stats {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  animation: slideInFromBottom 0.5s ease-out;
 }
 
 .device-stat {
@@ -134,6 +142,7 @@
   height: 100%;
   background-color: #ff4747;
   transition: width 0.3s ease;
+  animation: progressFill 1s ease-out;
 }
 
 .admin-section {
@@ -141,6 +150,7 @@
   background-color: #1a1a1a;
   padding: 2rem;
   border-radius: 10px;
+  animation: slideInFromBottom 0.5s ease-out;
 }
 
 .section-header {
@@ -178,6 +188,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
 }
 
 .category-card {
@@ -185,6 +196,7 @@
   padding: 1.5rem;
   border-radius: 10px;
   transition: all 0.3s ease;
+  animation: scaleIn 0.3s ease-out;
 }
 
 .category-card:hover {
@@ -214,6 +226,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .modal {
@@ -233,6 +246,7 @@
 
 .form-group {
   margin-bottom: 1.5rem;
+  animation: slideInFromRight 0.3s ease-out;
 }
 
 .form-group label {
@@ -266,6 +280,7 @@
   gap: 1rem;
   justify-content: flex-end;
   margin-top: 2rem;
+  animation: slideInFromBottom 0.3s ease-out;
 }
 
 .form-buttons button {
@@ -297,6 +312,15 @@
   transform: translateY(-2px);
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -305,6 +329,68 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes growUp {
+  from {
+    height: 0;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+@keyframes progressFill {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
   }
 }
 
