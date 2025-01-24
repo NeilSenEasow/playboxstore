@@ -39,6 +39,9 @@ const Navbar = ({ cartCount, onSearch }) => {
         <li>
           <Link to="/rent">Rent</Link>
         </li>
+        <li>
+          <Link to="/admin">Admin</Link>
+        </li>
       </ul>
       <div className="navbar-actions">
         <div className="search-container">

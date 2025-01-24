@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
 import GameCarousel from './components/Carousel/Carousel';
@@ -140,40 +140,11 @@ function App() {
           <Route path="/buy" element={<Buy updateCartCount={updateCartCount} />} />
           <Route path="/rent" element={<Rent updateCartCount={updateCartCount} />} />
           <Route path="/rent/:id" element={<RentDetails updateCartCount={updateCartCount} />} />
-          <Route 
-            path="/cart" 
-            element={
-              <Cart 
-                cartItems={cartItems} 
-                setCartItems={setCartItems}
-                removeFromCart={removeFromCart}
-                clearCart={clearCart}
-              />
-            } 
-          />
-          <Route 
-            path="/checkout" 
-            element={
-              <Checkout 
-                cartItems={cartItems} 
-                clearCart={clearCart}
-                userPreferences={userPreferences}
-              />
-            } 
-          />
-          <Route 
-            path="/payment" 
-            element={
-              <Payment 
-                cartItems={cartItems} 
-                clearCart={clearCart}
-              />
-            } 
-          />
-          <Route 
-            path="/admin" 
-            element={<Admin />}
-          />
+          <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} clearCart={clearCart} />} />
+          <Route path="/checkout" element={<Checkout cartItems={cartItems} clearCart={clearCart} userPreferences={userPreferences} />} />
+          <Route path="/payment" element={<Payment cartItems={cartItems} clearCart={clearCart} />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Footer />
       </div>
