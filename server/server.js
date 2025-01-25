@@ -33,19 +33,6 @@ mongoose.connect(MONGODB_URI)
     console.error('MongoDB connection error:', err);
   });
 
-// // Express authentication configuration using Auth0
-// const config = {
-//   authRequired: false,
-//   auth0Logout: true,
-//   secret: process.env.SECRET,
-//   baseURL: process.env.BASEURL,
-//   clientID: process.env.CLIENTID,
-//   issuerBaseURL: process.env.ISSUER,
-// };
-
-// Use Auth0 middleware
-// app.use(auth(config));
-
 // API route to read products data from JSON file
 app.get('/api', async (req, res) => {
   try {
