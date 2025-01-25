@@ -3,6 +3,7 @@ import './SignUp.css';
 import { Link } from 'react-router-dom';
 
 const SignUp = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,7 +24,7 @@ const SignUp = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
@@ -43,6 +44,13 @@ const SignUp = () => {
       <h2>Sign Up</h2>
       {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
         <input
           type="email"
           placeholder="Email"
