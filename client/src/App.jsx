@@ -48,7 +48,7 @@ function App() {
 
   // Fetch data from backend
   useEffect(() => {
-    fetch("http://localhost:5000/api")
+    fetch(process.env.REACT_APP_API_URL)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
