@@ -7,7 +7,26 @@ import './Cart.css';
 const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
   const navigate = useNavigate();
 
+  const formatPrice = (price) => {
+    if (typeof price === 'number') {
+      return price;
+    }
+    // If price is a string like "₹1,999.00", convert to number
+    return parseInt(price.replace(/[^\d]/g, ''));
+  };
+
+  const calculateTotal = (items) => {
+    return items.reduce((total, item) => {
+      const itemPrice = item.rentPrice || item.price; // Handle both regular and rental prices
+      return total + formatPrice(itemPrice);
+    }, 0);
+  };
+
   const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
     navigate('/checkout');
   };
 
@@ -25,13 +44,6 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
     }
   };
 
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => {
-      const price = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
-      return total + price;
-    }, 0);
-  };
-
   return (
     <div className="cart-container">
       <div className="cart-header">
@@ -45,7 +57,15 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
         )}
       </div>
       {cartItems.length === 0 ? (
-        <p className="empty-cart">Your cart is empty.</p>
+        <div className="empty-cart">
+          <p>Your cart is empty</p>
+          <button 
+            className="btn-secondary"
+            onClick={() => navigate('/')}
+          >
+            Continue Shopping
+          </button>
+        </div>
       ) : (
         <>
           <ul className="cart-list">
@@ -54,7 +74,10 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
                 <img src={item.image} alt={item.name} className="cart-item-image" />
                 <div className="cart-item-details">
                   <h3 className="cart-item-name">{item.name}</h3>
-                  <p className="cart-item-price">{item.price}</p>
+                  <p className="cart-item-price">
+                    ₹{(item.rentPrice || item.price).toLocaleString()}
+                    {item.rentPrice ? '/day' : ''}
+                  </p>
                 </div>
                 <button 
                   className="delete-item-button"
@@ -67,10 +90,24 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
             ))}
           </ul>
           <div className="cart-summary">
-            <p className="cart-total">Total: ₹{calculateTotal().toLocaleString()}</p>
-            <button className="checkout-button" onClick={handleCheckout}>
-              Proceed to Checkout
-            </button>
+            <div className="cart-total">
+              <span>Total:</span>
+              <span>₹{calculateTotal(cartItems).toLocaleString()}</span>
+            </div>
+            <div className="cart-buttons">
+              <button 
+                className="checkout-button"
+                onClick={handleCheckout}
+              >
+                Proceed to Checkout
+              </button>
+              <button 
+                className="btn-secondary"
+                onClick={handleClearCart}
+              >
+                Clear Cart
+              </button>
+            </div>
           </div>
         </>
       )}
