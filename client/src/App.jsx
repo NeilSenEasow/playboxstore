@@ -49,7 +49,12 @@ function App() {
   // Fetch data from backend
   useEffect(() => {
     fetch("http://localhost:5000/api")
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
         setStoreData(data);
         setBackendData(data);

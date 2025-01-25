@@ -2,6 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const User = require('./models/User')
+
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs').promises;
@@ -17,10 +19,19 @@ app.use(cors()); // Enable CORS for all requests
 app.use(express.json()); // Parse JSON request bodies
 
 // MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/playbox';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/playboxstore';
+console.log('Starting server...');
+
+// After middleware setup
+console.log('Middleware setup complete');
+
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+  });
 
 // Express authentication configuration using Auth0
 const config = {
@@ -33,14 +44,7 @@ const config = {
 };
 
 // Use Auth0 middleware
-console.log('Setting up Auth0 middleware');
 app.use(auth(config));
-console.log('Auth0 middleware set up complete');
-
-// Basic route for testing authentication
-app.get('/', (req, res) => {
-  res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
-});
 
 // API route to get a welcome message
 // Remove this route or combine it with the above
@@ -61,19 +65,24 @@ app.get('/api', async (req, res) => {
   }
 });
 
+app.post('/signup', (req, res) => {
+  User.create(req.body)
+  .then(User => res.json(User))
+  .catch(err => res.json(err))
+});
+
 // Import and use routes from the routes folder
 const routes = require('./routes/index');
 app.use('/api', routes); // Prefix all routes with /api
 
 // Error handling middleware for catching errors
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).json({ message: 'Something went wrong!' });
+// });
 
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-

@@ -1,19 +1,8 @@
 const express = require('express');
-
 const router = express.Router();
-const { auth } = require('express-openid-connect');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
-router.use(auth({
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.SECRET,
-  baseURL: process.env.BASEURL,
-  clientID: process.env.CLIENTID,
-  issuerBaseURL: process.env.ISSUER,
-}));
 
 router.get('/auth/profile', (req, res) => {
   if (req.oidc.isAuthenticated()) {
@@ -30,22 +19,28 @@ router.get('/auth/login', (req, res) => {
 router.post('/auth/signup', async (req, res) => {
   const { name, email, password } = req.body;
 
+  console.log('User data received:', { name, email, password });
+
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res.status(400).json({ message: 'Email already in use' });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ name, email, password: hashedPassword });
-
   try {
-    await user.save();
+    const existingUser = await User.findOne({ email });
+    console.log('Existing user:', existingUser);
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, password: hashedPassword });
+
+    const savedUser = await user.save();
+    console.log('User saved:', savedUser);
+
     res.status(201).json({ message: 'User created successfully' });
   } catch (error) {
+    console.error('Error creating user:', error);
     res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 });

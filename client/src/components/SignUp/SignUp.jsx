@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './SignUp.css';
 import { Link, useNavigate } from 'react-router-dom';
-// import axios from 'axios';
+import axios from 'axios';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -13,17 +13,35 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // setError('');
+    setError('');
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    axios.post('',{name,email,password,confirmPassword})
-    .then(result => console.log(result))
-    .catch(err => console.log(err))
-    
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.message || 'Sign Up failed');
+        return;
+      }
+
+      const data = await response.json();
+      alert('Sign Up successful! You can now sign in.');
+      navigate('/signin');
+    } catch (err) {
+      console.error('Error during sign up:', err);
+      setError('An error occurred. Please try again.');
+    }
   };
 
   return (
