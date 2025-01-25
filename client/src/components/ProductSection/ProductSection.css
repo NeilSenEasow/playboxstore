@@ -1,0 +1,321 @@
+.product-section {
+    padding: 4rem 2rem;
+    background: #111;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+  
+.product-section.animate-section {
+    opacity: 1;
+    transform: translateY(0);
+}
+  
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    color: #fff;
+}
+  
+.section-title .highlight {
+    color: #ff4747;
+}
+  
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+  
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+  
+@media (max-width: 992px) {
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+}
+  
+@media (max-width: 768px) {
+    .product-section {
+        padding: 3rem 1rem;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+  
+@media (max-width: 576px) {
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-title {
+        font-size: 1.75rem;
+    }
+}
+  
+/* Animation Classes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+  
+.product-card {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+  
+/* Add hover effect to product cards */
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(255, 71, 71, 0.2);
+}
+  
+/* Custom scrollbar for the section */
+.product-section::-webkit-scrollbar {
+    width: 8px;
+}
+  
+.product-section::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+  
+.product-section::-webkit-scrollbar-thumb {
+    background: #ff4747;
+    border-radius: 4px;
+}
+  
+.product-section::-webkit-scrollbar-thumb:hover {
+    background: #ff3333;
+}
+  
+/* Loading state */
+.products-grid.loading {
+    min-height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #1a1a1a;
+    border-top: 3px solid #ff4747;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+  
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.product-card {
+    background-color: #111; 
+    border-radius: 10px;
+    padding: 20px;
+    margin: 15px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 450px; 
+    display: flex;
+    flex-direction: column; 
+    justify-content: space-between; 
+    max-width: 300px;
+    opacity: 1;
+    transform: translateY(30px);
+    animation: fadeIn 0.6s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+}
+  
+.product-image {
+    height: 250px; 
+    width: 100%; 
+    object-fit: cover; 
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transform: scale(0.9);
+    opacity: 0;
+    animation: scaleIn 0.6s ease-out forwards;
+    animation-delay: calc(var(--delay, 0s) + 0.2s);
+}
+  
+.product-name {
+    max-height: 2.4em; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+  
+.product-name .highlight {
+    color: red;
+}
+  
+.product-price {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+  
+.product-price .highlight {
+    color: red;
+    font-weight: bold;
+}
+  
+.product-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+  
+.btn-primary, .btn-secondary {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 1;
+    transform: translateY(0);
+}
+  
+.btn-primary {
+    background-color: #ff4747;
+    color: white;
+}
+  
+.btn-primary:hover {
+    background-color: #ff6b6b;
+    transform: translateY(-2px);
+}
+  
+.btn-secondary {
+    background-color: transparent;
+    color: white;
+    border: 2px solid #ff4747;
+}
+  
+.btn-secondary:hover {
+    background-color: #ff4747;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Text Animations */
+.animate-text {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.animate-highlight {
+    position: relative;
+    display: inline-block;
+    animation: highlightGlow 2s ease-in-out infinite;
+}
+
+/* Card Animations */
+.animate-card {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.animate-image {
+    transform: scale(0.9);
+    opacity: 0;
+    animation: scaleIn 0.6s ease forwards;
+    animation-delay: 0.2s;
+}
+
+/* Button Animations */
+.animate-button {
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes highlightGlow {
+    0%, 100% {
+        color: var(--highlight-color, #ff4747);
+        text-shadow: 0 0 5px rgba(255, 71, 71, 0.3);
+    }
+    50% {
+        color: var(--highlight-color-bright, #ff6b6b);
+        text-shadow: 0 0 15px rgba(255, 71, 71, 0.5);
+    }
+}
+
+/* Hover Animations */
+.product-card:hover .animate-image {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .animate-card {
+        animation-delay: 0.1s !important;
+    }
+}
+
+/* Modify animation classes to work with visibility state */
+.animate-text,
+.animate-highlight,
+.animate-card,
+.animate-image,
+.animate-button {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.animate-section .animate-text,
+.animate-section .animate-highlight,
+.animate-section .animate-card,
+.animate-section .animate-image,
+.animate-section .animate-button {
+    animation: fadeInUp 0.6s ease forwards;
+}
