@@ -33,24 +33,18 @@ mongoose.connect(MONGODB_URI)
     console.error('MongoDB connection error:', err);
   });
 
-// Express authentication configuration using Auth0
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.SECRET,
-  baseURL: process.env.BASEURL,
-  clientID: process.env.CLIENTID,
-  issuerBaseURL: process.env.ISSUER,
-};
+// // Express authentication configuration using Auth0
+// const config = {
+//   authRequired: false,
+//   auth0Logout: true,
+//   secret: process.env.SECRET,
+//   baseURL: process.env.BASEURL,
+//   clientID: process.env.CLIENTID,
+//   issuerBaseURL: process.env.ISSUER,
+// };
 
 // Use Auth0 middleware
-app.use(auth(config));
-
-// API route to get a welcome message
-// Remove this route or combine it with the above
-// app.get('/', (req, res) => {
-//   res.json({ message: 'Welcome to PlayBox Store API' });
-// });
+// app.use(auth(config));
 
 // API route to read products data from JSON file
 app.get('/api', async (req, res) => {
@@ -74,12 +68,6 @@ app.post('/signup', (req, res) => {
 // Import and use routes from the routes folder
 const routes = require('./routes/index');
 app.use('/api', routes); // Prefix all routes with /api
-
-// Error handling middleware for catching errors
-// app.use((err, req, res, next) => {
-//   console.error(err.stack);
-//   res.status(500).json({ message: 'Something went wrong!' });
-// });
 
 // Start the server
 const PORT = process.env.PORT || 5000;
