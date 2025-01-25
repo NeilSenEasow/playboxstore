@@ -14,11 +14,6 @@ import Sell from './components/Sell/Sell';
 import Rent from './components/Rent/Rent';
 import Checkout from './components/Checkout/Checkout';
 import SearchResults from './components/SearchResults/SearchResults';
-import { products } from './components/ProductSection/ProductSection';
-import { games } from './components/GameSection/GameSection';
-import { buyItems } from './components/Buy/Buy';
-import { rentItems } from './components/Rent/Rent';
-import { sellItems } from './components/Sell/Sell';
 import RentDetails from './components/RentDetails/RentDetails';
 import Payment from './components/Payment/Payment';
 import Admin from './components/Admin/Admin';
@@ -55,7 +50,7 @@ function App() {
       .then(response => response.json())
       .then(data => {
         setStoreData(data);
-        setBackendData(data); // Keep for compatibility
+        setBackendData(data);
       })
       .catch(error => {
         console.error("Error fetching data:", error);
@@ -72,7 +67,7 @@ function App() {
     localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
   }, [userPreferences]);
 
-  // Update allProducts to use backend data with safety checks
+  // Update allProducts to use backend data
   const allProducts = useMemo(() => {
     const { featured = [], products = [], games = [], rentItems = [], sellItems = [] } = storeData;
     return [...featured, ...products, ...games, ...rentItems, ...sellItems];
@@ -84,10 +79,9 @@ function App() {
       return newItems;
     });
     
-    // Update viewed items in user preferences
     setUserPreferences(prev => ({
       ...prev,
-      viewedItems: [...new Set([...prev.viewedItems, item.id])].slice(-10) // Keep last 10 items
+      viewedItems: [...new Set([...prev.viewedItems, item.id])].slice(-10)
     }));
   };
 
@@ -102,10 +96,9 @@ function App() {
     );
     setSearchResults(filtered);
 
-    // Save recent searches
     setUserPreferences(prev => ({
       ...prev,
-      recentSearches: [...new Set([query, ...prev.recentSearches])].slice(0, 5) // Keep last 5 searches
+      recentSearches: [...new Set([query, ...prev.recentSearches])].slice(0, 5)
     }));
   };
 
@@ -116,24 +109,6 @@ function App() {
   const removeFromCart = (itemId) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
-
-  const clearUserData = () => {
-    localStorage.clear();
-    setCartItems([]);
-    setUserPreferences({
-      recentSearches: [],
-      viewedItems: [],
-      lastVisit: new Date().toISOString()
-    });
-  };
-
-  // Update last visit timestamp
-  useEffect(() => {
-    setUserPreferences(prev => ({
-      ...prev,
-      lastVisit: new Date().toISOString()
-    }));
-  }, []);
 
   return (
     <Router>

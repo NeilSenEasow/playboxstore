@@ -2,40 +2,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Rent.css';
 
-import PS5Image from '../../assets/games/Game1.png';
-import XboxImage from '../../assets/games/Game2.png';
-import SwitchImage from '../../assets/games/Game3.png';
-
-export const rentItems = [
-  { 
-    id: 1, 
-    name: 'PlayStation 5', 
-    price: '₹499/day',
-    description: '40+ Games Available',
-    image: PS5Image 
-  },
-  { 
-    id: 2, 
-    name: 'Xbox Series X', 
-    price: '₹499/day',
-    description: 'With Game Pass | Unlimited Games',
-    image: XboxImage 
-  },
-  { 
-    id: 3, 
-    name: 'Nintendo Switch', 
-    price: '₹399/day',
-    description: '25+ Games Available',
-    image: SwitchImage 
-  },
-];
-
 const Rent = ({ updateCartCount }) => {
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
+  const [rentItems, setRentItems] = useState([]);
 
   useEffect(() => {
+    // Fetch data from API
+    fetch('http://localhost:5000/api')
+      .then(response => response.json())
+      .then(data => {
+        setRentItems(data.rentItems);
+      })
+      .catch(error => console.error('Error fetching rent items:', error));
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
@@ -77,8 +58,8 @@ const Rent = ({ updateCartCount }) => {
             </div>
             <div className="rent-item-content">
               <h3 className="rent-item-name">{item.name}</h3>
-              <p className="rent-item-description">{item.description}</p>
-              <p className="rent-item-price">{item.price}</p>
+              <p className="rent-item-description">{item.description || 'Available for Rent'}</p>
+              <p className="rent-item-price">₹{item.rentPrice.toLocaleString()}/day</p>
               <div className="rent-item-buttons">
                 <button 
                   className="btn-primary"

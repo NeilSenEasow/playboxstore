@@ -64,8 +64,17 @@ const Buy = ({ updateCartCount }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
+    // Fetch data from API
+    fetch('http://localhost:5000/api')
+      .then(response => response.json())
+      .then(data => {
+        setProducts(data.products);
+      })
+      .catch(error => console.error('Error fetching products:', error));
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
@@ -139,7 +148,7 @@ const Buy = ({ updateCartCount }) => {
       <p className="buy-subtitle">Latest gaming consoles and accessories at the best prices!</p>
       
       <div className="buy-items">
-        {buyItems.map((item, index) => (
+        {products.map((item, index) => (
           <div 
             key={item.id} 
             className="buy-item"
@@ -147,12 +156,12 @@ const Buy = ({ updateCartCount }) => {
           >
             <div className="buy-item-image-container">
               <img src={item.image} alt={item.name} className="buy-item-image" />
-              <span className="condition-badge">{item.condition}</span>
+              <span className="condition-badge">{item.condition || 'New'}</span>
             </div>
             <div className="buy-item-content">
               <h3 className="buy-item-name">{item.name}</h3>
-              <p className="buy-item-description">{item.description}</p>
-              <p className="buy-item-price">{item.price}</p>
+              <p className="buy-item-description">{item.description || `${item.category} - Brand New`}</p>
+              <p className="buy-item-price">₹{item.price.toLocaleString()}</p>
               <div className="buy-item-buttons">
                 <button 
                   className="btn-primary"
