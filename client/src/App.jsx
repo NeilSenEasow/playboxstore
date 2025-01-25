@@ -20,6 +20,7 @@ import Admin from './components/Admin/Admin';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
 import './App.css';
+import ErrorBoundary from './ErrorBoundary';
 
 function App() {
   const [cartItems, setCartItems] = useState(() => {
@@ -48,7 +49,13 @@ function App() {
 
   // Fetch data from backend
   useEffect(() => {
-    fetch(process.env.REACT_APP_API_URL)
+    const apiUrl = process.env.REACT_APP_API_URL; // Ensure this is defined
+    if (!apiUrl) {
+      console.error("REACT_APP_API_URL is not defined");
+      return;
+    }
+
+    fetch(apiUrl)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -123,70 +130,72 @@ function App() {
   };
 
   return (
-    <Router>
-      <div>
-        <Navbar 
-          cartCount={cartItems.length} 
-          onSearch={handleSearch}
-          recentSearches={userPreferences.recentSearches}
-        />
-        <SearchResults results={searchResults} updateCartCount={updateCartCount} />
-        <Routes>
-          <Route path="/" element={
-            <>
-              <Hero />
-              <GameCarousel items={storeData.featured} />
-              <ProductSection 
-                products={storeData.products} 
-                updateCartCount={updateCartCount} 
-              />
-              <GamesSection 
-                games={storeData.games} 
-                updateCartCount={updateCartCount} 
-              />
-              <Banner />
-              <Highlights />
-            </>
-          } />
-          <Route 
-            path="/sell" 
-            element={
-              <Sell 
-                items={storeData.sellItems} 
-                updateCartCount={updateCartCount} 
-              />
-            } 
+    <ErrorBoundary>
+      <Router>
+        <div>
+          <Navbar 
+            cartCount={cartItems.length} 
+            onSearch={handleSearch}
+            recentSearches={userPreferences.recentSearches}
           />
-          <Route 
-            path="/buy" 
-            element={
-              <Buy 
-                items={storeData.products} 
-                updateCartCount={updateCartCount} 
-              />
-            } 
-          />
-          <Route 
-            path="/rent" 
-            element={
-              <Rent 
-                items={storeData.rentItems} 
-                updateCartCount={updateCartCount} 
-              />
-            } 
-          />
-          <Route path="/rent/:id" element={<RentDetails updateCartCount={updateCartCount} />} />
-          <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} clearCart={clearCart} />} />
-          <Route path="/checkout" element={<Checkout cartItems={cartItems} clearCart={clearCart} userPreferences={userPreferences} />} />
-          <Route path="/payment" element={<Payment cartItems={cartItems} clearCart={clearCart} />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/signin" element={<SignIn onSignIn={handleSignIn} />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
+          <SearchResults results={searchResults} updateCartCount={updateCartCount} />
+          <Routes>
+            <Route path="/" element={
+              <>
+                <Hero />
+                <GameCarousel items={storeData.featured} />
+                <ProductSection 
+                  products={storeData.products} 
+                  updateCartCount={updateCartCount} 
+                />
+                <GamesSection 
+                  games={storeData.games} 
+                  updateCartCount={updateCartCount} 
+                />
+                <Banner />
+                <Highlights />
+              </>
+            } />
+            <Route 
+              path="/sell" 
+              element={
+                <Sell 
+                  items={storeData.sellItems} 
+                  updateCartCount={updateCartCount} 
+                />
+              } 
+            />
+            <Route 
+              path="/buy" 
+              element={
+                <Buy 
+                  items={storeData.products} 
+                  updateCartCount={updateCartCount} 
+                />
+              } 
+            />
+            <Route 
+              path="/rent" 
+              element={
+                <Rent 
+                  items={storeData.rentItems} 
+                  updateCartCount={updateCartCount} 
+                />
+              } 
+            />
+            <Route path="/rent/:id" element={<RentDetails updateCartCount={updateCartCount} />} />
+            <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} clearCart={clearCart} />} />
+            <Route path="/checkout" element={<Checkout cartItems={cartItems} clearCart={clearCart} userPreferences={userPreferences} />} />
+            <Route path="/payment" element={<Payment cartItems={cartItems} clearCart={clearCart} />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/signin" element={<SignIn onSignIn={handleSignIn} />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          <Footer />
+        </div>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
