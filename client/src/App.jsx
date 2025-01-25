@@ -17,6 +17,8 @@ import SearchResults from './components/SearchResults/SearchResults';
 import RentDetails from './components/RentDetails/RentDetails';
 import Payment from './components/Payment/Payment';
 import Admin from './components/Admin/Admin';
+import SignIn from './components/SignIn/SignIn';
+import SignUp from './components/SignUp/SignUp';
 import './App.css';
 
 function App() {
@@ -110,6 +112,11 @@ function App() {
     setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
 
+  const handleSignIn = (token) => {
+    localStorage.setItem('token', token);
+    // Optionally, you can redirect the user or update the state
+  };
+
   return (
     <Router>
       <div>
@@ -168,6 +175,8 @@ function App() {
           <Route path="/checkout" element={<Checkout cartItems={cartItems} clearCart={clearCart} userPreferences={userPreferences} />} />
           <Route path="/payment" element={<Payment cartItems={cartItems} clearCart={clearCart} />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/signin" element={<SignIn onSignIn={handleSignIn} />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Footer />

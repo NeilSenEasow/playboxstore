@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs').promises;
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Load environment variables
 dotenv.config();
@@ -21,6 +23,14 @@ mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+// User model
+const UserSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
+
+const User = mongoose.model('User', UserSchema);
+
 // Basic route for testing
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to PlayBox Store API' });
@@ -37,6 +47,38 @@ app.get('/api', async (req, res) => {
     console.error('Error reading products data:', error);
     res.status(500).json({ message: 'Error loading products data' });
   }
+});
+
+// Sign Up route
+app.post('/api/auth/signup', async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  
+  const user = new User({ email, password: hashedPassword });
+  try {
+    await user.save();
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating user' });
+  }
+});
+
+// Sign In route
+app.post('/api/auth/signin', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid credentials' });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(400).json({ message: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  res.json({ token });
 });
 
 // Error handling middleware

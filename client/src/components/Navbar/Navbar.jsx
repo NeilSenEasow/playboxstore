@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 import Logo from '../../assets/logo/logo-play.png';
 import { useState } from 'react';
@@ -6,6 +6,7 @@ import { BsCart4 } from 'react-icons/bs';
 
 const Navbar = ({ cartCount, onSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleSearchChange = (event) => {
     const query = event.target.value;
@@ -19,6 +20,14 @@ const Navbar = ({ cartCount, onSearch }) => {
     window.location.href = `https://googlecustomsearch.appspot.com/elementv2/two-page_results_elements_v2.html?query=${encodeURIComponent(searchQuery)}`;
   };
 
+  const handleSignInClick = () => {
+    navigate('/signin');
+  };
+
+  const handleSignUpClick = () => {
+    navigate('/signup');
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -28,11 +37,11 @@ const Navbar = ({ cartCount, onSearch }) => {
       </div>
 
       <ul className="navbar-menu">
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/sell">Sell</Link></li>
-        <li><Link to="/buy">Buy</Link></li>
-        <li><Link to="/rent">Rent</Link></li>
-        <li><Link to="/admin">Admin</Link></li>
+        <li><Link to="/" className="nav-button">Home</Link></li>
+        <li><Link to="/sell" className="nav-button">Sell</Link></li>
+        <li><Link to="/buy" className="nav-button">Buy</Link></li>
+        <li><Link to="/rent" className="nav-button">Rent</Link></li>
+        <li><Link to="/admin" className="nav-button">Admin</Link></li>
       </ul>
 
       <div className="search-container">
@@ -56,8 +65,8 @@ const Navbar = ({ cartCount, onSearch }) => {
         </div>
         
         <div className="auth-buttons">
-          <button className="sign-in-btn">Sign In</button>
-          <button className="sign-in-btn">Sign Up</button>
+          <button className="sign-in-btn" onClick={handleSignInClick}>Sign In</button>
+          <button className="sign-in-btn" onClick={handleSignUpClick}>Sign Up</button>
         </div>
       </div>
     </nav>
