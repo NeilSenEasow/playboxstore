@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './SignUp.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+// import axios from 'axios';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -8,35 +9,21 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    // setError('');
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('Sign Up successful! You can now sign in.');
-      } else {
-        setError(data.message || 'Sign Up failed');
-      }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
-    }
+    axios.post('',{name,email,password,confirmPassword})
+    .then(result => console.log(result))
+    .catch(err => console.log(err))
+    
   };
 
   return (
@@ -46,7 +33,7 @@ const SignUp = () => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Name"
+          placeholder="Enter Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required

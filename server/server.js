@@ -1,43 +1,54 @@
+// Import necessary modules
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs').promises;
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const { auth } = require('express-openid-connect');
 
-// Load environment variables
+// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Middleware setup
+app.use(cors()); // Enable CORS for all requests
+app.use(express.json()); // Parse JSON request bodies
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/playbox';
-
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// User model
-const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-});
+// Express authentication configuration using Auth0
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.SECRET,
+  baseURL: process.env.BASEURL,
+  clientID: process.env.CLIENTID,
+  issuerBaseURL: process.env.ISSUER,
+};
 
-const User = mongoose.model('User', UserSchema);
+// Use Auth0 middleware
+console.log('Setting up Auth0 middleware');
+app.use(auth(config));
+console.log('Auth0 middleware set up complete');
 
-// Basic route for testing
+// Basic route for testing authentication
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to PlayBox Store API' });
+  res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
 });
 
-// Updated API route to read from JSON file
+// API route to get a welcome message
+// Remove this route or combine it with the above
+// app.get('/', (req, res) => {
+//   res.json({ message: 'Welcome to PlayBox Store API' });
+// });
+
+// API route to read products data from JSON file
 app.get('/api', async (req, res) => {
   try {
     const filePath = path.join(__dirname, 'data', 'products.json');
@@ -50,46 +61,19 @@ app.get('/api', async (req, res) => {
   }
 });
 
-// Sign Up route
-app.post('/api/auth/signup', async (req, res) => {
-  const { name, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-  
-  const user = new User({ name, email, password: hashedPassword });
-  try {
-    await user.save();
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(400).json({ message: 'Error creating user', error: error.message });
-  }
-});
+// Import and use routes from the routes folder
+const routes = require('./routes/index');
+app.use('/api', routes); // Prefix all routes with /api
 
-// Sign In route
-app.post('/api/auth/signin', async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    return res.status(400).json({ message: 'Invalid credentials' });
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(400).json({ message: 'Invalid credentials' });
-  }
-
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  res.json({ token });
-});
-
-// Error handling middleware
+// Error handling middleware for catching errors
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
+// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
