@@ -14,8 +14,7 @@ dist-ssr
 *.local
 
 # Ignore environment variable files
-.env
-server/.env
+
 
 # Ignore build artifacts
 build/
