@@ -2,46 +2,31 @@ import React, { useEffect, useRef, useState } from 'react';
 import ProductCard from '../ProductCard/ProductCard';
 import './ProductSection.css';
 
-import Image1 from '../../assets/console/console1.png';
-import Console2 from '../../assets/console/console2.png';
-import Image3 from '../../assets/console/console3.png';
-import Image4 from '../../assets/console/console4.png';
-
-export const products = [
-  {
-    name: 'Official Sony DualShock',
-    price: '₹3,299.00',
-    image: Image1,
-  },
-  {
-    name: 'Sony PlayStation 2',
-    price: '₹3,899.00',
-    image: Console2,
-  },
-  {
-    name: 'Xbox Series X',
-    price: '₹30,000.00',
-    image: Image3,
-  },
-  {
-    name: 'PlayStation 3 Slim 120',
-    price: '₹24,999.00',
-    image: Image4,
-  },
-];
-
-const responsive = {
-  superLargeDesktop: { breakpoint: { max: 4000, min: 1024 }, items: 4 },
-  desktop: { breakpoint: { max: 1024, min: 768 }, items: 3 },
-  tablet: { breakpoint: { max: 768, min: 464 }, items: 2 },
-  mobile: { breakpoint: { max: 464, min: 0 }, items: 1 },
-};
-
-const ProductSection = ({ products = [], updateCartCount }) => {
+const ProductSection = ({ updateCartCount }) => {
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/products');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setProducts(data.products); // Assuming the products are in the 'products' key
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -64,11 +49,6 @@ const ProductSection = ({ products = [], updateCartCount }) => {
     if (sectionRef.current) {
       observer.observe(sectionRef.current);
     }
-
-    // Simulate loading
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
 
     return () => {
       if (sectionRef.current) {

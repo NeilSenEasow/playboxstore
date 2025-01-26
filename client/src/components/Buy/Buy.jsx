@@ -68,7 +68,7 @@ const Buy = ({ updateCartCount }) => {
 
   useEffect(() => {
     // Fetch data from API
-    fetch('http://localhost:5000/api')
+    fetch('http://localhost:5001/api/products')
       .then(response => response.json())
       .then(data => {
         setProducts(data.products);

@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const fs = require('fs').promises;
 const path = require('path');
-const User = require('./models/user'); // Import the User model
+const User = require('./models/User'); // Import the User model
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +35,19 @@ mongoose
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
+
+// Add this route before the existing routes
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'Welcome to the API',
+    endpoints: {
+      products: '/api/products',
+      register: '/auth/register',
+      login: '/auth/login',
+      test: '/test'
+    }
+  });
+});
 
 // Test route
 app.get('/test', (req, res) => {

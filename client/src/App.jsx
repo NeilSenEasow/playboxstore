@@ -49,8 +49,8 @@ function App() {
 
   // Fetch data from backend
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'https://1fd2-2401-4900-6468-c2b0-e434-5c3c-80ee-bd7e.ngrok-free.app/api'; // Use public link
-   console.log(apiUrl)
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api/products'; // Use local API URL
+    console.log(apiUrl);
     fetch(apiUrl)
       .then(response => {
         if (!response.ok) {
@@ -59,11 +59,18 @@ function App() {
         return response.json();
       })
       .then(data => {
-        setStoreData(data);
+        // Ensure data is an array before setting it
+        if (Array.isArray(data)) {
+          setStoreData(prev => ({ ...prev, products: data })); // Update only products
+        } else {
+          console.error("Fetched data is not an array:", data);
+          setStoreData(prev => ({ ...prev, products: [] })); // Set to empty array if not valid
+        }
         setBackendData(data);
       })
       .catch(error => {
         console.error("Error fetching data:", error);
+        setStoreData(prev => ({ ...prev, products: [] })); // Set to empty array on error
       });
   }, []);
 
