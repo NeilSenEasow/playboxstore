@@ -50,6 +50,7 @@ function App() {
   // Fetch data from backend
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || 'https://1fd2-2401-4900-6468-c2b0-e434-5c3c-80ee-bd7e.ngrok-free.app/api'; // Use public link
+   console.log(apiUrl)
     fetch(apiUrl)
       .then(response => {
         if (!response.ok) {

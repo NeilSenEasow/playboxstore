@@ -1,90 +1,131 @@
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const path = require('path');
-const fs = require('fs').promises;
-const User = require('./models/User'); // Ensure you have the User model defined
-const bcrypt = require('bcrypt');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const fs = require('fs').promises;
+const path = require('path');
+const User = require('./models/user'); // Import the User model
 
+// Load environment variables
 dotenv.config();
 
-const app = express();
+// Validate required environment variables
+const requiredEnvVars = ['SECRET', 'MONGODB_URI', 'BASEURL'];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+}
 
+// Initialize Express app
+const app = express();
+const port = process.env.PORT || 5001;
+
+// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false })); // To parse URL-encoded data
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-mongoose.connect(MONGODB_URI)
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-// API route to read products data from JSON file
-app.get('/api', async (req, res) => { // Product data route
-  try {
-    const filePath = path.join(__dirname, 'data', 'products.json');
-    const jsonData = await fs.readFile(filePath, 'utf8');
-    const data = JSON.parse(jsonData);
-    res.json(data);
-  } catch (error) {
-    console.error('Error reading products data:', error);
-    res.status(500).json({ message: 'Error loading products data' });
-  }
+// Routes
+
+// Test route
+app.get('/test', (req, res) => {
+  res.json({ message: 'Test route works!' });
 });
 
-// Sign Up Route
-app.post('/auth/signup', async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
-
+// Register route
+app.post('/auth/register', async (req, res) => {
   try {
+    const { name, email, password } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already in use' });
+      return res.status(400).json({ error: 'Email already in use' });
     }
 
+    // Create new user
     const user = new User({ name, email, password });
     await user.save();
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({ message: 'Error creating user', error: error.message });
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: '1h' });
+
+    // Respond with user and token
+    res.status(201).json({ user, token });
+  } catch (err) {
+    console.error('Error during registration:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Sign In Route
-app.post('/auth/signin', async (req, res) => {
-  const { email, password } = req.body;
-  console.log('Sign-in attempt:', { email, password }); // Log the received credentials
-
+// Login route
+app.post('/auth/login', async (req, res) => {
   try {
+    const { email, password } = req.body;
+
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    // Compare passwords
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token });
-  } catch (error) {
-    console.error('Error during sign-in:', error);
-    res.status(500).json({ message: 'Server error during sign-in' });
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: '1h' });
+
+    // Respond with user and token
+    res.status(200).json({ user, token });
+  } catch (err) {
+    console.error('Error during login:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Import and use routes from the routes folder
-const routes = require('./routes/index');
-app.use('/api', routes); // Prefix all routes with /api
+// Products route
+app.get('/api/products', async (req, res) => {
+  try {
+    // Path to the products.json file
+    const filePath = path.join(__dirname, 'data', 'products.json');
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    // Read the file
+    const jsonData = await fs.readFile(filePath, 'utf8');
+
+    // Parse the JSON data
+    const products = JSON.parse(jsonData);
+
+    // Respond with the products data
+    res.json(products);
+  } catch (err) {
+    console.error('Error reading products data:', err);
+    res.status(500).json({ error: 'Error loading products data' });
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
