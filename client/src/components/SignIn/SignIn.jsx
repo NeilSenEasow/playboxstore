@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import './SignIn.css';
+import './SignIn.css'; // Import your CSS
 import { Link, useNavigate } from 'react-router-dom';
 
 const SignIn = ({ onSignIn }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate(); // Use navigate for redirection
+  const [error, setError] = useState(null); // Initialize error as null
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError(null); // Clear previous errors
+    setIsLoading(true); // Set loading state
+
+    console.log('Submitting sign-in with:', { email, password }); // Log the credentials being sent
 
     try {
-      const response = await fetch('/api/auth/signin', { // Use relative path
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,33 +25,38 @@ const SignIn = ({ onSignIn }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      // Log the response for debugging
-      console.log('Response:', response);
-
-      // Check if the response is OK
       if (!response.ok) {
-        const errorData = await response.text(); // Get the response as text
-        console.error('Error response:', errorData); // Log the error response
-        setError('Sign In failed: ' + errorData);
-        return;
+        let errorMessage = 'Sign In failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage; // Extract message if available
+        } catch (jsonError) {
+          console.error("Error parsing error JSON:", jsonError);
+          if (response.status === 400) {
+            errorMessage = "Invalid Credentials";
+          }
+        }
+        throw new Error(errorMessage); // Throw the extracted error message
       }
 
       const data = await response.json();
-
-      if (data) {
-        onSignIn(data.token); // Assuming the backend returns a token
-        navigate('/'); // Redirect to home or another page after sign-in
+      localStorage.setItem('token', data.token); // Store token immediately
+      if (onSignIn) {
+        onSignIn(data.token);
       }
+      navigate('/');
     } catch (err) {
-      console.error('Error during sign in:', err);
-      setError('An error occurred. Please try again.');
+      console.error('Sign-in error:', err);
+      setError(err.message); // Set the error message in state
+    } finally {
+      setIsLoading(false); // Reset loading state regardless of success/failure
     }
   };
 
   return (
     <div className="sign-in-container">
       <h2>Sign In</h2>
-      {error && <p className="error">{error}</p>}
+      {error && <div className="error-message">{error}</div>} {/* Use a div for better styling */}
       <form onSubmit={handleSubmit}>
         <input
           type="email"
@@ -55,6 +64,7 @@ const SignIn = ({ onSignIn }) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          disabled={isLoading} // Disable input while loading
         />
         <input
           type="password"
@@ -62,8 +72,11 @@ const SignIn = ({ onSignIn }) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          disabled={isLoading} // Disable input while loading
         />
-        <button type="submit">Sign In</button>
+        <button type="submit" disabled={isLoading}> {/* Disable button while loading */}
+          {isLoading ? 'Signing In...' : 'Sign In'} {/* Show loading message */}
+        </button>
       </form>
       <p>
         Don't have an account? <Link to="/signup" className="redirect-link">Sign Up</Link>
@@ -72,4 +85,4 @@ const SignIn = ({ onSignIn }) => {
   );
 };
 
-export default SignIn; 
+export default SignIn;

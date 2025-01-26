@@ -49,12 +49,7 @@ function App() {
 
   // Fetch data from backend
   useEffect(() => {
-    const apiUrl = process.env.REACT_APP_API_URL; // Ensure this is defined
-    if (!apiUrl) {
-      console.error("REACT_APP_API_URL is not defined");
-      return;
-    }
-
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://1fd2-2401-4900-6468-c2b0-e434-5c3c-80ee-bd7e.ngrok-free.app/api'; // Use public link
     fetch(apiUrl)
       .then(response => {
         if (!response.ok) {
