@@ -49,7 +49,7 @@ function App() {
 
   // Fetch data from backend
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api/products'; // Use local API URL
+    const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/api/products' || VITE_API_URL + '/products'; // Use local API URL
     console.log(apiUrl);
     fetch(apiUrl)
       .then(response => {

@@ -12,12 +12,13 @@ const ProductSection = ({ updateCartCount }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/products');
+        const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/api/products' || import.meta.env.VITE_API_URL + '/products'; // Use environment variables
+        const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setProducts(data.products); // Assuming the products are in the 'products' key
+        setProducts(data.products); // Assuming the data structure is an array of products
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {

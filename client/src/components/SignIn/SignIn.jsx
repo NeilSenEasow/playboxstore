@@ -17,7 +17,8 @@ const SignIn = ({ onSignIn }) => {
     console.log('Submitting sign-in with:', { email, password }); // Log the credentials being sent
 
     try {
-      const response = await fetch(`http://localhost:5001/auth/login`, {
+      const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/auth/login' || import.meta.env.VITE_API_URL + '/auth/login'; // Use environment variables
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

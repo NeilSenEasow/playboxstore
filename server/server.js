@@ -12,7 +12,7 @@ const User = require('./models/User'); // Import the User model
 dotenv.config();
 
 // Validate required environment variables
-const requiredEnvVars = ['SECRET', 'MONGODB_URI', 'BASEURL'];
+const requiredEnvVars = ['SECRET', 'MONGODB_URI', 'APP_URL'];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     console.error(`Missing required environment variable: ${envVar}`);
@@ -36,15 +36,15 @@ mongoose
 
 // Routes
 
-// Add this route before the existing routes
+// API root route
 app.get('/api', (req, res) => {
   res.json({
     message: 'Welcome to the API',
     endpoints: {
-      products: '/api/products',
-      register: '/auth/register',
-      login: '/auth/login',
-      test: '/test'
+      products: `${process.env.APP_URL}/api/products`,
+      register: `${process.env.APP_URL}/auth/register`,
+      login: `${process.env.APP_URL}/auth/login`,
+      test: `${process.env.APP_URL}/test`
     }
   });
 });

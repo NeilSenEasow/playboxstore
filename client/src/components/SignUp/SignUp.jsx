@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './SignUp.css';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -21,7 +20,8 @@ const SignUp = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5001/auth/register', {
+      const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/auth/register' || import.meta.env.VITE_API_URL + '/auth/register'; // Use environment variables
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
