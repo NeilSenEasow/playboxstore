@@ -16,13 +16,21 @@ const Sell = () => {
   const [sellItems, setSellItems] = useState([]);
 
   useEffect(() => {
-    // Fetch data from API
-    fetch('http://localhost:5001/api/products')
-      .then(response => response.json())
-      .then(data => {
-        setSellItems(data.sellItems);
-      })
-      .catch(error => console.error('Error fetching sell items:', error));
+    const fetchSellItems = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/api/products' || import.meta.env.VITE_API_URL + '/api/products'; // Use environment variables
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setSellItems(data.sellItems); // Assuming the data structure is an array of sell items
+      } catch (error) {
+        console.error('Error fetching sell items:', error);
+      }
+    };
+
+    fetchSellItems();
 
     const observer = new IntersectionObserver(
       ([entry]) => {

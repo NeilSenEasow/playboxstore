@@ -9,30 +9,38 @@ const Rent = ({ updateCartCount }) => {
   const [rentItems, setRentItems] = useState([]);
 
   useEffect(() => {
-    // Fetch data from API
-    fetch('http://localhost:5001/api/products')
-      .then(response => response.json())
-      .then(data => {
-        setRentItems(data.rentItems);
-      })
-      .catch(error => console.error('Error fetching rent items:', error));
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
+    const fetchRentItems = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/api/products' || import.meta.env.VITE_API_URL + '/api/products'; // Use environment variables
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setRentItems(data.rentItems); // Assuming the data structure is an array of rent items
+      } catch (error) {
+        console.error('Error fetching rent items:', error);
       }
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsVisible(entry.isIntersecting);
+        },
+        { threshold: 0.1 }
+      );
+
+      if (sectionRef.current) {
+        observer.observe(sectionRef.current);
+      }
+
+      return () => {
+        if (sectionRef.current) {
+          observer.unobserve(sectionRef.current);
+        }
+      };
     };
+
+    fetchRentItems();
   }, []);
 
   const handleViewDetails = (id) => {

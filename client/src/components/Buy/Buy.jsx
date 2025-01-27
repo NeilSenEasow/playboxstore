@@ -67,13 +67,21 @@ const Buy = ({ updateCartCount }) => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    // Fetch data from API
-    fetch('http://localhost:5001/api/products')
-      .then(response => response.json())
-      .then(data => {
-        setProducts(data.products);
-      })
-      .catch(error => console.error('Error fetching products:', error));
+    const fetchProducts = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/api/products' || import.meta.env.VITE_API_URL + '/api/products'; // Use environment variables
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setProducts(data.products); // Assuming the data structure is an array of products
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProducts();
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -109,7 +117,7 @@ const Buy = ({ updateCartCount }) => {
           </div>
           <div className="details-info">
             <h2>{item.name}</h2>
-            <p className="details-price">{item.price}</p>
+            <p className="details-price">₹{item.price.toLocaleString()}</p>
             <div className="details-description">
               <h3>Product Details</h3>
               <p>{item.description}</p>
