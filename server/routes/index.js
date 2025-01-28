@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Product = require('../models/Product');
+const Order = require('../models/Order');
 
 router.post('/auth/signup', async (req, res) => {
   const { name, email, password } = req.body;
@@ -59,6 +61,43 @@ router.post('/auth/signin', async (req, res) => {
   } catch (error) {
     console.error('Error during sign-in:', error);
     res.status(500).json({ message: 'Server error during sign-in' });
+  }
+});
+
+// Create a new order
+router.post('/orders', async (req, res) => {
+  const { productId, quantity, userId } = req.body;
+  try {
+    const order = new Order({ productId, quantity, userId });
+    await order.save();
+
+    // Update product availability
+    await Product.findByIdAndUpdate(productId, { $inc: { availableQuantity: -quantity } });
+
+    res.status(201).json(order);
+  } catch (error) {
+    res.status(500).json({ error: 'Error creating order' });
+  }
+});
+
+// Get all orders
+router.get('/orders', async (req, res) => {
+  try {
+    const orders = await Order.find().populate('productId userId');
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching orders' });
+  }
+});
+
+// Update product availability
+router.put('/products/:id/availability', async (req, res) => {
+  const { availableQuantity } = req.body;
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, { availableQuantity }, { new: true });
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating product availability' });
   }
 });
 

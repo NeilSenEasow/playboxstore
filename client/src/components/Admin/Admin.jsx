@@ -18,7 +18,8 @@ const Admin = () => {
     price: '',
     description: '',
     image: '',
-    condition: 'New'
+    condition: 'New',
+    availableQuantity: 0
   });
 
   // Dummy data for demonstration
@@ -37,6 +38,7 @@ const Admin = () => {
     totalViews: 68400
   };
 
+  // Add a new category
   const handleAddCategory = (e) => {
     e.preventDefault();
     const id = categories.length + 1;
@@ -45,26 +47,166 @@ const Admin = () => {
     setShowAddCategory(false);
   };
 
-  const handleAddProduct = (e) => {
+  // Add a new product to a selected category
+  const handleAddProduct = async (e) => {
     e.preventDefault();
+    
+    // Send the new product to the backend
+    try {
+      console.log("Adding product with data:", {
+        name: newProduct.name,
+        category: selectedCategory.name,
+        count: newProduct.availableQuantity,
+      });
+      const response = await fetch("http://localhost:5001/api/items", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newProduct.name,
+          category: selectedCategory.name,
+          count: newProduct.availableQuantity,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add product');
+      }
+      const data = await response.json();
+      console.log(data);
+
+      // Update local categories state after successful API call
+      const updatedCategories = categories.map(cat => {
+        if (cat.id === selectedCategory.id) {
+          return {
+            ...cat,
+            products: [...cat.products, { ...newProduct, id: cat.products.length + 1 }]
+          };
+        }
+        return cat;
+      });
+      setCategories(updatedCategories);
+      setNewProduct({
+        name: '',
+        price: '',
+        description: '',
+        image: '',
+        condition: 'New',
+        availableQuantity: 0
+      });
+      setShowAddProduct(false);
+    } catch (error) {
+      console.error('Error adding product:', error);
+    }
+  };
+
+  // Update product availability
+  const handleUpdateAvailability = async (productId, newQuantity) => {
+    try {
+      const response = await fetch(`${process.env.APP_URL}/api/products/${productId}/availability`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ availableQuantity: newQuantity }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update availability');
+      }
+      // Update the local state if needed
+      const updatedCategories = categories.map(category => {
+        category.products = category.products.map(product =>
+          product.id === productId ? { ...product, availableQuantity: newQuantity } : product
+        );
+        return category;
+      });
+      setCategories(updatedCategories);
+    } catch (error) {
+      console.error('Error updating availability:', error);
+    }
+  };
+
+  // Remove a product from a category
+  const handleRemoveProduct = (categoryId, productId) => {
     const updatedCategories = categories.map(cat => {
-      if (cat.id === selectedCategory.id) {
+      if (cat.id === categoryId) {
         return {
           ...cat,
-          products: [...cat.products, { ...newProduct, id: cat.products.length + 1 }]
+          products: cat.products.filter(product => product.id !== productId)
         };
       }
       return cat;
     });
     setCategories(updatedCategories);
-    setNewProduct({
-      name: '',
-      price: '',
-      description: '',
-      image: '',
-      condition: 'New'
-    });
-    setShowAddProduct(false);
+  };
+
+  // Remove a category and its products
+  const handleRemoveCategory = (categoryId) => {
+    const updatedCategories = categories.filter(cat => cat.id !== categoryId);
+    setCategories(updatedCategories);
+  };
+
+  const handleAddItem = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5001/api/items", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newProduct.name,
+          category: selectedCategory.name,
+          count: newProduct.availableQuantity,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add item');
+      }
+      const data = await response.json();
+      console.log(data);
+      // Optionally update local state to reflect the new item
+    } catch (error) {
+      console.error('Error adding item:', error);
+    }
+  };
+
+  // Update item
+  const handleUpdateItem = async (itemId, updatedData) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/items/${itemId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update item');
+      }
+      const data = await response.json();
+      console.log(data);
+      // Optionally update local state to reflect the updated item
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
+  };
+
+  // Delete item
+  const handleDeleteItem = async (itemId) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/items/${itemId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete item');
+      }
+      const data = await response.json();
+      console.log(data);
+      // Optionally update local state to reflect the deleted item
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
   };
 
   return (
@@ -191,6 +333,31 @@ const Admin = () => {
               >
                 Add Product
               </button>
+              <button 
+                className="btn-danger"
+                onClick={() => handleRemoveCategory(category.id)}
+              >
+                Remove Category
+              </button>
+
+              {category.products.map(product => (
+                <div key={product.id} className="product-card">
+                  <h4>{product.name}</h4>
+                  <p>₹{product.price}</p>
+                  <button 
+                    className="btn-danger"
+                    onClick={() => handleRemoveProduct(category.id, product.id)}
+                  >
+                    Remove Product
+                  </button>
+                  <button 
+                    className="btn-primary"
+                    onClick={() => handleUpdateAvailability(product.id, product.availableQuantity + 1)}
+                  >
+                    Increase Availability
+                  </button>
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -276,18 +443,26 @@ const Admin = () => {
                   >
                     <option value="New">New</option>
                     <option value="Used">Used</option>
-                    <option value="Refurbished">Refurbished</option>
                   </select>
+                </div>
+                <div className="form-group">
+                  <label>Available Quantity</label>
+                  <input
+                    type="number"
+                    value={newProduct.availableQuantity}
+                    onChange={(e) => setNewProduct({
+                      ...newProduct,
+                      availableQuantity: e.target.value
+                    })}
+                    required
+                  />
                 </div>
                 <div className="form-buttons">
                   <button type="submit" className="btn-primary">Add Product</button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn-secondary"
-                    onClick={() => {
-                      setShowAddProduct(false);
-                      setSelectedCategory(null);
-                    }}
+                    onClick={() => setShowAddProduct(false)}
                   >
                     Cancel
                   </button>

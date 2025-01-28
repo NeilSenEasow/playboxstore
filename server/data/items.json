@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1738099765320,
+    "name": "Sample Product",
+    "category": "Electronics",
+    "count": 10
+  },
+  {
+    "id": 1738099767247,
+    "name": "Sample Product",
+    "category": "Game",
+    "count": 1
+  },
+  {
+    "id": 1738101140138,
+    "name": "PS5",
+    "category": "Game",
+    "count": 1
+  },
+  {
+    "id": 1738101153352,
+    "name": "PS5",
+    "category": "new",
+    "count": 1
+  },
+  {
+    "id": 1738101660811,
+    "name": "PS5",
+    "category": "new",
+    "count": 1
+  },
+  {
+    "id": 1738101663872,
+    "name": "PS5",
+    "category": "new",
+    "count": 1
+  },
+  {
+    "id": 1738102109557,
+    "name": "test",
+    "category": "test",
+    "count": 100
+  },
+  {
+    "id": 1738102597508,
+    "name": "test2",
+    "category": "test2",
+    "count": 10
+  },
+  {
+    "id": 1738102704316,
+    "name": "test2",
+    "category": "test2",
+    "count": 10
+  }
+]
