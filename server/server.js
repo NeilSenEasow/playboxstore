@@ -187,7 +187,7 @@ app.get("/api/items", async (req, res) => {
 // Add a new product
 app.post("/api/products", async (req, res) => {
   try {
-    const { name, category, count } = req.body;
+    const { id, name, category, count } = req.body;
 
     // Validate input
     if (!name || !category || count === undefined) {
@@ -201,7 +201,7 @@ app.post("/api/products", async (req, res) => {
     }
 
     const products = await readProductsFile();
-    const newProduct = { id: Date.now(), name, category, count };
+    const newProduct = { name, category, count };
 
     products.push(newProduct);
     await writeProductsFile(products);
@@ -271,7 +271,7 @@ app.delete("/api/items/:id", async (req, res) => {
 // Add a new item
 app.post("/api/items", async (req, res) => {
   try {
-    const { name, category, count } = req.body;
+    const { id, name, category, count } = req.body;
 
     // Validate input
     if (!name || !category || count === undefined) {
@@ -285,7 +285,8 @@ app.post("/api/items", async (req, res) => {
     }
 
     const items = await readItemsFile();
-    const newItem = { id: Date.now(), name, category, count };
+    console.log(items);
+    const newItem = { id: id, name, category, count };
 
     items.push(newItem);
     await writeItemsFile(items);
@@ -334,6 +335,7 @@ app.put("/api/items/:id", async (req, res) => {
 app.delete("/api/items/:id", async (req, res) => {
   try {
     const itemId = parseInt(req.params.id);
+    console.log(itemId);
 
     let items = await readItemsFile();
     const itemIndex = items.findIndex((i) => i.id === itemId);
