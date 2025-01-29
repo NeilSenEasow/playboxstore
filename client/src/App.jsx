@@ -19,10 +19,14 @@ import Payment from './components/Payment/Payment';
 import Admin from './components/Admin/Admin';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
+import PrivateRoute from './components/PrivateRoute';
+import AdminLogin from './components/Admin/AdminLogin';
+import AdminSignup from './components/Admin/AdminSignup';
 import './App.css';
 import ErrorBoundary from './ErrorBoundary';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem('cartItems');
     return savedCart ? JSON.parse(savedCart) : [];
@@ -127,10 +131,21 @@ function App() {
     setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
 
-  const handleSignIn = (token) => {
-    localStorage.setItem('token', token);
-    // Optionally, you can redirect the user or update the state
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
   };
+
+  const handleLogin = (token) => {
+    localStorage.setItem('token', token);
+    setIsAuthenticated(true);
+  };
+
+  const SignOutButton = () => (
+    <button onClick={handleSignOut} className="sign-out-button">
+      Sign Out
+    </button>
+  );
 
   return (
     <ErrorBoundary>
@@ -140,6 +155,8 @@ function App() {
             cartCount={cartItems.length} 
             onSearch={handleSearch}
             recentSearches={userPreferences.recentSearches}
+            isAuthenticated={isAuthenticated}
+            onSignOut={handleSignOut}
           />
           <SearchResults results={searchResults} updateCartCount={updateCartCount} />
           <Routes>
@@ -190,8 +207,17 @@ function App() {
             <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} clearCart={clearCart} />} />
             <Route path="/checkout" element={<Checkout cartItems={cartItems} clearCart={clearCart} userPreferences={userPreferences} />} />
             <Route path="/payment" element={<Payment cartItems={cartItems} clearCart={clearCart} />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/signin" element={<SignIn onSignIn={handleSignIn} />} />
+            <Route 
+              path="/admin" 
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <Admin isAuthenticated={isAuthenticated} />
+                </PrivateRoute>
+              } 
+            />
+            <Route path="/admin/login" element={<AdminLogin onLogin={handleLogin} />} />
+            <Route path="/admin/signup" element={<AdminSignup />} />
+            <Route path="/signin" element={<SignIn onSignIn={handleLogin} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

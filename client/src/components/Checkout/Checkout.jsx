@@ -37,60 +37,39 @@ function Checkout({ cartItems, clearCart }) {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Required field validation
-    Object.keys(formData).forEach(key => {
-      if (!formData[key].trim()) {
-        newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`;
-      }
-    });
-
-    // Email validation
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    // Phone validation (Indian format)
-    if (formData.phone && !/^[6-9]\d{9}$/.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = 'Please enter a valid 10-digit phone number';
-    }
-
-    // Zipcode validation (Indian format)
-    if (formData.zipcode && !/^\d{6}$/.test(formData.zipcode)) {
-      newErrors.zipcode = 'Please enter a valid 6-digit zipcode';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    if (!cartItems || cartItems.length === 0) {
-      alert("Your cart is empty!");
-      navigate('/cart');
-      return;
-    }
+    try {
+      // Loop through cart items and delete each one
+      for (const item of cartItems) {
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items/${item.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-    if (validateForm()) {
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Store form data in session/local storage for payment page
-        sessionStorage.setItem('checkoutFormData', JSON.stringify(formData));
-        
-        // Navigate to payment page (lowercase)
-        navigate('/payment');
-      } catch (error) {
-        alert("There was an error processing your order. Please try again.");
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error(result.error);
+          // Handle error for individual item deletion
+        } else {
+          console.log(`Deleted item: ${result.item.name}`);
+        }
       }
+
+      // Clear the cart after successful deletion
+      clearCart();
+      // Optionally navigate to a success page or show a success message
+      navigate('/success'); // Adjust the route as needed
+    } catch (error) {
+      console.error('Error during checkout:', error);
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   return (

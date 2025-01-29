@@ -4,7 +4,7 @@ import Logo from '../../assets/logo/logo-play.png';
 import { useState } from 'react';
 import { BsCart4 } from 'react-icons/bs';
 
-const Navbar = ({ cartCount, onSearch }) => {
+const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
@@ -28,6 +28,14 @@ const Navbar = ({ cartCount, onSearch }) => {
     navigate('/signup');
   };
 
+  const handleSignOutClick = () => {
+    onSignOut(); // Call the sign-out function passed as a prop
+  };
+
+  const handleAdminSignInClick = () => {
+    navigate('/admin/login'); // Redirect to admin login page
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -41,7 +49,7 @@ const Navbar = ({ cartCount, onSearch }) => {
         <li><Link to="/sell" className="nav-button">Sell</Link></li>
         <li><Link to="/buy" className="nav-button">Buy</Link></li>
         <li><Link to="/rent" className="nav-button">Rent</Link></li>
-        <li><Link to="/admin" className="nav-button">Admin</Link></li>
+        <li><Link to="/admin/signup" className="nav-button">Admin Sign Up</Link></li>
       </ul>
 
       <div className="search-container">
@@ -65,8 +73,15 @@ const Navbar = ({ cartCount, onSearch }) => {
         </div>
         
         <div className="auth-buttons">
-          <button className="sign-in-btn" onClick={handleSignInClick}>Sign In</button>
-          <button className="sign-in-btn" onClick={handleSignUpClick}>Sign Up</button>
+          {isAuthenticated ? (
+            <button className="sign-in-btn" onClick={handleSignOutClick}>Sign Out</button>
+          ) : (
+            <>
+              <button className="sign-in-btn" onClick={handleSignInClick}>Sign In</button>
+              <button className="sign-in-btn" onClick={handleSignUpClick}>Sign Up</button>
+              <button className="sign-in-btn" onClick={handleAdminSignInClick}>Admin Sign In</button>
+            </>
+          )}
         </div>
       </div>
     </nav>

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaUsers, FaShoppingCart, FaMoneyBillWave, FaChartLine, FaPlus } from 'react-icons/fa';
 import './Admin.css';
 
-const Admin = () => {
+const Admin = ({ isAuthenticated }) => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([
     { id: 1, name: 'PS5', slug: 'ps5', products: [] },
     { id: 2, name: 'PS4', slug: 'ps4', products: [] },
@@ -21,6 +23,13 @@ const Admin = () => {
     condition: 'New',
     availableQuantity: 0
   });
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/admin/login'); // Redirect to login if not authenticated
+    }
+  }, [isAuthenticated, navigate]);
 
   // Dummy data for demonstration
   const statistics = {
@@ -178,13 +187,21 @@ const Admin = () => {
 
   // Remove a category and its products
   const handleRemoveCategory = async (categoryId) => {
+    // Find the category to delete based on the categoryId
+    const categoryToDelete = categories.find(cat => cat.id === categoryId);
+    if (!categoryToDelete) return;
+
     try {
-      const response = await fetch(`http://localhost:5001/api/items/${categoryId}`, {
+      // Send DELETE request to the server to remove items by category
+      const response = await fetch(`http://localhost:5001/api/items/categories/${categoryToDelete.name}`, {
         method: "DELETE",
       });
+
       if (!response.ok) {
         throw new Error('Failed to delete category');
       }
+
+      // Update the local state to remove the deleted category
       const updatedCategories = categories.filter(cat => cat.id !== categoryId);
       setCategories(updatedCategories);
     } catch (error) {
