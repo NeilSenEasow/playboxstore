@@ -51,28 +51,48 @@ const Admin = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     
-    // Send the new product to the backend
+    const productData = {
+      id: Date.now(), // Generate a unique ID based on the current timestamp
+      name: newProduct.name,
+      category: selectedCategory.name,
+      price: newProduct.price,
+      description: newProduct.description,
+      image: newProduct.image,
+      condition: newProduct.condition,
+      count: parseInt(newProduct.availableQuantity, 10), // Ensure count is a number
+    };
+
+    // Send the new product to both local and remote backend
     try {
-      console.log("Adding product with data:", {
-        name: newProduct.name,
-        category: selectedCategory.name,
-        count: newProduct.availableQuantity,
-      });
-      const response = await fetch("http://localhost:5001/api/items", {
+      console.log("Adding product with data:", productData);
+
+      // Send to local backend
+      const localResponse = await fetch("http://localhost:5001/api/items", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: newProduct.name,
-          category: selectedCategory.name,
-          count: newProduct.availableQuantity,
-        }),
+        body: JSON.stringify(productData),
       });
-      if (!response.ok) {
-        throw new Error('Failed to add product');
+
+      if (!localResponse.ok) {
+        throw new Error('Failed to add product to local API');
       }
-      const data = await response.json();
+
+      // Send to remote backend
+      const remoteResponse = await fetch("https://playboxstore-dr9i.onrender.com/api/items", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productData),
+      });
+
+      if (!remoteResponse.ok) {
+        throw new Error('Failed to add product to remote API');
+      }
+
+      const data = await localResponse.json();
       console.log(data);
 
       // Update local categories state after successful API call
@@ -80,7 +100,7 @@ const Admin = () => {
         if (cat.id === selectedCategory.id) {
           return {
             ...cat,
-            products: [...cat.products, { ...newProduct, id: cat.products.length + 1 }]
+            products: [...cat.products, { ...productData }] // Add the new product to the category
           };
         }
         return cat;
@@ -103,20 +123,21 @@ const Admin = () => {
   // Update product availability
   const handleUpdateAvailability = async (productId, newQuantity) => {
     try {
-      const response = await fetch(`${process.env.APP_URL}/api/products/${productId}/availability`, {
+      const response = await fetch(`http://localhost:5001/api/items/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ availableQuantity: newQuantity }),
+        body: JSON.stringify({ count: newQuantity }), // Update the count field
       });
       if (!response.ok) {
         throw new Error('Failed to update availability');
       }
+
       // Update the local state if needed
       const updatedCategories = categories.map(category => {
         category.products = category.products.map(product =>
-          product.id === productId ? { ...product, availableQuantity: newQuantity } : product
+          product.id === productId ? { ...product, count: newQuantity } : product // Update the count field
         );
         return category;
       });
@@ -127,85 +148,47 @@ const Admin = () => {
   };
 
   // Remove a product from a category
-  const handleRemoveProduct = (categoryId, productId) => {
-    const updatedCategories = categories.map(cat => {
-      if (cat.id === categoryId) {
-        return {
-          ...cat,
-          products: cat.products.filter(product => product.id !== productId)
-        };
-      }
-      return cat;
-    });
-    setCategories(updatedCategories);
-  };
-
-  // Remove a category and its products
-  const handleRemoveCategory = (categoryId) => {
-    const updatedCategories = categories.filter(cat => cat.id !== categoryId);
-    setCategories(updatedCategories);
-  };
-
-  const handleAddItem = async (e) => {
-    e.preventDefault();
+  const handleRemoveProduct = async (categoryId, productId) => {
+    console.log("Attempting to delete product with ID:", productId); // Debugging log
     try {
-      const response = await fetch("http://localhost:5001/api/items", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: newProduct.name,
-          category: selectedCategory.name,
-          count: newProduct.availableQuantity,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to add item');
-      }
-      const data = await response.json();
-      console.log(data);
-      // Optionally update local state to reflect the new item
-    } catch (error) {
-      console.error('Error adding item:', error);
-    }
-  };
-
-  // Update item
-  const handleUpdateItem = async (itemId, updatedData) => {
-    try {
-      const response = await fetch(`http://localhost:5001/api/items/${itemId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update item');
-      }
-      const data = await response.json();
-      console.log(data);
-      // Optionally update local state to reflect the updated item
-    } catch (error) {
-      console.error('Error updating item:', error);
-    }
-  };
-
-  // Delete item
-  const handleDeleteItem = async (itemId) => {
-    try {
-      const response = await fetch(`http://localhost:5001/api/items/${itemId}`, {
+      const response = await fetch(`http://localhost:5001/api/items/${productId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
+        const errorData = await response.json(); // Log the error response
+        console.error('Error response:', errorData);
         throw new Error('Failed to delete item');
       }
-      const data = await response.json();
-      console.log(data);
-      // Optionally update local state to reflect the deleted item
+
+      // Update local state after successful deletion
+      const updatedCategories = categories.map(cat => {
+        if (cat.id === categoryId) {
+          return {
+            ...cat,
+            products: cat.products.filter(product => product.id !== productId) // Remove the product
+          };
+        }
+        return cat;
+      });
+      setCategories(updatedCategories);
     } catch (error) {
-      console.error('Error deleting item:', error);
+      console.error('Error removing product:', error);
+    }
+  };
+
+  // Remove a category and its products
+  const handleRemoveCategory = async (categoryId) => {
+    try {
+      const response = await fetch(`http://localhost:5001/api/items/${categoryId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete category');
+      }
+      const updatedCategories = categories.filter(cat => cat.id !== categoryId);
+      setCategories(updatedCategories);
+    } catch (error) {
+      console.error('Error removing category:', error);
     }
   };
 
@@ -352,7 +335,7 @@ const Admin = () => {
                   </button>
                   <button 
                     className="btn-primary"
-                    onClick={() => handleUpdateAvailability(product.id, product.availableQuantity + 1)}
+                    onClick={() => handleUpdateAvailability(product.id, product.count + 1)} // Update count instead of availableQuantity
                   >
                     Increase Availability
                   </button>

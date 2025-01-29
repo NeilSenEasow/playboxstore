@@ -246,25 +246,25 @@ app.put("/api/products/:id", async (req, res) => {
   }
 });
 
-// Delete product
-app.delete("/api/products/:id", async (req, res) => {
+// Delete item
+app.delete("/api/items/:id", async (req, res) => {
   try {
-    const productId = parseInt(req.params.id);
+    const itemId = parseInt(req.params.id);
 
-    let products = await readProductsFile();
-    const productIndex = products.findIndex((p) => p.id === productId);
+    let items = await readItemsFile();
+    const itemIndex = items.findIndex((i) => i.id === itemId);
 
-    if (productIndex === -1) {
-      return res.status(404).json({ error: "Product not found" });
+    if (itemIndex === -1) {
+      return res.status(404).json({ error: "Item not found" });
     }
 
-    const deletedProduct = products.splice(productIndex, 1)[0];
-    await writeProductsFile(products);
+    const deletedItem = items.splice(itemIndex, 1)[0];
+    await writeItemsFile(items);
 
-    res.json({ message: "Product deleted successfully", product: deletedProduct });
+    res.json({ message: "Item deleted successfully", item: deletedItem });
   } catch (err) {
-    console.error("Error deleting product:", err);
-    res.status(500).json({ error: "Error deleting product" });
+    console.error("Error deleting item:", err);
+    res.status(500).json({ error: "Error deleting item" });
   }
 });
 
