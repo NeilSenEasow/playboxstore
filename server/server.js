@@ -8,6 +8,7 @@ const fs = require("fs").promises; // Use fs.promises for async/await
 const path = require("path");
 const User = require("./models/User"); // Import the User model
 const Product = require("./models/Product"); // Import the Product model
+const Admin = require('./models/Admin'); //Import Admin model
 
 // Load environment variables
 dotenv.config();
@@ -356,30 +357,29 @@ app.delete("/api/items/:id", async (req, res) => {
 
 // Admin Signup Route
 app.post('/admin/signup', async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Name, email, and password are required' });
   }
 
   try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) {
       return res.status(400).json({ error: 'Email already in use' });
     }
 
-    const newUser = new User({ name, email, password });
-    await newUser.save();
+    const newAdmin = new Admin({ name, email, password });
+    await newAdmin.save();
 
-    const token = jwt.sign({ id: newUser._id }, process.env.SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: newAdmin._id }, process.env.SECRET, { expiresIn: '1h' });
     res.status(201).json({ message: 'Admin registered successfully', token });
   } catch (error) {
-    console.error('Error during signup:', error);
+    console.error('Error during admin signup:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Admin Login Route
 app.post('/admin/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -388,20 +388,20 @@ app.post('/admin/login', async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await admin.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: admin._id }, process.env.SECRET, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (error) {
-    console.error('Error during login:', error);
+    console.error('Error during admin login:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

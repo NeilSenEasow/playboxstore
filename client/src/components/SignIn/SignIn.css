@@ -1,15 +1,33 @@
 .sign-in-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 20px;
-  margin-top: 200px;
-  background-color: #2b2b2b; /* Match the navbar background */
-  border-radius: 10px;
+  padding: 2rem;
+  margin: 80px auto 0;
+  max-width: 400px; /* Adjusted to match the image */
   color: white;
+  animation: fadeIn 0.5s ease-in;
+  background-color: #2b2b2b; /* Updated to match the image background */
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Keep shadow for depth */
 }
 
 .error {
   color: red;
+}
+
+input {
+  width: 100%; /* Full width to match the image */
+  padding: 0.75rem; /* Updated padding */
+  margin: 10px 0;
+  border: 1px solid #ff4747; /* Red border */
+  border-radius: 6px; /* Updated border radius */
+  background-color: #1a1a1a; /* Updated to match the image input background */
+  color: white;
+  font-size: 1rem; /* Updated font size */
+}
+
+input:focus {
+  outline: none;
+  border-color: #ff4747; /* Highlight border on focus */
+  box-shadow: 0 0 0 2px rgba(255, 71, 71, 0.2); /* Added focus shadow */
 }
 
 .redirect-link {
@@ -23,17 +41,17 @@
 
 /* Button styles to match navbar */
 button {
-  padding: 8px 20px;
-  background-color: transparent;
+  padding: 0.75rem 1.5rem; /* Updated padding */
+  background-color: #ff4747; /* Solid red background */
   color: white;
-  border: 1px solid #ff4747;
-  border-radius: 20px;
+  border: none; /* Remove border */
+  border-radius: 6px; /* Updated border radius */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 button:hover {
-  background-color: #ff4747;
+  background-color: #ff6b6b; /* Lighter red on hover */
   transform: translateY(-2px);
 } 

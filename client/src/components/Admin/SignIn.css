@@ -1,0 +1,39 @@
+.sign-in-container {
+  max-width: 400px;
+  margin: auto;
+  margin-top: 200px;
+  padding: 20px;
+  background-color: #2b2b2b; /* Match the navbar background */
+  border-radius: 10px;
+  color: white;
+}
+
+.error {
+  color: red;
+}
+
+.redirect-link {
+  color: #ff4747; /* Match the theme color */
+  text-decoration: none;
+}
+
+.redirect-link:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Button styles to match navbar */
+button {
+  padding: 8px 20px;
+  background-color: transparent;
+  color: white;
+  border: 1px solid #ff4747;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #ff4747;
+  transform: translateY(-2px);
+}

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Admin = require('../models/Admin'); // Import Admin model
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Product = require('../models/Product');
@@ -101,32 +102,35 @@ router.put('/products/:id/availability', async (req, res) => {
   }
 });
 
-// Admin Signup Route
+// ✅ Admin Signup Route - Stores in `admins` collection
 router.post('/admin/signup', async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Name, email, and password are required' });
   }
 
   try {
+    // Check if email exists in both User and Admin collections
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const existingAdmin = await Admin.findOne({ email });
+
+    if (existingUser || existingAdmin) {
       return res.status(400).json({ error: 'Email already in use' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ email, password: hashedPassword });
+    const newAdmin = new Admin({ name, email, password }); // Mongoose will hash it automatically
+    await newAdmin.save();
 
-    await user.save();
-    res.status(201).json({ message: 'Admin registered successfully' });
+    const token = jwt.sign({ id: newAdmin._id }, process.env.SECRET, { expiresIn: '1h' });
+    res.status(201).json({ message: 'Admin registered successfully', token });
   } catch (error) {
     console.error('Error during admin signup:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Admin Login Route
+// ✅ Admin Login Route - Uses `admins` collection
 router.post('/admin/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -135,17 +139,17 @@ router.post('/admin/login', async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await admin.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: admin._id }, process.env.SECRET, { expiresIn: '1h' });
     res.status(200).json({ token });
   } catch (error) {
     console.error('Error during admin login:', error);

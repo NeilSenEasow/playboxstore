@@ -9,9 +9,11 @@ const AdminLogin = ({ onLogin }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Implement your login logic here
-    // For example, send a request to your backend to authenticate the admin
-    const response = await fetch('http://localhost:5001/admin/login', {
+    
+    // Use the production URL from the environment variable
+    const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/admin/login';
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

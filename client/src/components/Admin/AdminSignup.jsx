@@ -16,7 +16,8 @@ const AdminSignup = () => {
     }
 
     // Implement your signup logic here
-    const response = await fetch('http://localhost:5001/admin/signup', { // Updated URL to match the server route
+    const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/admin/signup'; // Use the production URL from the environment variable
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
