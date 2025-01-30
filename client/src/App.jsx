@@ -16,12 +16,12 @@ import Checkout from './components/Checkout/Checkout';
 import SearchResults from './components/SearchResults/SearchResults';
 import RentDetails from './components/RentDetails/RentDetails';
 import Payment from './components/Payment/Payment';
-import Admin from './components/Admin/Admin';
+// import Admin from './components/Admin/Admin';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
 import PrivateRoute from './components/PrivateRoute';
-import AdminLogin from './components/Admin/AdminLogin';
-import AdminSignup from './components/Admin/AdminSignup';
+// import AdminLogin from './components/Admin/AdminLogin';
+// import AdminSignup from './components/Admin/AdminSignup';
 import './App.css';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -50,6 +50,14 @@ function App() {
     rentItems: [],
     sellItems: []
   });
+
+  // Check for token in local storage on initial load
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true); // User is authenticated if token exists
+    }
+  }, []);
 
   // Fetch data from backend
   useEffect(() => {
@@ -132,13 +140,14 @@ function App() {
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
+    localStorage.removeItem('token'); // Remove token from local storage
+    setCartItems([]);//Clear the cart items
+    setIsAuthenticated(false); // Update authentication state
   };
 
   const handleLogin = (token) => {
-    localStorage.setItem('token', token);
-    setIsAuthenticated(true);
+    localStorage.setItem('token', token); // Store token in local storage
+    setIsAuthenticated(true); // Set isAuthenticated to true upon successful login
   };
 
   const SignOutButton = () => (
@@ -207,16 +216,16 @@ function App() {
             <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} clearCart={clearCart} />} />
             <Route path="/checkout" element={<Checkout cartItems={cartItems} clearCart={clearCart} userPreferences={userPreferences} />} />
             <Route path="/payment" element={<Payment cartItems={cartItems} clearCart={clearCart} />} />
-            <Route 
+            {/* <Route 
               path="/admin" 
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Admin isAuthenticated={isAuthenticated} />
                 </PrivateRoute>
               } 
-            />
-            <Route path="/admin/login" element={<AdminLogin onLogin={handleLogin} />} />
-            <Route path="/admin/signup" element={<AdminSignup />} />
+            /> */}
+            {/* <Route path="/admin/login" element={<AdminLogin onLogin={handleLogin} />} /> */}
+            {/* <Route path="/admin/signup" element={<AdminSignup />} />  */}
             <Route path="/signin" element={<SignIn onSignIn={handleLogin} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="*" element={<Navigate to="/" replace />} />
