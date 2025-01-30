@@ -16,7 +16,7 @@ import Checkout from './components/Checkout/Checkout';
 import SearchResults from './components/SearchResults/SearchResults';
 import RentDetails from './components/RentDetails/RentDetails';
 import Payment from './components/Payment/Payment';
-// import Admin from './components/Admin/Admin';
+import Admin from './components/Admin/Admin';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
 import PrivateRoute from './components/PrivateRoute';
@@ -216,14 +216,14 @@ function App() {
             <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} clearCart={clearCart} />} />
             <Route path="/checkout" element={<Checkout cartItems={cartItems} clearCart={clearCart} userPreferences={userPreferences} />} />
             <Route path="/payment" element={<Payment cartItems={cartItems} clearCart={clearCart} />} />
-            {/* <Route 
+            <Route 
               path="/admin" 
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Admin isAuthenticated={isAuthenticated} />
                 </PrivateRoute>
               } 
-            /> */}
+            />
             {/* <Route path="/admin/login" element={<AdminLogin onLogin={handleLogin} />} /> */}
             {/* <Route path="/admin/signup" element={<AdminSignup />} />  */}
             <Route path="/signin" element={<SignIn onSignIn={handleLogin} />} />

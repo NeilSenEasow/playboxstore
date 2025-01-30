@@ -185,94 +185,11 @@ app.get("/api/items", async (req, res) => {
   res.json(items);
 });
 
-// Add a new product
-app.post("/api/products", async (req, res) => {
-  try {
-    const { id, name, category, count } = req.body;
-
-    // Validate input
-    if (!name || !category || count === undefined) {
-      return res.status(400).json({ error: "All fields (name, category, count) are required" });
-    }
-    if (typeof name !== 'string' || typeof category !== 'string') {
-      return res.status(400).json({ error: "Name and category should be strings" });
-    }
-    if (typeof count !== 'number' || count < 0) {
-      return res.status(400).json({ error: "Count should be a positive number" });
-    }
-
-    const products = await readProductsFile();
-    const newProduct = { name, category, count };
-
-    products.push(newProduct);
-    await writeProductsFile(products);
-
-    res.status(201).json({ message: "Product added successfully", product: newProduct });
-  } catch (err) {
-    console.error("Error adding product:", err);
-    res.status(500).json({ error: "Error adding product" });
-  }
-});
-
-// Update product
-app.put("/api/products/:id", async (req, res) => {
-  try {
-    const { category, count } = req.body;
-    const productId = parseInt(req.params.id);
-
-    // Validate request body
-    if (category !== undefined && typeof category !== 'string') {
-      return res.status(400).json({ error: "Category should be a string" });
-    }
-    if (count !== undefined && (typeof count !== 'number' || count < 0)) {
-      return res.status(400).json({ error: "Count should be a positive number" });
-    }
-
-    let products = await readProductsFile();
-    const productIndex = products.findIndex((p) => p.id === productId);
-
-    if (productIndex === -1) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    // Update product fields
-    if (category !== undefined) products[productIndex].category = category;
-    if (count !== undefined) products[productIndex].count = count;
-
-    await writeProductsFile(products);
-    res.json({ message: "Product updated successfully", product: products[productIndex] });
-  } catch (err) {
-    console.error("Error updating product:", err);
-    res.status(500).json({ error: "Error updating product" });
-  }
-});
-
-// Delete item
-app.delete("/api/items/:id", async (req, res) => {
-  try {
-    const itemId = parseInt(req.params.id);
-
-    let items = await readItemsFile();
-    const itemIndex = items.findIndex((i) => i.id === itemId);
-
-    if (itemIndex === -1) {
-      return res.status(404).json({ error: "Item not found" });
-    }
-
-    const deletedItem = items.splice(itemIndex, 1)[0];
-    await writeItemsFile(items);
-
-    res.json({ message: "Item deleted successfully", item: deletedItem });
-  } catch (err) {
-    console.error("Error deleting item:", err);
-    res.status(500).json({ error: "Error deleting item" });
-  }
-});
-
 // Add a new item
 app.post("/api/items", async (req, res) => {
   try {
-    const { id, name, category, count } = req.body;
+    const { name, category, count } = req.body;
+    console.log("Received data:", req.body); // Log the received data
 
     // Validate input
     if (!name || !category || count === undefined) {
@@ -285,17 +202,17 @@ app.post("/api/items", async (req, res) => {
       return res.status(400).json({ error: "Count should be a positive number" });
     }
 
-    const items = await readItemsFile();
-    console.log(items);
-    const newItem = { id: id, name, category, count };
+    const newItem = new Product({ name, category, availableQuantity: count });
+    const savedItem = await newItem.save();
 
-    items.push(newItem);
-    await writeItemsFile(items);
+    if (!savedItem) {
+      return res.status(500).json({ error: "Failed to add item to the database" });
+    }
 
-    res.status(201).json({ message: "Item added successfully", item: newItem });
+    res.status(201).json({ message: "Item added successfully", item: savedItem });
   } catch (err) {
     console.error("Error adding item:", err);
-    res.status(500).json({ error: "Error adding item" });
+    res.status(500).json({ error: "Error adding item: " + err.message }); // Provide more specific error message
   }
 });
 
@@ -303,7 +220,7 @@ app.post("/api/items", async (req, res) => {
 app.put("/api/items/:id", async (req, res) => {
   try {
     const { category, count } = req.body;
-    const itemId = parseInt(req.params.id);
+    const itemId = req.params.id;
 
     // Validate request body
     if (category !== undefined && typeof category !== 'string') {
@@ -313,19 +230,17 @@ app.put("/api/items/:id", async (req, res) => {
       return res.status(400).json({ error: "Count should be a positive number" });
     }
 
-    let items = await readItemsFile();
-    const itemIndex = items.findIndex((i) => i.id === itemId);
-
-    if (itemIndex === -1) {
+    const item = await Product.findById(itemId);
+    if (!item) {
       return res.status(404).json({ error: "Item not found" });
     }
 
     // Update item fields
-    if (category !== undefined) items[itemIndex].category = category;
-    if (count !== undefined) items[itemIndex].count = count;
+    if (category !== undefined) item.category = category;
+    if (count !== undefined) item.availableQuantity = count;
 
-    await writeItemsFile(items);
-    res.json({ message: "Item updated successfully", item: items[itemIndex] });
+    await item.save(); // Save updated item to MongoDB
+    res.json({ message: "Item updated successfully", item });
   } catch (err) {
     console.error("Error updating item:", err);
     res.status(500).json({ error: "Error updating item" });
@@ -335,20 +250,14 @@ app.put("/api/items/:id", async (req, res) => {
 // Delete item
 app.delete("/api/items/:id", async (req, res) => {
   try {
-    const itemId = parseInt(req.params.id);
-    console.log(itemId);
+    const itemId = req.params.id;
 
-    let items = await readItemsFile();
-    const itemIndex = items.findIndex((i) => i.id === itemId);
-
-    if (itemIndex === -1) {
+    const item = await Product.findByIdAndDelete(itemId);
+    if (!item) {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    const deletedItem = items.splice(itemIndex, 1)[0];
-    await writeItemsFile(items);
-
-    res.json({ message: "Item deleted successfully", item: deletedItem });
+    res.json({ message: "Item deleted successfully", item });
   } catch (err) {
     console.error("Error deleting item:", err);
     res.status(500).json({ error: "Error deleting item" });
