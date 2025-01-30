@@ -61,7 +61,7 @@ export const buyItems = [
 
 const Buy = ({ updateCartCount }) => {
   const sectionRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [products, setProducts] = useState([]);
@@ -69,15 +69,11 @@ const Buy = ({ updateCartCount }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/api/products' || import.meta.env.VITE_API_URL + '/api/products'; // Use environment variables
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+        const response = await fetch(`${process.env.APP_URL}/api/products`);
         const data = await response.json();
-        setProducts(data.products); // Assuming the data structure is an array of products
+        setProducts(data.products); // Assuming the API returns an object with a 'products' array
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
       }
     };
 
@@ -156,37 +152,41 @@ const Buy = ({ updateCartCount }) => {
       <p className="buy-subtitle">Latest gaming consoles and accessories at the best prices!</p>
       
       <div className="buy-items">
-        {products.map((item, index) => (
-          <div 
-            key={item.id} 
-            className="buy-item"
-            style={{ animationDelay: `${index * 0.2}s` }}
-          >
-            <div className="buy-item-image-container">
-              <img src={item.image} alt={item.name} className="buy-item-image" />
-              <span className="condition-badge">{item.condition || 'New'}</span>
-            </div>
-            <div className="buy-item-content">
-              <h3 className="buy-item-name">{item.name}</h3>
-              <p className="buy-item-description">{item.description || `${item.category} - Brand New`}</p>
-              <p className="buy-item-price">₹{item.price.toLocaleString()}</p>
-              <div className="buy-item-buttons">
-                <button 
-                  className="btn-primary"
-                  onClick={() => updateCartCount(item)}
-                >
-                  Add To Cart
-                </button>
-                <button 
-                  className="btn-secondary"
-                  onClick={() => handleViewDetails(item)}
-                >
-                  View Details
-                </button>
+        {products.length > 0 ? (
+          products.map((item, index) => (
+            <div 
+              key={item.id} 
+              className="buy-item"
+              style={{ animationDelay: `${index * 0.2}s` }}
+            >
+              <div className="buy-item-image-container">
+                <img src={item.image} alt={item.name} className="buy-item-image" />
+                <span className="condition-badge">{item.condition || 'New'}</span>
+              </div>
+              <div className="buy-item-content">
+                <h3 className="buy-item-name">{item.name}</h3>
+                <p className="buy-item-description">{item.description || `${item.category} - Brand New`}</p>
+                <p className="buy-item-price">₹{item.price.toLocaleString()}</p>
+                <div className="buy-item-buttons">
+                  <button 
+                    className="btn-primary"
+                    onClick={() => updateCartCount(item)}
+                  >
+                    Add To Cart
+                  </button>
+                  <button 
+                    className="btn-secondary"
+                    onClick={() => handleViewDetails(item)}
+                  >
+                    View Details
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>Loading products...</p>
+        )}
       </div>
 
       {showDetails && selectedItem && (

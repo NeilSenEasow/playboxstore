@@ -18,13 +18,14 @@ const Sell = () => {
   useEffect(() => {
     const fetchSellItems = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/api/products' || import.meta.env.VITE_API_URL + '/api/products'; // Use environment variables
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
+        const response = await fetch(`${process.env.REACT_APP_APP_URL}/api/products`);
+        const localResponse = await fetch(`${import.meta.env.VITE_API_URL}/products`); // Fetch from VITE_API_URL as well
+        if (!response.ok && !localResponse.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setSellItems(data.sellItems); // Assuming the data structure is an array of sell items
+        const localData = await localResponse.json();
+        setSellItems(data.sellItems || localData.sellItems); // Use sellItems from either response
       } catch (error) {
         console.error('Error fetching sell items:', error);
       }
@@ -117,31 +118,35 @@ const Sell = () => {
       <p className="sell-subtitle">Want to sell your gaming gear? Check out similar items below!</p>
       
       <div className="sell-items">
-        {sellItems.map((item, index) => (
-          <div 
-            key={item.id} 
-            className="sell-item"
-            style={{ animationDelay: `${index * 0.2}s` }}
-          >
-            <div className="sell-item-image-container">
-              <img src={item.image} alt={item.name} className="sell-item-image" />
-              <span className="condition-badge">{item.condition}</span>
-            </div>
-            <div className="sell-item-content">
-              <h3 className="sell-item-name">{item.name}</h3>
-              <p className="sell-item-description">{item.description || 'No description available'}</p>
-              <p className="sell-item-price">₹{item.price.toLocaleString()}</p>
-              <div className="sell-item-buttons">
-                <button 
-                  className="btn-primary"
-                  onClick={() => handleSellClick(item)}
-                >
-                  Sell Similar Item
-                </button>
+        {sellItems.length > 0 ? (
+          sellItems.map((item, index) => (
+            <div 
+              key={item.id} 
+              className="sell-item"
+              style={{ animationDelay: `${index * 0.2}s` }}
+            >
+              <div className="sell-item-image-container">
+                <img src={item.image} alt={item.name} className="sell-item-image" />
+                <span className="condition-badge">{item.condition}</span>
+              </div>
+              <div className="sell-item-content">
+                <h3 className="sell-item-name">{item.name}</h3>
+                <p className="sell-item-description">{item.description || 'No description available'}</p>
+                <p className="sell-item-price">₹{item.price.toLocaleString()}</p>
+                <div className="sell-item-buttons">
+                  <button 
+                    className="btn-primary"
+                    onClick={() => handleSellClick(item)}
+                  >
+                    Sell Similar Item
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>Loading sell items...</p>
+        )}
       </div>
 
       {showSellForm && selectedItem && (
