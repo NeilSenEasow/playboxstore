@@ -8,7 +8,7 @@ const fs = require("fs").promises; // Use fs.promises for async/await
 const path = require("path");
 const User = require("./models/User"); // Import the User model
 const Product = require("./models/Product"); // Import the Product model
-const Admin = require('./models/Admin'); //Import Admin model
+const Admin = require('./models/Admin'); // Import Admin model
 
 // Load environment variables
 dotenv.config();
@@ -35,68 +35,6 @@ mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
-
-// File path for products
-const PRODUCTS_FILE = path.join(__dirname, "data", "products.json");
-
-// Function to read products.json
-const readProductsFile = async () => {
-  try {
-    const data = await fs.readFile(PRODUCTS_FILE, "utf8");
-    const parsedData = JSON.parse(data);
-    
-    // Ensure that the parsed data is an array
-    if (!Array.isArray(parsedData.featured) && !Array.isArray(parsedData.products) && !Array.isArray(parsedData.games) && !Array.isArray(parsedData.rentItems) && !Array.isArray(parsedData.sellItems)) {
-      console.error("Parsed data is not in the expected format:", parsedData);
-      return []; // Return an empty array if the data is not in the expected format
-    }
-    
-    return parsedData;
-  } catch (err) {
-    console.error("Error reading products.json:", err);
-    return []; // Return an empty array if file doesn't exist or there is an error
-  }
-};
-
-// Function to write to products.json
-const writeProductsFile = async (products) => {
-  try {
-    await fs.writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
-  } catch (err) {
-    console.error("Error writing products.json:", err);
-  }
-};
-
-// File path for items
-const ITEMS_FILE = path.join(__dirname, "data", "items.json");
-
-// Function to read items.json
-const readItemsFile = async () => {
-  try {
-    const data = await fs.readFile(ITEMS_FILE, "utf8");
-    const parsedData = JSON.parse(data);
-    
-    // Ensure that the parsed data is an array
-    if (!Array.isArray(parsedData)) {
-      console.error("Parsed data is not in the expected format:", parsedData);
-      return []; // Return an empty array if the data is not in the expected format
-    }
-    
-    return parsedData;
-  } catch (err) {
-    console.error("Error reading items.json:", err);
-    return []; // Return an empty array if file doesn't exist or there is an error
-  }
-};
-
-// Function to write to items.json
-const writeItemsFile = async (items) => {
-  try {
-    await fs.writeFile(ITEMS_FILE, JSON.stringify(items, null, 2));
-  } catch (err) {
-    console.error("Error writing items.json:", err);
-  }
-};
 
 // API root route
 app.get("/api", (req, res) => {
@@ -175,104 +113,21 @@ app.post("/auth/login", async (req, res) => {
 
 // Get all products
 app.get("/api/products", async (req, res) => {
-  const products = await readProductsFile();
+  const products = await Product.find(); // Fetch products from MongoDB
   res.json(products);
 });
 
 // Get all items
 app.get("/api/items", async (req, res) => {
-  const items = await readItemsFile();
+  const items = await Product.find(); // Fetch items from MongoDB
   res.json(items);
 });
 
-// Add a new product
-app.post("/api/products", async (req, res) => {
-  try {
-    const { id, name, category, count } = req.body;
-
-    // Validate input
-    if (!name || !category || count === undefined) {
-      return res.status(400).json({ error: "All fields (name, category, count) are required" });
-    }
-    if (typeof name !== 'string' || typeof category !== 'string') {
-      return res.status(400).json({ error: "Name and category should be strings" });
-    }
-    if (typeof count !== 'number' || count < 0) {
-      return res.status(400).json({ error: "Count should be a positive number" });
-    }
-
-    const products = await readProductsFile();
-    const newProduct = { name, category, count };
-
-    products.push(newProduct);
-    await writeProductsFile(products);
-
-    res.status(201).json({ message: "Product added successfully", product: newProduct });
-  } catch (err) {
-    console.error("Error adding product:", err);
-    res.status(500).json({ error: "Error adding product" });
-  }
-});
-
-// Update product
-app.put("/api/products/:id", async (req, res) => {
-  try {
-    const { category, count } = req.body;
-    const productId = parseInt(req.params.id);
-
-    // Validate request body
-    if (category !== undefined && typeof category !== 'string') {
-      return res.status(400).json({ error: "Category should be a string" });
-    }
-    if (count !== undefined && (typeof count !== 'number' || count < 0)) {
-      return res.status(400).json({ error: "Count should be a positive number" });
-    }
-
-    let products = await readProductsFile();
-    const productIndex = products.findIndex((p) => p.id === productId);
-
-    if (productIndex === -1) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    // Update product fields
-    if (category !== undefined) products[productIndex].category = category;
-    if (count !== undefined) products[productIndex].count = count;
-
-    await writeProductsFile(products);
-    res.json({ message: "Product updated successfully", product: products[productIndex] });
-  } catch (err) {
-    console.error("Error updating product:", err);
-    res.status(500).json({ error: "Error updating product" });
-  }
-});
-
-// Delete item
-app.delete("/api/items/:id", async (req, res) => {
-  try {
-    const itemId = parseInt(req.params.id);
-
-    let items = await readItemsFile();
-    const itemIndex = items.findIndex((i) => i.id === itemId);
-
-    if (itemIndex === -1) {
-      return res.status(404).json({ error: "Item not found" });
-    }
-
-    const deletedItem = items.splice(itemIndex, 1)[0];
-    await writeItemsFile(items);
-
-    res.json({ message: "Item deleted successfully", item: deletedItem });
-  } catch (err) {
-    console.error("Error deleting item:", err);
-    res.status(500).json({ error: "Error deleting item" });
-  }
-});
-
-// Add a new item
+// Add a new item (product)
 app.post("/api/items", async (req, res) => {
   try {
-    const { id, name, category, count } = req.body;
+    const { name, category, count } = req.body;
+    console.log("Received data:", req.body); // Log the received data
 
     // Validate input
     if (!name || !category || count === undefined) {
@@ -285,17 +140,17 @@ app.post("/api/items", async (req, res) => {
       return res.status(400).json({ error: "Count should be a positive number" });
     }
 
-    const items = await readItemsFile();
-    console.log(items);
-    const newItem = { id: id, name, category, count };
+    const newItem = new Product({ name, category, availableQuantity: count });
+    const savedItem = await newItem.save();
 
-    items.push(newItem);
-    await writeItemsFile(items);
+    if (!savedItem) {
+      return res.status(500).json({ error: "Failed to add item to the database" });
+    }
 
-    res.status(201).json({ message: "Item added successfully", item: newItem });
+    res.status(201).json({ message: "Item added successfully", item: savedItem });
   } catch (err) {
     console.error("Error adding item:", err);
-    res.status(500).json({ error: "Error adding item" });
+    res.status(500).json({ error: "Error adding item: " + err.message }); // Provide more specific error message
   }
 });
 
@@ -303,7 +158,7 @@ app.post("/api/items", async (req, res) => {
 app.put("/api/items/:id", async (req, res) => {
   try {
     const { category, count } = req.body;
-    const itemId = parseInt(req.params.id);
+    const itemId = req.params.id;
 
     // Validate request body
     if (category !== undefined && typeof category !== 'string') {
@@ -313,19 +168,17 @@ app.put("/api/items/:id", async (req, res) => {
       return res.status(400).json({ error: "Count should be a positive number" });
     }
 
-    let items = await readItemsFile();
-    const itemIndex = items.findIndex((i) => i.id === itemId);
-
-    if (itemIndex === -1) {
+    const item = await Product.findById(itemId);
+    if (!item) {
       return res.status(404).json({ error: "Item not found" });
     }
 
     // Update item fields
-    if (category !== undefined) items[itemIndex].category = category;
-    if (count !== undefined) items[itemIndex].count = count;
+    if (category !== undefined) item.category = category;
+    if (count !== undefined) item.count = count;
 
-    await writeItemsFile(items);
-    res.json({ message: "Item updated successfully", item: items[itemIndex] });
+    await item.save(); // Save updated item to MongoDB
+    res.json({ message: "Item updated successfully", item });
   } catch (err) {
     console.error("Error updating item:", err);
     res.status(500).json({ error: "Error updating item" });
@@ -335,20 +188,14 @@ app.put("/api/items/:id", async (req, res) => {
 // Delete item
 app.delete("/api/items/:id", async (req, res) => {
   try {
-    const itemId = parseInt(req.params.id);
-    console.log(itemId);
+    const itemId = req.params.id;
 
-    let items = await readItemsFile();
-    const itemIndex = items.findIndex((i) => i.id === itemId);
-
-    if (itemIndex === -1) {
+    const item = await Product.findByIdAndDelete(itemId);
+    if (!item) {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    const deletedItem = items.splice(itemIndex, 1)[0];
-    await writeItemsFile(items);
-
-    res.json({ message: "Item deleted successfully", item: deletedItem });
+    res.json({ message: "Item deleted successfully", item });
   } catch (err) {
     console.error("Error deleting item:", err);
     res.status(500).json({ error: "Error deleting item" });

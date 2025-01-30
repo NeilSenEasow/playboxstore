@@ -32,10 +32,6 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
     onSignOut(); // Call the sign-out function passed as a prop
   };
 
-  // const handleAdminSignInClick = () => {
-  //   navigate('/admin/login'); // Redirect to admin login page
-  // };
-
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -49,7 +45,6 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
         <li><Link to="/sell" className="nav-button">Sell</Link></li>
         <li><Link to="/buy" className="nav-button">Buy</Link></li>
         <li><Link to="/rent" className="nav-button">Rent</Link></li>
-        {/* <li><Link to="/admin/signup" className="nav-button">Admin Sign Up</Link></li> */}
       </ul>
 
       <div className="search-container">
@@ -79,7 +74,6 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
             <>
               <button className="sign-in-btn" onClick={handleSignInClick}>Sign In</button>
               <button className="sign-in-btn" onClick={handleSignUpClick}>Sign Up</button>
-              {/* <button className="sign-in-btn" onClick={handleAdminSignInClick}>Admin Sign In</button> */}
             </>
           )}
         </div>
