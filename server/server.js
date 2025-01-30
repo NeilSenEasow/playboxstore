@@ -166,7 +166,10 @@ app.post("/auth/login", async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
 
-    res.status(200).json({ user, token });
+    // Check if the user is an admin
+    const isAdmin = user.role === 'admin'; // Assuming you have a 'role' field in your User model
+
+    res.status(200).json({ user, token, isAdmin }); // Send isAdmin in the response
   } catch (err) {
     console.error("Error during login:", err);
     res.status(500).json({ error: err.message });

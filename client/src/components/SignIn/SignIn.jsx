@@ -28,24 +28,21 @@ const SignIn = ({ onSignIn }) => {
 
       if (!response.ok) {
         let errorMessage = 'Sign In failed';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage; // Extract message if available
-        } catch (jsonError) {
-          console.error("Error parsing error JSON:", jsonError);
-          if (response.status === 400) {
-            errorMessage = "Invalid Credentials";
-          }
-        }
-        throw new Error(errorMessage); // Throw the extracted error message
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       localStorage.setItem('token', data.token); // Store token immediately
-      if (onSignIn) {
-        onSignIn(data.token);
+      onSignIn(data.token);
+
+      // Redirect based on user type
+      if (data.isAdmin) {
+        navigate('/admin'); // Redirect to admin page
+      } else {
+        navigate('/'); // Redirect to home page
       }
-      navigate('/');
     } catch (err) {
       console.error('Sign-in error:', err);
       setError(err.message); // Set the error message in state
