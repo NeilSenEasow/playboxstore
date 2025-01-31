@@ -16,7 +16,7 @@ const ProductCard = ({ product, onAddToCart }) => {
   };
 
   return (
-    <div className="product-card">
+    <div className="product-card-main">
       <div className="image-container">
         {isLoading && <div className="loading-spinner"></div>}
         <img 

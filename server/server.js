@@ -195,15 +195,15 @@ app.get("/api/items", async (req, res) => {
 // Add a new item
 app.post("/api/items", async (req, res) => {
   try {
-    const { name, price, description, condition, availableQuantity } = req.body; // Updated to include new fields
+    const { name, price, description, condition, availableQuantity, category } = req.body; // Include category
     console.log("Received data:", req.body); // Log the received data
 
     // Validate input
-    if (!name || !price || !description || !condition || availableQuantity === undefined) {
-      return res.status(400).json({ error: "All fields (name, price, description, condition, availableQuantity) are required" });
+    if (!name || !price || !description || !condition || availableQuantity === undefined || !category) {
+      return res.status(400).json({ error: "All fields (name, price, description, condition, availableQuantity, category) are required" });
     }
-    if (typeof name !== 'string' || typeof description !== 'string') {
-      return res.status(400).json({ error: "Name and description should be strings" });
+    if (typeof name !== 'string' || typeof description !== 'string' || typeof category !== 'string') {
+      return res.status(400).json({ error: "Name, description, and category should be strings" });
     }
     if (typeof price !== 'number' || price < 0) {
       return res.status(400).json({ error: "Price should be a positive number" });
@@ -215,7 +215,7 @@ app.post("/api/items", async (req, res) => {
       return res.status(400).json({ error: "Available quantity should be a positive number" });
     }
 
-    const newItem = new Product({ name, price, description, condition, availableQuantity });
+    const newItem = new Product({ name, price, description, condition, availableQuantity, category }); // Include category
     const savedItem = await newItem.save();
 
     if (!savedItem) {
@@ -231,6 +231,7 @@ app.post("/api/items", async (req, res) => {
         description: savedItem.description,
         condition: savedItem.condition,
         availableQuantity: savedItem.availableQuantity,
+        category: savedItem.category // Include category in the response
       },
     });
   } catch (err) {
@@ -239,15 +240,19 @@ app.post("/api/items", async (req, res) => {
   }
 });
 
-// Update item
 app.put("/api/items/:id", async (req, res) => {
   try {
     const { name, count } = req.body;
     const itemId = req.params.id;
 
+    // Validate MongoDB ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res.status(400).json({ error: "Invalid product ID format" });
+    }
+
     // Validate request body
-    if (!name || typeof name !== "string") {
-      return res.status(400).json({ error: "Name is required and should be a string" });
+    if (name !== undefined && typeof name !== "string") {
+      return res.status(400).json({ error: "Name should be a string" });
     }
     if (count !== undefined && typeof count !== "number") {
       return res.status(400).json({ error: "Count should be a number" });
@@ -274,10 +279,10 @@ app.put("/api/items/:id", async (req, res) => {
 
     await item.save();
 
-    // ✅ Explicitly return the _id
+    // ✅ Explicitly return the _id and updated product details
     res.json({
       message: "Item updated successfully",
-      item: {
+      updatedItem: {
         _id: item._id, // Ensure _id is included in the response
         name: item.name,
         price: item.price,

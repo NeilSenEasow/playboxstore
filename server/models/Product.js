@@ -10,7 +10,8 @@ const productSchema = new mongoose.Schema({
     enum: ['new', 'used'],
     required: true 
   },
-  availableQuantity: { type: Number, required: true }
+  availableQuantity: { type: Number, required: true },
+  category: { type: String, required: true }
 });
 
 const Product = mongoose.model('Product', productSchema);

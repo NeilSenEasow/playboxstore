@@ -1,15 +1,4 @@
-.product-carousel {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
-
-.product-carousel-track {
-  display: flex;
-  transition: transform 0.5s ease-in-out;
-}
-
-.product-card {
+.product-card-main {
   flex: 0 0 280px;
   background: #1a1a1a;
   border-radius: 10px;
@@ -22,7 +11,7 @@
   scroll-snap-align: start;
 }
 
-.product-card:hover {
+.product-card-main:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(255, 71, 71, 0.2);
 }
@@ -35,6 +24,15 @@
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 1rem;
+  display: flex; /* Added to center the image */
+  justify-content: center; /* Center the image horizontally */
+  align-items: center; /* Center the image vertically */
+}
+
+.product-image {
+  width: 100%; /* Ensure the image fills the container */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: cover; /* Cover the entire container */
 }
 
 .product-image {
@@ -59,10 +57,6 @@
   border-top: 3px solid #ff4747;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-}
-
-.product-card:hover .product-image {
-  transform: scale(1.1);
 }
 
 .product-name {
@@ -108,45 +102,4 @@
 
 .btn-secondary:hover {
   background: rgba(255, 71, 71, 0.1);
-}
-
-.carousel-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 71, 71, 0.8);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.carousel-button.prev {
-  left: 10px;
-}
-
-.carousel-button.next {
-  right: 10px;
-}
-
-.carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.carousel-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #666;
-  cursor: pointer;
-}
-
-.carousel-dot.active {
-  background: #ff4747;
 }
