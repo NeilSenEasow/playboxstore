@@ -18,7 +18,7 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
   const calculateTotal = (items) => {
     return items.reduce((total, item) => {
       const itemPrice = item.rentPrice || item.price; // Handle both regular and rental prices
-      return total + formatPrice(itemPrice);
+      return total + formatPrice(itemPrice) * item.quantity; // Multiply by quantity
     }, 0);
   };
 
@@ -27,7 +27,8 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
       alert('Your cart is empty!');
       return;
     }
-    navigate('/checkout');
+    const totalCost = calculateTotal(groupedItems); // Calculate total cost
+    navigate('/checkout', { state: { totalCost } }); // Pass total cost as state
   };
 
   const handleDeleteItem = (itemId) => {
@@ -44,6 +45,24 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
     }
   };
 
+  const handleQuantityChange = (itemId, change) => {
+    setCartItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId ? { ...item, quantity: Math.max(1, (item.quantity || 0) + change) } : item
+      )
+    );
+  };
+
+  const groupedItems = cartItems.reduce((acc, item) => {
+    const existingItem = acc.find(i => i.id === item.id);
+    if (existingItem) {
+      existingItem.quantity += item.quantity || 0; // Ensure quantity is a number
+    } else {
+      acc.push({ ...item });
+    }
+    return acc;
+  }, []);
+
   return (
     <div className="cart-container">
       <div className="cart-header">
@@ -56,7 +75,7 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
           </button>
         )}
       </div>
-      {cartItems.length === 0 ? (
+      {groupedItems.length === 0 ? (
         <div className="empty-cart">
           <p>Your cart is empty</p>
           <button 
@@ -69,7 +88,7 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
       ) : (
         <>
           <ul className="cart-list">
-            {cartItems.map((item) => (
+            {groupedItems.map((item) => (
               <li key={item.id} className="cart-item">
                 <img src={item.image} alt={item.name} className="cart-item-image" />
                 <div className="cart-item-details">
@@ -78,6 +97,11 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
                     ₹{(item.rentPrice || item.price).toLocaleString()}
                     {item.rentPrice ? '/day' : ''}
                   </p>
+                  <div className="quantity-controls">
+                    <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
+                    <span>{item.quantity || 1}</span> {/* Default to 1 if quantity is undefined */}
+                    <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
+                  </div>
                 </div>
                 <button 
                   className="delete-item-button"
@@ -92,7 +116,7 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
           <div className="cart-summary">
             <div className="cart-total">
               <span>Total:</span>
-              <span>₹{calculateTotal(cartItems).toLocaleString()}</span>
+              <span>₹{calculateTotal(groupedItems).toLocaleString()}</span>
             </div>
             <div className="cart-buttons">
               <button 

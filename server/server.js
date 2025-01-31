@@ -8,7 +8,7 @@ const fs = require("fs").promises; // Use fs.promises for async/await
 const path = require("path");
 const User = require("./models/User"); // Import the User model
 const Product = require("./models/Product"); // Import the Product model
-const Admin = require('./models/Admin'); //Import Admin model
+// const Admin = require('./models/Admin');
 
 // Load environment variables
 dotenv.config();
@@ -145,33 +145,38 @@ app.post("/auth/register", async (req, res) => {
   }
 });
 
-// Login route
-app.post("/auth/login", async (req, res) => {
+// Unified Login Route
+app.post('/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
-
     // Check if the user is an admin
-    const isAdmin = user.role === 'admin'; // Assuming you have a 'role' field in your User model
+    const admin = await Admin.findOne({ email });
+    if (admin) {
+      const isPasswordValid = await admin.comparePassword(password);
+      if (isPasswordValid) {
+        const token = jwt.sign({ id: admin._id, role: 'admin' }, process.env.SECRET, { expiresIn: '1h' });
+        return res.status(200).json({ token, isAdmin: true, role: 'admin' }); // Send token and role
+      }
+    }
 
-    res.status(200).json({ user, token, isAdmin }); // Send isAdmin in the response
+    // If not an admin, check if the user exists
+    const user = await User.findOne({ email });
+    if (user) {
+      const isPasswordValid = await user.comparePassword(password);
+      if (isPasswordValid) {
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.SECRET, { expiresIn: '1h' });
+        return res.status(200).json({ token, isAdmin: user.role === 'admin', role: user.role }); // Send token and role
+      }
+    }
+
+    return res.status(400).json({ error: 'Invalid credentials' });
   } catch (err) {
-    console.error("Error during login:", err);
+    console.error('Error during login:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -267,56 +272,57 @@ app.delete("/api/items/:id", async (req, res) => {
   }
 });
 
-// Admin Signup Route
-app.post('/admin/signup', async (req, res) => {
-  const { name, email, password } = req.body;
+// // Admin Signup Route
+// app.post('/admin/signup', async (req, res) => {
+//   const { name, email, password } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: 'Name, email, and password are required' });
-  }
+//   if (!name || !email || !password) {
+//     return res.status(400).json({ error: 'Name, email, and password are required' });
+//   }
 
-  try {
-    const existingAdmin = await Admin.findOne({ email });
-    if (existingAdmin) {
-      return res.status(400).json({ error: 'Email already in use' });
-    }
+//   try {
+//     const existingAdmin = await Admin.findOne({ email });
+//     if (existingAdmin) {
+//       return res.status(400).json({ error: 'Email already in use' });
+//     }
 
-    const newAdmin = new Admin({ name, email, password });
-    await newAdmin.save();
+//     const newAdmin = new Admin({ name, email, password });
+//     await newAdmin.save();
 
-    const token = jwt.sign({ id: newAdmin._id }, process.env.SECRET, { expiresIn: '1h' });
-    res.status(201).json({ message: 'Admin registered successfully', token });
-  } catch (error) {
-    console.error('Error during admin signup:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+//     const token = jwt.sign({ id: newAdmin._id }, process.env.SECRET, { expiresIn: '1h' });
+//     res.status(201).json({ message: 'Admin registered successfully', token });
+//   } catch (error) {
+//     console.error('Error during admin signup:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
 
-app.post('/admin/login', async (req, res) => {
-  const { email, password } = req.body;
+// // Admin Login Route
+// app.post('/admin/login', async (req, res) => {
+//   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
-  }
+//   if (!email || !password) {
+//     return res.status(400).json({ error: 'Email and password are required' });
+//   }
 
-  try {
-    const admin = await Admin.findOne({ email });
-    if (!admin) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
+//   try {
+//     const admin = await Admin.findOne({ email });
+//     if (!admin) {
+//       return res.status(400).json({ error: 'Invalid credentials' });
+//     }
 
-    const isPasswordValid = await admin.comparePassword(password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
+//     const isPasswordValid = await admin.comparePassword(password);
+//     if (!isPasswordValid) {
+//       return res.status(400).json({ error: 'Invalid credentials' });
+//     }
 
-    const token = jwt.sign({ id: admin._id }, process.env.SECRET, { expiresIn: '1h' });
-    res.status(200).json({ token });
-  } catch (error) {
-    console.error('Error during admin login:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+//     const token = jwt.sign({ id: admin._id }, process.env.SECRET, { expiresIn: '1h' });
+//     res.status(200).json({ token });
+//   } catch (error) {
+//     console.error('Error during admin login:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
 
 // Start the server
 app.listen(port, () => {

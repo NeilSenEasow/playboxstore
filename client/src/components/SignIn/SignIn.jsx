@@ -14,10 +14,8 @@ const SignIn = ({ onSignIn }) => {
     setError(null); // Clear previous errors
     setIsLoading(true); // Set loading state
 
-    console.log('Submitting sign-in with:', { email, password }); // Log the credentials being sent
-
     try {
-      const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/auth/login' || import.meta.env.VITE_API_URL + '/auth/login'; // Use environment variables
+      const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/auth/login'; // Updated to the unified login endpoint
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
