@@ -19,8 +19,7 @@ const Admin = ({ isAuthenticated }) => {
     name: '',
     price: '',
     description: '',
-    image: '',
-    condition: 'New',
+    condition: 'new',
     availableQuantity: 0
   });
 
@@ -61,22 +60,19 @@ const Admin = ({ isAuthenticated }) => {
     e.preventDefault();
     
     const productData = {
-      id: Date.now(), // Generate a unique ID based on the current timestamp
       name: newProduct.name,
-      category: selectedCategory.name,
-      price: newProduct.price,
+      price: parseFloat(newProduct.price), // Ensure price is a number
       description: newProduct.description,
-      image: newProduct.image,
       condition: newProduct.condition,
-      count: parseInt(newProduct.availableQuantity, 10), // Ensure count is a number
+      availableQuantity: parseInt(newProduct.availableQuantity, 10), // Ensure availableQuantity is a number
     };
 
-    // Send the new product to both local and remote backend
+    // Log the product data before sending
+    console.log("Adding product with data:", productData);
+
+    // Send the new product to the backend
     try {
-      console.log("Adding product with data:", productData);
-
-      // Send to local backend
-      const localResponse = await fetch("http://localhost:5001/api/items", {
+      const response = await fetch("http://localhost:5001/api/items", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,24 +80,13 @@ const Admin = ({ isAuthenticated }) => {
         body: JSON.stringify(productData),
       });
 
-      if (!localResponse.ok) {
-        throw new Error('Failed to add product to local API');
+      if (!response.ok) {
+        const errorData = await response.json(); // Log the error response
+        console.error('Error response:', errorData);
+        throw new Error('Failed to add product to API');
       }
 
-      // Send to remote backend
-      const remoteResponse = await fetch("https://playboxstore-dr9i.onrender.com/api/items", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productData),
-      });
-
-      if (!remoteResponse.ok) {
-        throw new Error('Failed to add product to remote API');
-      }
-
-      const data = await localResponse.json();
+      const data = await response.json();
       console.log(data);
 
       // Update local categories state after successful API call
@@ -109,7 +94,7 @@ const Admin = ({ isAuthenticated }) => {
         if (cat.id === selectedCategory.id) {
           return {
             ...cat,
-            products: [...cat.products, { ...productData }] // Add the new product to the category
+            products: [...cat.products, { ...productData, _id: data.item._id }] // Use the MongoDB ID
           };
         }
         return cat;
@@ -119,11 +104,10 @@ const Admin = ({ isAuthenticated }) => {
         name: '',
         price: '',
         description: '',
-        image: '',
-        condition: 'New',
+        condition: 'new',
         availableQuantity: 0
       });
-      setShowAddProduct(false);
+      setShowAddProduct(false); // Close the add product modal
     } catch (error) {
       console.error('Error adding product:', error);
     }
@@ -146,7 +130,7 @@ const Admin = ({ isAuthenticated }) => {
       // Update the local state if needed
       const updatedCategories = categories.map(category => {
         category.products = category.products.map(product =>
-          product.id === productId ? { ...product, count: newQuantity } : product // Update the count field
+          product.id === productId ? { ...product, availableQuantity: newQuantity } : product // Update the availableQuantity field
         );
         return category;
       });
@@ -159,6 +143,10 @@ const Admin = ({ isAuthenticated }) => {
   // Remove a product from a category
   const handleRemoveProduct = async (categoryId, productId) => {
     console.log("Attempting to delete product with ID:", productId); // Debugging log
+    if (!productId) {
+      console.error("No product ID provided for deletion.");
+      return; // Exit if no product ID is provided
+    }
     try {
       const response = await fetch(`http://localhost:5001/api/items/${productId}`, {
         method: "DELETE",
@@ -174,7 +162,7 @@ const Admin = ({ isAuthenticated }) => {
         if (cat.id === categoryId) {
           return {
             ...cat,
-            products: cat.products.filter(product => product.id !== productId) // Remove the product
+            products: cat.products.filter(product => product._id !== productId) // Use product._id
           };
         }
         return cat;
@@ -341,18 +329,18 @@ const Admin = ({ isAuthenticated }) => {
               </button>
 
               {category.products.map(product => (
-                <div key={product.id} className="product-card">
+                <div key={product._id} className="product-card">
                   <h4>{product.name}</h4>
                   <p>₹{product.price}</p>
                   <button 
                     className="btn-danger"
-                    onClick={() => handleRemoveProduct(category.id, product.id)}
+                    onClick={() => handleRemoveProduct(category.id, product._id)}
                   >
                     Remove Product
                   </button>
                   <button 
                     className="btn-primary"
-                    onClick={() => handleUpdateAvailability(product.id, product.count + 1)} // Update count instead of availableQuantity
+                    onClick={() => handleUpdateAvailability(product._id, product.availableQuantity + 1)}
                   >
                     Increase Availability
                   </button>
@@ -427,22 +415,13 @@ const Admin = ({ isAuthenticated }) => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Image URL</label>
-                  <input
-                    type="text"
-                    value={newProduct.image}
-                    onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-group">
                   <label>Condition</label>
                   <select
                     value={newProduct.condition}
                     onChange={(e) => setNewProduct({...newProduct, condition: e.target.value})}
                   >
-                    <option value="New">New</option>
-                    <option value="Used">Used</option>
+                    <option value="new">New</option>
+                    <option value="used">Used</option>
                   </select>
                 </div>
                 <div className="form-group">

@@ -8,7 +8,6 @@ const fs = require("fs").promises; // Use fs.promises for async/await
 const path = require("path");
 const User = require("./models/User"); // Import the User model
 const Product = require("./models/Product"); // Import the Product model
-// const Admin = require('./models/Admin');
 
 // Load environment variables
 dotenv.config();
@@ -196,28 +195,44 @@ app.get("/api/items", async (req, res) => {
 // Add a new item
 app.post("/api/items", async (req, res) => {
   try {
-    const { name, category, count } = req.body;
+    const { name, price, description, condition, availableQuantity } = req.body; // Updated to include new fields
     console.log("Received data:", req.body); // Log the received data
 
     // Validate input
-    if (!name || !category || count === undefined) {
-      return res.status(400).json({ error: "All fields (name, category, count) are required" });
+    if (!name || !price || !description || !condition || availableQuantity === undefined) {
+      return res.status(400).json({ error: "All fields (name, price, description, condition, availableQuantity) are required" });
     }
-    if (typeof name !== 'string' || typeof category !== 'string') {
-      return res.status(400).json({ error: "Name and category should be strings" });
+    if (typeof name !== 'string' || typeof description !== 'string') {
+      return res.status(400).json({ error: "Name and description should be strings" });
     }
-    if (typeof count !== 'number' || count < 0) {
-      return res.status(400).json({ error: "Count should be a positive number" });
+    if (typeof price !== 'number' || price < 0) {
+      return res.status(400).json({ error: "Price should be a positive number" });
+    }
+    if (condition !== 'new' && condition !== 'used') {
+      return res.status(400).json({ error: "Condition must be either 'new' or 'used'" });
+    }
+    if (typeof availableQuantity !== 'number' || availableQuantity < 0) {
+      return res.status(400).json({ error: "Available quantity should be a positive number" });
     }
 
-    const newItem = new Product({ name, category, availableQuantity: count });
+    const newItem = new Product({ name, price, description, condition, availableQuantity });
     const savedItem = await newItem.save();
 
     if (!savedItem) {
       return res.status(500).json({ error: "Failed to add item to the database" });
     }
 
-    res.status(201).json({ message: "Item added successfully", item: savedItem });
+    res.status(201).json({
+      message: "Item added successfully",
+      item: {
+        _id: savedItem._id, // Ensure _id is included in the response
+        name: savedItem.name,
+        price: savedItem.price,
+        description: savedItem.description,
+        condition: savedItem.condition,
+        availableQuantity: savedItem.availableQuantity,
+      },
+    });
   } catch (err) {
     console.error("Error adding item:", err);
     res.status(500).json({ error: "Error adding item: " + err.message }); // Provide more specific error message
@@ -227,15 +242,15 @@ app.post("/api/items", async (req, res) => {
 // Update item
 app.put("/api/items/:id", async (req, res) => {
   try {
-    const { category, count } = req.body;
+    const { name, count } = req.body;
     const itemId = req.params.id;
 
     // Validate request body
-    if (category !== undefined && typeof category !== 'string') {
-      return res.status(400).json({ error: "Category should be a string" });
+    if (!name || typeof name !== "string") {
+      return res.status(400).json({ error: "Name is required and should be a string" });
     }
-    if (count !== undefined && (typeof count !== 'number' || count < 0)) {
-      return res.status(400).json({ error: "Count should be a positive number" });
+    if (count !== undefined && typeof count !== "number") {
+      return res.status(400).json({ error: "Count should be a number" });
     }
 
     const item = await Product.findById(itemId);
@@ -243,86 +258,72 @@ app.put("/api/items/:id", async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    // Update item fields
-    if (category !== undefined) item.category = category;
-    if (count !== undefined) item.availableQuantity = count;
+    // Update availableQuantity based on count
+    if (count !== undefined) {
+      const newQuantity = item.availableQuantity + count;
+      if (newQuantity < 0) {
+        return res.status(400).json({ error: "Insufficient quantity available" });
+      }
+      item.availableQuantity = newQuantity;
+    }
 
-    await item.save(); // Save updated item to MongoDB
-    res.json({ message: "Item updated successfully", item });
+    // Update the name if provided
+    if (name) {
+      item.name = name;
+    }
+
+    await item.save();
+
+    // ✅ Explicitly return the _id
+    res.json({
+      message: "Item updated successfully",
+      item: {
+        _id: item._id, // Ensure _id is included in the response
+        name: item.name,
+        price: item.price,
+        description: item.description,
+        condition: item.condition,
+        availableQuantity: item.availableQuantity,
+      },
+    });
   } catch (err) {
     console.error("Error updating item:", err);
     res.status(500).json({ error: "Error updating item" });
   }
 });
 
-// Delete item
 app.delete("/api/items/:id", async (req, res) => {
   try {
     const itemId = req.params.id;
 
-    const item = await Product.findByIdAndDelete(itemId);
-    if (!item) {
+    // Validate the MongoDB ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res.status(400).json({ error: "Invalid product ID format" });
+    }
+
+    const deletedItem = await Product.findByIdAndDelete(itemId);
+
+    if (!deletedItem) {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    res.json({ message: "Item deleted successfully", item });
+    res.json({
+      message: "Item deleted successfully",
+      deletedItem: {
+        _id: deletedItem._id, // Ensure _id is explicitly returned
+        name: deletedItem.name,
+        price: deletedItem.price,
+        description: deletedItem.description,
+        condition: deletedItem.condition,
+        availableQuantity: deletedItem.availableQuantity,
+      },
+    });
   } catch (err) {
     console.error("Error deleting item:", err);
     res.status(500).json({ error: "Error deleting item" });
   }
 });
 
-// // Admin Signup Route
-// app.post('/admin/signup', async (req, res) => {
-//   const { name, email, password } = req.body;
-
-//   if (!name || !email || !password) {
-//     return res.status(400).json({ error: 'Name, email, and password are required' });
-//   }
-
-//   try {
-//     const existingAdmin = await Admin.findOne({ email });
-//     if (existingAdmin) {
-//       return res.status(400).json({ error: 'Email already in use' });
-//     }
-
-//     const newAdmin = new Admin({ name, email, password });
-//     await newAdmin.save();
-
-//     const token = jwt.sign({ id: newAdmin._id }, process.env.SECRET, { expiresIn: '1h' });
-//     res.status(201).json({ message: 'Admin registered successfully', token });
-//   } catch (error) {
-//     console.error('Error during admin signup:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
-// // Admin Login Route
-// app.post('/admin/login', async (req, res) => {
-//   const { email, password } = req.body;
-
-//   if (!email || !password) {
-//     return res.status(400).json({ error: 'Email and password are required' });
-//   }
-
-//   try {
-//     const admin = await Admin.findOne({ email });
-//     if (!admin) {
-//       return res.status(400).json({ error: 'Invalid credentials' });
-//     }
-
-//     const isPasswordValid = await admin.comparePassword(password);
-//     if (!isPasswordValid) {
-//       return res.status(400).json({ error: 'Invalid credentials' });
-//     }
-
-//     const token = jwt.sign({ id: admin._id }, process.env.SECRET, { expiresIn: '1h' });
-//     res.status(200).json({ token });
-//   } catch (error) {
-//     console.error('Error during admin login:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
 
 // Start the server
 app.listen(port, () => {
