@@ -13,7 +13,7 @@ const Product = require("./models/Product"); // Import the Product model
 dotenv.config();
 
 // Validate required environment variables
-const requiredEnvVars = ["SECRET", "MONGODB_URI", "APP_URL", "BASEURL"];
+const requiredEnvVars = ["SECRET", "MONGODB_URI", "VITE_PROD_BASE_URL"];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     console.error(`Missing required environment variable: ${envVar}`);
@@ -57,15 +57,6 @@ const readProductsFile = async () => {
   }
 };
 
-// Function to write to products.json
-const writeProductsFile = async (products) => {
-  try {
-    await fs.writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
-  } catch (err) {
-    console.error("Error writing products.json:", err);
-  }
-};
-
 // File path for items
 const ITEMS_FILE = path.join(__dirname, "data", "items.json");
 
@@ -88,27 +79,18 @@ const readItemsFile = async () => {
   }
 };
 
-// Function to write to items.json
-const writeItemsFile = async (items) => {
-  try {
-    await fs.writeFile(ITEMS_FILE, JSON.stringify(items, null, 2));
-  } catch (err) {
-    console.error("Error writing items.json:", err);
-  }
-};
-
 // API root route
 app.get("/api", (req, res) => {
   res.json({
     message: "Welcome to the API",
     endpoints: {
-      products: `${process.env.APP_URL}/api/products`,
-      items: `${process.env.APP_URL}/api/items`,
-      register: `${process.env.APP_URL}/auth/register`,
-      login: `${process.env.APP_URL}/auth/login`,
-      test: `${process.env.APP_URL}/test`,
-      baseItems: `${process.env.BASEURL}/api/items`,
-      baseProducts: `${process.env.BASEURL}/api/products`,
+      products: `${process.env.VITE_PROD_BASE_URL}/api/products`,
+      items: `${process.env.VITE_PROD_BASE_URL}/api/items`,
+      register: `${process.env.VITE_PROD_BASE_URL}/auth/register`,
+      login: `${process.env.VITE_PROD_BASE_URL}/auth/login`,
+      test: `${process.env.VITE_PROD_BASE_URL}/test`,
+      baseItems: `${process.env.VITE_PROD_BASE_URL}/api/items`,
+      baseProducts: `${process.env.VITE_PROD_BASE_URL}/api/products`,
     },
   });
 });
@@ -329,6 +311,23 @@ app.delete("/api/items/:id", async (req, res) => {
   }
 });
 
+app.delete("/api/items/categories/:categoryName", async (req, res) => {
+  const categoryName = req.params.categoryName;
+
+  try {
+    // Logic to delete products associated with the category
+    const deletedItems = await Product.deleteMany({ category: categoryName });
+
+    if (!deletedItems) {
+      return res.status(404).json({ error: "Category not found" });
+    }
+
+    res.json({ message: "Category and associated products deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting category:", err);
+    res.status(500).json({ error: "Error deleting category" });
+  }
+});
 
 // Start the server
 app.listen(port, () => {

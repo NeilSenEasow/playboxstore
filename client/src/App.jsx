@@ -20,8 +20,6 @@ import Admin from './components/Admin/Admin';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
 import PrivateRoute from './components/PrivateRoute';
-// import AdminLogin from './components/Admin/AdminLogin';
-// import AdminSignup from './components/Admin/AdminSignup';
 import './App.css';
 import ErrorBoundary from './ErrorBoundary';
 
