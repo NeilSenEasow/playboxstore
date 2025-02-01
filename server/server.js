@@ -8,6 +8,7 @@ const fs = require("fs").promises; // Use fs.promises for async/await
 const path = require("path");
 const User = require("./models/User"); // Import the User model
 const Product = require("./models/Product"); // Import the Product model
+const Admin = require("./models/Admin"); // Ensure this is correct
 
 // Load environment variables
 dotenv.config();
@@ -327,6 +328,23 @@ app.delete("/api/items/categories/:categoryName", async (req, res) => {
     console.error("Error deleting category:", err);
     res.status(500).json({ error: "Error deleting category" });
   }
+});
+
+// Example route for admin login
+app.post('/admin/login', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        // Logic to authenticate admin
+        const admin = await Admin.findOne({ email });
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+        // Add password verification logic here
+        res.status(200).json({ message: "Login successful" });
+    } catch (error) {
+        console.error("Error during admin login:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
 
 // Start the server
