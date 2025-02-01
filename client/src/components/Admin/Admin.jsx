@@ -77,10 +77,10 @@ const Admin = ({ isAuthenticated }) => {
       description: newProduct.description,
       condition: newProduct.condition,
       availableQuantity: parseInt(newProduct.availableQuantity, 10),
-      category: selectedCategory.name // Automatically use the selected category's name
+      category: selectedCategory.name
     };
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/items`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

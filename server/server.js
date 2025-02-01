@@ -171,8 +171,13 @@ app.get("/api/products", async (req, res) => {
 
 // Get all items
 app.get("/api/items", async (req, res) => {
-  const items = await readItemsFile();
-  res.json(items);
+  try {
+    const items = await Product.find(); // Fetch items from the database
+    res.json(items); // Send items as JSON response
+  } catch (error) {
+    console.error("Error fetching items:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 // Add a new item

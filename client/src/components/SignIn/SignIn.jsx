@@ -15,7 +15,7 @@ const SignIn = ({ onSignIn }) => {
     setIsLoading(true); // Set loading state
 
     try {
-      const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/auth/login'; // Updated to the unified login endpoint
+      const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/auth/login'; // Ensure this is set correctly
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
