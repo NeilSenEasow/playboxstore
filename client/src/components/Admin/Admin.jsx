@@ -121,7 +121,7 @@ const Admin = ({ isAuthenticated }) => {
   // Update product availability
   const handleUpdateAvailability = async (productId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/items/${productId}`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/items/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ const Admin = ({ isAuthenticated }) => {
       return;
     }
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/items/${productId}`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/items/${productId}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -186,7 +186,7 @@ const Admin = ({ isAuthenticated }) => {
 
     try {
       // Send DELETE request to the server to remove items by category
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/items/categories/${categoryToDelete.name}`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/items/categories/${categoryToDelete.name}`, {
         method: "DELETE",
       });
 
