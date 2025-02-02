@@ -41,10 +41,10 @@ const UserProfile = () => {
       <h2>{user.name}</h2>
       <div className="profile-info">
         <p>Email: {user.email}</p>
-        <p>Address: 123 Main Street, City, Country</p>
-        <p>Mobile: +91 98765 43210</p>
-        <p>Date Joined: 01/01/2024</p>
-        <p>Wallet: $100</p>
+        <p>Address: {user.address || 'Address not set'}</p>
+        <p>Mobile: {user.mobile || 'Not set'}</p>
+        <p>Date Joined: {new Date(user.dateJoined).toLocaleDateString() || 'Not available'}</p>
+        <p>Wallet: ${user.wallet || 0}</p>
       </div>
     </div>
   );
