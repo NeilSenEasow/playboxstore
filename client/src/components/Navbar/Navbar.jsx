@@ -69,7 +69,12 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
         
         <div className="auth-buttons">
           {isAuthenticated ? (
-            <button className="sign-in-btn" onClick={handleSignOutClick}>Sign Out</button>
+            <>
+              <button className="sign-in-btn" onClick={handleSignOutClick}>Sign Out</button>
+              <button className="btn-profile">
+                <Link to="/profile">Profile</Link>
+              </button>
+            </>
           ) : (
             <>
               <button className="sign-in-btn" onClick={handleSignInClick}>Sign In</button>

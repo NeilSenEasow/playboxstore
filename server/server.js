@@ -420,6 +420,36 @@ app.get("/api/products/grouped", async (req, res) => {
   }
 });
 
+// Get user profile based on token
+app.get('/api/user/profile', async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1]; // Get token from Authorization header
+  if (!token) {
+    return res.status(401).json({ error: 'Token is required' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET); // Verify token
+    const user = await User.findById(decoded.id); // Fetch user by ID from token
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Return the user data in the desired format
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      // address: user.address || 'Address not set',
+      // mobile: user.mobile || 'Not set',
+      // dateJoined: user.dateJoined || new Date(),
+      // wallet: user.wallet || 0,
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

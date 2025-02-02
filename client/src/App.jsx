@@ -20,6 +20,7 @@ import Admin from './components/Admin/Admin';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
 import PrivateRoute from './components/PrivateRoute';
+import UserProfile from './components/UserProfile/UserProfile';
 import './App.css';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -222,10 +223,17 @@ function App() {
                 </PrivateRoute>
               } 
             />
-            {/* <Route path="/admin/login" element={<AdminLogin onLogin={handleLogin} />} /> */}
-            {/* <Route path="/admin/signup" element={<AdminSignup />} />  */}
             <Route path="/signin" element={<SignIn onSignIn={handleLogin} />} />
             <Route path="/signup" element={<SignUp />} />
+            {/* <Route path="/profile" element={<UserProfile />} /> */}
+            <Route 
+              path="/profile" 
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <UserProfile />
+                </PrivateRoute>
+              } 
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Footer />

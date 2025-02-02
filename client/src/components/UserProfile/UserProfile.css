@@ -1,0 +1,25 @@
+.user-profile {
+  background-color: #fff;
+  color: #000;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 100px; /* Push everything down */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Ensures it covers full viewport */
+}
+
+.profile-info {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 400px; /* Keeps content neatly aligned */
+  text-align: left;
+}
+
+.profile-info p {
+  margin: 10px 0;
+  font-size: 16px;
+}
