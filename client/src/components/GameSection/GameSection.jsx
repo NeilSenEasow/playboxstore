@@ -11,7 +11,7 @@ const GameSection = ({ updateCartCount }) => {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const apiUrl = 'http://localhost:5001/api/mainProducts'; // Use localhost for development
+        const apiUrl = `${import.meta.env.VITE_PROD_BASE_URL || 'http://localhost:5001'}${import.meta.env.VITE_API_URL || '/api/mainProducts'}`; // Use environment variables for production and localhost for development
         const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error('Network response was not ok');
