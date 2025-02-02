@@ -13,7 +13,7 @@ const UserProfile = () => {
       }
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_PROD_API_URL}/api/user/profile`, {
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/user/profile`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`, // Pass the token in the Authorization header
