@@ -40,6 +40,9 @@ mongoose
 // File path for products
 const PRODUCTS_FILE = path.join(__dirname, "data", "products.json");
 
+// File path for main products
+const MAIN_PRODUCTS_FILE = path.join(__dirname, "data", "mainProducts.json");
+
 // Function to read products.json
 const readProductsFile = async () => {
   try {
@@ -59,13 +62,10 @@ const readProductsFile = async () => {
   }
 };
 
-// File path for items
-const ITEMS_FILE = path.join(__dirname, "data", "items.json");
-
-// Function to read items.json
-const readItemsFile = async () => {
+// Function to read mainProducts.json
+const readMainProductsFile = async () => {
   try {
-    const data = await fs.readFile(ITEMS_FILE, "utf8");
+    const data = await fs.readFile(MAIN_PRODUCTS_FILE, "utf8");
     const parsedData = JSON.parse(data);
     
     // Ensure that the parsed data is an array
@@ -76,7 +76,7 @@ const readItemsFile = async () => {
     
     return parsedData;
   } catch (err) {
-    console.error("Error reading items.json:", err);
+    console.error("Error reading mainProducts.json:", err);
     return []; // Return an empty array if file doesn't exist or there is an error
   }
 };
@@ -88,6 +88,7 @@ app.get("/api", (req, res) => {
     endpoints: {
       products: `${process.env.VITE_PROD_BASE_URL}/api/products`,
       items: `${process.env.VITE_PROD_BASE_URL}/api/items`,
+      mainProducts: `${process.env.VITE_PROD_BASE_URL}/api/mainProducts`, // New endpoint for main products
       register: `${process.env.VITE_PROD_BASE_URL}/auth/register`,
       login: `${process.env.VITE_PROD_BASE_URL}/auth/login`,
       test: `${process.env.VITE_PROD_BASE_URL}/test`,
@@ -95,6 +96,12 @@ app.get("/api", (req, res) => {
       baseProducts: `${process.env.VITE_PROD_BASE_URL}/api/products`,
     },
   });
+});
+
+// New route to get main products
+app.get("/api/mainProducts", async (req, res) => {
+  const mainProducts = await readMainProductsFile();
+  res.json(mainProducts);
 });
 
 // Test route

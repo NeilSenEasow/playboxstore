@@ -8,17 +8,17 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
-  const handleSearchChange = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-    onSearch(query);
-  };
+  // const handleSearchChange = (event) => {
+  //   const query = event.target.value;
+  //   setSearchQuery(query);
+  //   onSearch(query);
+  // };
 
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    // Redirect to Google Custom Search results page with the query
-    window.location.href = `https://googlecustomsearch.appspot.com/elementv2/two-page_results_elements_v2.html?query=${encodeURIComponent(searchQuery)}`;
-  };
+  // const handleSearchSubmit = (event) => {
+  //   event.preventDefault();
+  //   // Redirect to Google Custom Search results page with the query
+  //   window.location.href = `https://googlecustomsearch.appspot.com/elementv2/two-page_results_elements_v2.html?query=${encodeURIComponent(searchQuery)}`;
+  // };
 
   const handleSignInClick = () => {
     navigate('/signin');
@@ -47,7 +47,7 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
         <li><Link to="/rent" className="nav-button">Rent</Link></li>
       </ul>
 
-      <div className="search-container">
+      {/* <div className="search-container">
         <form onSubmit={handleSearchSubmit}>
           <input
             type="text"
@@ -58,6 +58,8 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
           />
         </form>
       </div>
+
+       */}
 
       <div className="navbar-actions">
         <div className="notifications">

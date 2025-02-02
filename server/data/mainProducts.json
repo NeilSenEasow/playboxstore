@@ -1,0 +1,65 @@
+[
+    {
+      "id": 1,
+      "name": "GOD OF WAR - PS4",
+      "price": 2999,
+      "image": "https://m.media-amazon.com/images/I/81emBOJxExL._SX679_.jpg",
+      "category": "Games"
+    },
+    {
+      "id": 2,
+      "name": "GTA 5 PS5",
+      "price": 3499,
+      "image": "https://m.media-amazon.com/images/I/81kAitW5qAL._SX342_.jpg",
+      "category": "Games"
+    },
+    {
+      "id": 3,
+      "name": "Official Sony DualShock 4 Controller",
+      "price": 4999,
+      "image": "https://m.media-amazon.com/images/I/21BtKcm+LZL._SY445_SX342_.jpg",
+      "category": "Consoles"
+    },
+    {
+      "id": 4,
+      "name": "PlayStation 3 Slim 120GB",
+      "price": 9999,
+      "image": "https://surl.li/bvewdi",
+      "category": "Consoles"
+    },
+    {
+      "id": 5,
+      "name": "PlayStation 5 - 500GB",
+      "price": 49999,
+      "image": "https://m.media-amazon.com/images/I/41b-EDZt7dL._SX300_SY300_QL70_FMwebp_.jpg",
+      "category": "Consoles"
+    },
+    {
+      "id": 6,
+      "name": "PS4 Slim 500GB",
+      "price": 24999,
+      "image": "https://m.media-amazon.com/images/I/31yeekaiKML.jpg",
+      "category": "Consoles"
+    },
+    {
+      "id": 7,
+      "name": "Sony PlayStation 2",
+      "price": 5999,
+      "image": "https://m.media-amazon.com/images/I/51afJC92cgL._SX425_.jpg",
+      "category": "Consoles"
+    },
+    {
+      "id": 8,
+      "name": "PS5 Spider-Man Edition",
+      "price": 52999,
+      "image": "https://m.media-amazon.com/images/I/51Is9UWdcEL._SX300_SY300_QL70_FMwebp_.jpg",
+      "category": "Consoles"
+    },
+    {
+      "id": 9,
+      "name": "Xbox Series X",
+      "price": 47999,
+      "image": "https://m.media-amazon.com/images/I/310x+iO0NoL._SX342_SY445_.jpg",
+      "category": "Consoles"
+    }
+  ]
