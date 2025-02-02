@@ -31,7 +31,7 @@ const Admin = ({ isAuthenticated }) => {
   useEffect(() => {
     const fetchGroupedProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/grouped`);
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/products/grouped`);
         if (!response.ok) {
           throw new Error('Failed to fetch grouped products');
         }
