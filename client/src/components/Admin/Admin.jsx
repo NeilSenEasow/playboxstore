@@ -27,22 +27,28 @@ const Admin = ({ isAuthenticated }) => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Fetch categories from the database
+  // Fetch grouped products from the database
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchGroupedProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/aggregate`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/grouped`);
         if (!response.ok) {
-          throw new Error('Failed to fetch categories');
+          throw new Error('Failed to fetch grouped products');
         }
         const data = await response.json();
-        setCategories(data); // Update categories state with fetched data
+        // Process the grouped data to set it in state
+        setCategories(data.map(item => ({
+          name: item._id, // Category name
+          count: item.count,
+          products: item.products // Array of products under this category
+        })));
+        console.log('Fetched grouped products:', data);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching grouped products:', error);
       }
     };
 
-    fetchCategories();
+    fetchGroupedProducts();
   }, []);
 
   // Save categories to local storage whenever they change
@@ -216,30 +222,6 @@ const Admin = ({ isAuthenticated }) => {
     setSelectedCategory(category);
     setShowProductModal(true);
   };
-
-  // Inside the Admin component
-  useEffect(() => {
-    const fetchAggregatedProducts = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/products/aggregate`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch aggregated products');
-        }
-        const data = await response.json();
-        // Process the aggregated data to set it in state
-        setCategories(data.map(item => ({
-          name: item._id, // Condition (e.g., 'new', 'used')
-          count: item.count,
-          products: item.products // Array of products under this condition
-        })));
-        console.log('Fetched aggregated products:', data);
-      } catch (error) {
-        console.error('Error fetching aggregated products:', error);
-      }
-    };
-
-    fetchAggregatedProducts();
-  }, []);
 
   return (
     <div className="admin-container">

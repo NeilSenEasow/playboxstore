@@ -392,6 +392,34 @@ app.get("/api/products/aggregate", async (req, res) => {
   }
 });
 
+// Retrieve products grouped by category
+app.get("/api/products/grouped", async (req, res) => {
+  try {
+    const aggregateResult = await Product.aggregate([
+      {
+        $group: {
+          _id: "$category", // Group by the category field
+          products: { $push: { 
+              _id: "$_id", 
+              name: "$name", 
+              price: "$price", 
+              description: "$description", 
+              availableQuantity: "$availableQuantity", 
+              condition: "$condition" 
+            } 
+          }, // Push product details into an array
+          count: { $sum: 1 } // Count the number of products in each category
+        }
+      }
+    ]);
+
+    res.json(aggregateResult); // Send the aggregated results as JSON response
+  } catch (error) {
+    console.error("Error during aggregation:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
