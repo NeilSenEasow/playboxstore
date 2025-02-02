@@ -42,29 +42,15 @@ function Checkout({ cartItems, clearCart }) {
     setIsSubmitting(true);
 
     try {
-      // Loop through cart items and delete each one
-      for (const item of cartItems) {
-        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items/${item.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          console.error(result.error);
-          // Handle error for individual item deletion
-        } else {
-          console.log(`Deleted item: ${result.item.name}`);
-        }
-      }
-
-      // Clear the cart after successful deletion
-      clearCart();
-      // Optionally navigate to a success page or show a success message
-      navigate('/success'); // Adjust the route as needed
+      // Validate form data here if needed
+      
+      // Navigate to GPay page instead of directly processing the order
+      navigate('/gpay', { 
+        state: { 
+          amount: cartItems.reduce((total, item) => total + item.price, 0),
+          orderDetails: formData
+        } 
+      });
     } catch (error) {
       console.error('Error during checkout:', error);
     } finally {

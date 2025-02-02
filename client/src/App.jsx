@@ -23,6 +23,7 @@ import PrivateRoute from './components/PrivateRoute';
 import UserProfile from './components/UserProfile/UserProfile';
 import './App.css';
 import ErrorBoundary from './ErrorBoundary';
+import GPay from './components/GPay/GPay';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -232,6 +233,14 @@ function App() {
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <UserProfile />
                 </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/gpay" 
+              element={
+                <GPay 
+                  amount={cartItems.reduce((total, item) => total + item.price, 0)}
+                />
               } 
             />
             <Route path="*" element={<Navigate to="/" replace />} />

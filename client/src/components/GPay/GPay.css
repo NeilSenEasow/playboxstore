@@ -1,0 +1,104 @@
+.gpay-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.gpay-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gpay-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.gpay-header h2 {
+  color: #1a73e8;
+  margin-bottom: 8px;
+}
+
+.amount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #202124;
+}
+
+.gpay-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: #5f6368;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #1a73e8;
+}
+
+.form-group input.error {
+  border-color: #d93025;
+}
+
+.error-message {
+  color: #d93025;
+  font-size: 12px;
+}
+
+.pay-button {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pay-button:hover {
+  background-color: #1557b0;
+}
+
+.pay-button:disabled {
+  background-color: #dadce0;
+  cursor: not-allowed;
+}
+
+.pay-button.processing {
+  background-color: #dadce0;
+}
+
+.gpay-footer {
+  margin-top: 24px;
+  text-align: center;
+  color: #5f6368;
+  font-size: 14px;
+} 
