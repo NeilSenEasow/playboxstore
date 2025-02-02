@@ -9,6 +9,7 @@ const path = require("path");
 const User = require("./models/User"); // Import the User model
 const Product = require("./models/Product"); // Import the Product model
 const Admin = require("./models/Admin"); // Ensure this is correct
+// const Category = require("./models/Category"); // Import the Category model
 
 // Load environment variables
 dotenv.config();
@@ -350,6 +351,45 @@ app.post('/admin/login', async (req, res) => {
         console.error("Error during admin login:", error);
         res.status(500).json({ message: "Internal server error" });
     }
+});
+
+// Fetch categories from the database
+app.get("/api/categories", async (req, res) => {
+  try {
+    const categories = await Category.find(); // Fetch categories from the database
+    res.json(categories); // Send categories as JSON response
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Retrieve products with detailed information
+app.get("/api/products/aggregate", async (req, res) => {
+  try {
+    const aggregateResult = await Product.aggregate([
+      {
+        $group: {
+          _id: "$condition", // Group by the condition field
+          count: { $sum: 1 }, // Count the number of products for each condition
+          products: { $push: { 
+              id: "$_id", 
+              name: "$name", 
+              price: "$price", 
+              description: "$description", 
+              availableQuantity: "$availableQuantity", 
+              category: "$category" 
+            } 
+          } // Push product details into an array
+        }
+      }
+    ]);
+
+    res.json(aggregateResult); // Send the aggregated results as JSON response
+  } catch (error) {
+    console.error("Error during aggregation:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 // Start the server

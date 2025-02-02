@@ -5,16 +5,7 @@ import './Admin.css';
 
 const Admin = ({ isAuthenticated }) => {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState(() => {
-    // Load categories from local storage or use default values
-    const savedCategories = localStorage.getItem('categories');
-    return savedCategories ? JSON.parse(savedCategories) : [
-      { id: 1, name: 'PS5', slug: 'ps5', products: [] },
-      { id: 2, name: 'PS4', slug: 'ps4', products: [] },
-      { id: 3, name: 'Xbox', slug: 'xbox', products: [] }
-    ];
-  });
-
+  const [categories, setCategories] = useState([]);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -27,7 +18,7 @@ const Admin = ({ isAuthenticated }) => {
     availableQuantity: 0
   });
   const [availabilityCount, setAvailabilityCount] = useState(0);
-  const [showProductModal, setShowProductModal] = useState(false); // State for product modal
+  const [showProductModal, setShowProductModal] = useState(false);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -35,6 +26,24 @@ const Admin = ({ isAuthenticated }) => {
       navigate('/admin/login'); // Redirect to login if not authenticated
     }
   }, [isAuthenticated, navigate]);
+
+  // Fetch categories from the database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/aggregate`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        setCategories(data); // Update categories state with fetched data
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Save categories to local storage whenever they change
   useEffect(() => {
@@ -208,6 +217,30 @@ const Admin = ({ isAuthenticated }) => {
     setShowProductModal(true);
   };
 
+  // Inside the Admin component
+  useEffect(() => {
+    const fetchAggregatedProducts = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/products/aggregate`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch aggregated products');
+        }
+        const data = await response.json();
+        // Process the aggregated data to set it in state
+        setCategories(data.map(item => ({
+          name: item._id, // Condition (e.g., 'new', 'used')
+          count: item.count,
+          products: item.products // Array of products under this condition
+        })));
+        console.log('Fetched aggregated products:', data);
+      } catch (error) {
+        console.error('Error fetching aggregated products:', error);
+      }
+    };
+
+    fetchAggregatedProducts();
+  }, []);
+
   return (
     <div className="admin-container">
       <div className="admin-header">
@@ -319,13 +352,13 @@ const Admin = ({ isAuthenticated }) => {
 
         <div className="categories-grid">
           {categories.map(category => (
-            <div key={category.id} className="category-card">
-              <h3>{category.name}</h3>
+            <div key={category.name} className="category-card">
+              <h3>{category.name} ({category.count})</h3>
               <p>{category.products.length} Products</p>
               <div className="form-buttons">
                 <button 
                   className="btn-secondary"
-                  onClick={() => handleShowProducts(category)} // Show products in a modal
+                  onClick={() => handleShowProducts(category)}
                 >
                   View Products
                 </button>
@@ -334,14 +367,14 @@ const Admin = ({ isAuthenticated }) => {
                   onClick={() => {
                     setSelectedCategory(category);
                     setShowAddProduct(true);
-                  }} // Show add product modal
+                  }}
                 >
                   Add Product
                 </button>
               </div>
               <button 
                 className="btn-danger"
-                onClick={() => handleRemoveCategory(category.id)}
+                onClick={() => handleRemoveCategory(category.name)}
               >
                 Remove Category
               </button>
@@ -461,7 +494,7 @@ const Admin = ({ isAuthenticated }) => {
                     <p>₹{product.price}</p>
                     <button 
                       className="btn-danger"
-                      onClick={() => handleRemoveProduct(selectedCategory.id, product._id)}
+                      onClick={() => handleRemoveProduct(selectedCategory.name, product._id)}
                     >
                       Remove Product
                     </button>
