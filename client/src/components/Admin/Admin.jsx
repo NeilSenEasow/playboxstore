@@ -85,7 +85,6 @@ const Admin = ({ isAuthenticated }) => {
     const updatedCategories = [...categories, { ...newCategory, id, products: [] }];
     setCategories(updatedCategories);
     setNewCategory({ name: '', slug: '' });
-    setShowAddCategory(false);
   };
 
   // Add a new product to a selected category
@@ -205,26 +204,40 @@ const Admin = ({ isAuthenticated }) => {
   };
 
   // Remove a category and its products
-  const handleRemoveCategory = async (categoryId) => {
-    // Find the category to delete based on the categoryId
-    const categoryToDelete = categories.find(cat => cat.id === categoryId);
-    if (!categoryToDelete) return;
+  const handleRemoveCategory = async (categoryName) => {
+    if (!window.confirm(`Are you sure you want to delete the category "${categoryName}" and all its products?`)) {
+      return;
+    }
 
     try {
-      // Send DELETE request to the server to remove items by category
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/items/categories/${categoryToDelete.name}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/categories/${categoryName}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to delete category');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete category');
       }
 
-      // Update the local state to remove the deleted category
-      const updatedCategories = categories.filter(cat => cat.id !== categoryId);
-      setCategories(updatedCategories);
+      const result = await response.json();
+      console.log('Delete result:', result);
+
+      // Update the local state to remove the category and its products
+      setCategories(prevCategories => 
+        prevCategories.filter(cat => cat.name !== categoryName)
+      );
+
+      // Show success message
+      alert(`Successfully deleted category "${categoryName}" and ${result.deletedProductsCount} products`);
     } catch (error) {
-      console.error('Error removing category:', error);
+      console.error('Error deleting category:', error);
+      alert(`Failed to delete category: ${error.message}`);
     }
   };
 
@@ -376,9 +389,24 @@ const Admin = ({ isAuthenticated }) => {
         {/* Category Management Modal */}
         {showAddCategory && (
           <div className="modal-overlay">
-            <div className="modal">
+            <div className="modal" style={{ width: '80%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto' }}>
               <h3>Category Management</h3>
-              <div className="categories-grid" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
+              
+              {/* Add Category Form */}
+              <form onSubmit={handleAddCategory} style={{ marginBottom: '20px' }}>
+                <div className="form-group">
+                  <label>Category Name</label>
+                  <input
+                    type="text"
+                    value={newCategory.name}
+                    onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn-primary">Add Category</button>
+              </form>
+
+              <div className="categories-grid" style={{ maxHeight: 'calc(90vh - 250px)', overflowY: 'auto', overflowX: 'hidden' }}>
                 {categories.map(category => (
                   <div key={category.name} className="category-card">
                     <h3>{category.name} ({category.count})</h3>
@@ -422,7 +450,7 @@ const Admin = ({ isAuthenticated }) => {
         {/* Orders Modal */}
         {showOrdersModal && (
           <div className="modal-overlay">
-            <div className="modal">
+            <div className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
               <h3>Orders Management</h3>
               <div className="orders-tabs">
                 <button className="tab-button active">Pending</button>
@@ -452,7 +480,7 @@ const Admin = ({ isAuthenticated }) => {
         {/* Sell Products Modal */}
         {showSellProductsModal && (
           <div className="modal-overlay">
-            <div className="modal">
+            <div className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
               <h3>Sell Products Management</h3>
               <div className="sell-products-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
                 {sellProducts.map(product => (
@@ -480,7 +508,7 @@ const Admin = ({ isAuthenticated }) => {
         {/* Sell Orders Modal */}
         {showSellOrdersModal && (
           <div className="modal-overlay">
-            <div className="modal">
+            <div className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
               <h3>Sell Orders Management</h3>
               <div className="sell-orders-tabs">
                 <button className="tab-button active">Pending</button>
@@ -512,66 +540,73 @@ const Admin = ({ isAuthenticated }) => {
           <div className="modal-overlay">
             <div className="modal">
               <h3>Add Product to {selectedCategory.name}</h3>
-              <form onSubmit={handleAddProduct}>
-                <div className="form-group">
-                  <label>Product Name</label>
-                  <input
-                    type="text"
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Price</label>
-                  <input
-                    type="number"
-                    value={newProduct.price}
-                    onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Description</label>
-                  <textarea
-                    value={newProduct.description}
-                    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Condition</label>
-                  <select
-                    value={newProduct.condition}
-                    onChange={(e) => setNewProduct({...newProduct, condition: e.target.value})}
-                  >
-                    <option value="new">New</option>
-                    <option value="used">Used</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Available Quantity</label>
-                  <input
-                    type="number"
-                    value={newProduct.availableQuantity}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct,
-                      availableQuantity: e.target.value
-                    })}
-                    required
-                  />
-                </div>
-                <div className="form-buttons">
-                  <button type="submit" className="btn-primary">Add Product</button>
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => setShowAddProduct(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+              <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
+                <form onSubmit={handleAddProduct}>
+                  <div className="form-group">
+                    <label>Product Name</label>
+                    <input
+                      type="text"
+                      value={newProduct.name}
+                      onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                      required
+                      style={{ width: '92%' }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Price</label>
+                    <input
+                      type="number"
+                      value={newProduct.price}
+                      onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                      required
+                      style={{ width: '92%' }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                      value={newProduct.description}
+                      onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                      required
+                      style={{ width: '92%' }}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Condition</label>
+                    <select
+                      value={newProduct.condition}
+                      onChange={(e) => setNewProduct({...newProduct, condition: e.target.value})}
+                      style={{ width: '92%' }}
+                    >
+                      <option value="new">New</option>
+                      <option value="used">Used</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Available Quantity</label>
+                    <input
+                      type="number"
+                      value={newProduct.availableQuantity}
+                      onChange={(e) => setNewProduct({
+                        ...newProduct,
+                        availableQuantity: e.target.value
+                      })}
+                      required
+                      style={{ width: '92%' }}
+                    />
+                  </div>
+                  <div className="form-buttons">
+                    <button type="submit" className="btn-primary">Add Product</button>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => setShowAddProduct(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         )}

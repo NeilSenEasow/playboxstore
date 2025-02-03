@@ -457,6 +457,35 @@ app.get('/api/user/profile', async (req, res) => {
   }
 });
 
+// Add this route to handle category deletion with its products
+app.delete("/api/categories/:categoryName", async (req, res) => {
+  const categoryName = req.params.categoryName;
+
+  try {
+    // First, delete all products in this category
+    const deleteProductsResult = await Product.deleteMany({ category: categoryName });
+    
+    if (!deleteProductsResult) {
+      return res.status(404).json({ 
+        error: "No products found in this category",
+        categoryName 
+      });
+    }
+
+    res.json({ 
+      message: "Category and associated products deleted successfully",
+      deletedProductsCount: deleteProductsResult.deletedCount,
+      categoryName
+    });
+  } catch (err) {
+    console.error("Error deleting category and products:", err);
+    res.status(500).json({ 
+      error: "Error deleting category and products", 
+      details: err.message 
+    });
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

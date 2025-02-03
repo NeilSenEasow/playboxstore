@@ -316,7 +316,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .modal {
@@ -325,7 +325,7 @@
   border-radius: 10px;
   width: 90%;
   max-width: 500px;
-  animation: slideIn 0.3s ease-out;
+  animation: slideIn 0.2s ease-out;
 }
 
 .modal h3 {
@@ -696,4 +696,24 @@
   .form-buttons button:hover {
     background-color: #ff6b6b; /* Hover effect */
   }
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.category-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 } 
