@@ -39,7 +39,7 @@ const Admin = ({ isAuthenticated }) => {
   useEffect(() => {
     const fetchGroupedProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/grouped`);
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products/grouped`);
         if (!response.ok) {
           throw new Error('Failed to fetch grouped products');
         }
@@ -85,7 +85,7 @@ const Admin = ({ isAuthenticated }) => {
     const fetchOrders = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/orders`
+          `${import.meta.env.VITE_PROD_BASE_URL}/api/orders`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch orders');
@@ -123,7 +123,7 @@ const Admin = ({ isAuthenticated }) => {
         availableQuantity: parseInt(newProduct.availableQuantity, 10),
         category: selectedCategory.name
       };
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -169,7 +169,7 @@ const Admin = ({ isAuthenticated }) => {
   // Update product availability
   const handleUpdateAvailability = async (productId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/${productId}/availability`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products/${productId}/availability`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -217,7 +217,7 @@ const Admin = ({ isAuthenticated }) => {
       return;
     }
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items/${productId}`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items/${productId}`, {
         method: "DELETE",
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -252,7 +252,7 @@ const Admin = ({ isAuthenticated }) => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/categories/${categoryName}`,
+        `${import.meta.env.VITE_PROD_BASE_URL}/api/categories/${categoryName}`,
         {
           method: 'DELETE',
           headers: {
@@ -522,7 +522,7 @@ const Admin = ({ isAuthenticated }) => {
                           onChange={async (e) => {
                             try {
                               const response = await fetch(
-                                `${import.meta.env.VITE_API_URL}/api/orders/${order._id}/status`,
+                                `${import.meta.env.VITE_PROD_BASE_URL}/api/orders/${order._id}/status`,
                                 {
                                   method: 'PATCH',
                                   headers: {

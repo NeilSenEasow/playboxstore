@@ -12,7 +12,7 @@ const GameSection = ({ updateCartCount }) => {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/category/Games`);
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products/category/Games`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

@@ -7,18 +7,21 @@ const Buy = ({ updateCartCount }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products`); // Fetch from the specified URL
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setProducts(data.products); // Assuming the data structure is an array of products
+        setProducts(data);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
