@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BsCart4 } from 'react-icons/bs';
 import { FaTrashAlt } from 'react-icons/fa';  // Trash icon
@@ -6,19 +6,26 @@ import './Cart.css';
 
 const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
   const navigate = useNavigate();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [isClearingCart, setIsClearingCart] = useState(false);
 
   const formatPrice = (price) => {
     if (typeof price === 'number') {
       return price;
     }
     // If price is a string like "₹1,999.00", convert to number
-    return parseInt(price.replace(/[^\d]/g, ''));
+    const numericPrice = price?.replace(/[^\d]/g, '');
+    return numericPrice ? parseInt(numericPrice) : 0;
   };
 
   const calculateTotal = (items) => {
+    if (!items || !items.length) return 0;
+    
     return items.reduce((total, item) => {
-      const itemPrice = item.rentPrice || item.price; // Handle both regular and rental prices
-      return total + formatPrice(itemPrice) * item.quantity; // Multiply by quantity
+      const itemPrice = item.rentPrice || item.price || 0; // Handle both regular and rental prices
+      const quantity = item.quantity || 1; // Default to 1 if quantity is undefined
+      return total + (formatPrice(itemPrice) * quantity); 
     }, 0);
   };
 
@@ -27,22 +34,30 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
       alert('Your cart is empty!');
       return;
     }
+    window.scrollTo(0, 0); // Scroll to top before navigating
     const totalCost = calculateTotal(groupedItems); // Calculate total cost
     navigate('/checkout', { state: { totalCost } }); // Pass total cost as state
   };
 
   const handleDeleteItem = (itemId) => {
-    const confirmDelete = window.confirm('Are you sure you want to remove this item from the cart?');
-    if (confirmDelete) {
-      removeFromCart(itemId);
-    }
+    setItemToDelete(cartItems.find(item => item.id === itemId));
+    setShowConfirmDialog(true);
   };
 
   const handleClearCart = () => {
-    const confirmClear = window.confirm('Are you sure you want to clear your cart?');
-    if (confirmClear) {
+    setIsClearingCart(true);
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (isClearingCart) {
       clearCart();
+      setIsClearingCart(false);
+    } else if (itemToDelete) {
+      removeFromCart(itemToDelete.id);
+      setItemToDelete(null);
     }
+    setShowConfirmDialog(false);
   };
 
   const handleQuantityChange = (itemId, change) => {
@@ -65,6 +80,27 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
 
   return (
     <div className="cart-container">
+      {showConfirmDialog && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Confirm Delete</h3>
+            <p>
+              {isClearingCart 
+                ? 'Are you sure you want to clear all items from your cart?' 
+                : `Are you sure you want to remove "${itemToDelete?.name}" from your cart?`}
+            </p>
+            <div className="modal-buttons">
+              <button className="btn-primary" onClick={handleConfirmDelete}>Yes, Delete</button>
+              <button className="btn-secondary" onClick={() => {
+                setShowConfirmDialog(false);
+                setItemToDelete(null);
+                setIsClearingCart(false);
+              }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="cart-header">
         <h2 className="cart-title">
           <BsCart4 size={30} style={{ marginRight: '10px' }} /> Your Cart
@@ -94,7 +130,7 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
                 <div className="cart-item-details">
                   <h3 className="cart-item-name">{item.name}</h3>
                   <p className="cart-item-price">
-                    ₹{(item.rentPrice || item.price).toLocaleString()}
+                    ₹{formatPrice(item.rentPrice || item.price).toLocaleString()}
                     {item.rentPrice ? '/day' : ''}
                   </p>
                   <div className="quantity-controls">
@@ -125,12 +161,12 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
               >
                 Proceed to Checkout
               </button>
-              <button 
+              {/* <button 
                 className="btn-secondary"
                 onClick={handleClearCart}
               >
                 Clear Cart
-              </button>
+              </button> */}
             </div>
           </div>
         </>

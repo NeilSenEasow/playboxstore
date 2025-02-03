@@ -32,6 +32,11 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
     onSignOut(); // Call the sign-out function passed as a prop
   };
 
+  const handleCartClick = () => {
+    window.scrollTo(0, 0); // Scroll to top of page
+    navigate('/cart');
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -63,10 +68,10 @@ const Navbar = ({ cartCount, onSearch, isAuthenticated, onSignOut }) => {
 
       <div className="navbar-actions">
         <div className="notifications">
-          <Link to="/cart">
+          <button onClick={handleCartClick} style={{background: 'none', border: 'none', cursor: 'pointer', padding: 0}}>
             <BsCart4 size={24} color="#ff4747" />
             {cartCount > 0 && <span className="notification-badge">{cartCount}</span>}
-          </Link>
+          </button>
         </div>
         
         <div className="auth-buttons">

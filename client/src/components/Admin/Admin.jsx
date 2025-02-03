@@ -17,7 +17,7 @@ const Admin = ({ isAuthenticated }) => {
     condition: 'new',
     availableQuantity: 0
   });
-  const [availabilityCount, setAvailabilityCount] = useState(0);
+  const [availabilityCounts, setAvailabilityCounts] = useState({});
   const [showProductModal, setShowProductModal] = useState(false);
   const [showOrdersModal, setShowOrdersModal] = useState(false);
   const [showSellProductsModal, setShowSellProductsModal] = useState(false);
@@ -147,7 +147,7 @@ const Admin = ({ isAuthenticated }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ count: availabilityCount }), // Use the count input
+        body: JSON.stringify({ count: availabilityCounts[productId] || 0 }), 
       });
       if (!response.ok) {
         throw new Error('Failed to update availability');
@@ -156,12 +156,17 @@ const Admin = ({ isAuthenticated }) => {
       // Update the local state if needed
       const updatedCategories = categories.map(category => {
         category.products = category.products.map(product =>
-          product._id === productId ? { ...product, availableQuantity: product.availableQuantity + availabilityCount } : product // Update the availableQuantity field
+          product._id === productId ? { ...product, availableQuantity: product.availableQuantity + (availabilityCounts[productId] || 0) } : product
         );
         return category;
       });
       setCategories(updatedCategories);
-      setAvailabilityCount(0); // Reset the count input after updating
+      
+      // Reset only the specific product's count
+      setAvailabilityCounts(prev => ({
+        ...prev,
+        [productId]: 0
+      }));
     } catch (error) {
       console.error('Error updating availability:', error);
     }
@@ -227,6 +232,12 @@ const Admin = ({ isAuthenticated }) => {
   const handleShowProducts = (category) => {
     setSelectedCategory(category);
     setShowProductModal(true);
+    // Initialize availability counts for all products to 0
+    const initialCounts = {};
+    category.products.forEach(product => {
+      initialCounts[product._id] = 0;
+    });
+    setAvailabilityCounts(initialCounts);
   };
 
   return (
@@ -367,7 +378,7 @@ const Admin = ({ isAuthenticated }) => {
           <div className="modal-overlay">
             <div className="modal">
               <h3>Category Management</h3>
-              <div className="categories-grid">
+              <div className="categories-grid" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
                 {categories.map(category => (
                   <div key={category.name} className="category-card">
                     <h3>{category.name} ({category.count})</h3>
@@ -418,7 +429,7 @@ const Admin = ({ isAuthenticated }) => {
                 <button className="tab-button">In Progress</button>
                 <button className="tab-button">Completed</button>
               </div>
-              <div className="orders-list">
+              <div className="orders-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
                 {orders.map(order => (
                   <div key={order.id} className="order-card">
                     <h4>Order #{order.id}</h4>
@@ -443,7 +454,7 @@ const Admin = ({ isAuthenticated }) => {
           <div className="modal-overlay">
             <div className="modal">
               <h3>Sell Products Management</h3>
-              <div className="sell-products-list">
+              <div className="sell-products-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
                 {sellProducts.map(product => (
                   <div key={product.id} className="sell-product-card">
                     <h4>{product.name}</h4>
@@ -476,7 +487,7 @@ const Admin = ({ isAuthenticated }) => {
                 <button className="tab-button">In Progress</button>
                 <button className="tab-button">Completed</button>
               </div>
-              <div className="sell-orders-list">
+              <div className="sell-orders-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
                 {sellOrders.map(order => (
                   <div key={order.id} className="sell-order-card">
                     <h4>Sell Order #{order.id}</h4>
@@ -567,45 +578,53 @@ const Admin = ({ isAuthenticated }) => {
 
         {showProductModal && selectedCategory && (
           <div className="modal-overlay">
-            <div className="modal">
+            <div className="modal" style={{textAlign: 'center'}}>
               <h3>Products in {selectedCategory.name}</h3>
-              {selectedCategory.products.length > 0 ? (
-                selectedCategory.products.map(product => (
-                  <div key={product._id} className="product-card">
-                    <h4>{product.name}</h4>
-                    <p>₹{product.price}</p>
-                    <button 
-                      className="btn-danger"
-                      onClick={() => handleRemoveProduct(selectedCategory.name, product._id)}
-                    >
-                      Remove Product
-                    </button>
-                    <div className="availability-controls">
+              <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
+                {selectedCategory.products.length > 0 ? (
+                  selectedCategory.products.map(product => (
+                    <div key={product._id} className="product-card" style={{textAlign: 'center'}}>
+                      <h4>{product.name}</h4>
+                      <p>₹{product.price}</p>
                       <button 
-                        className="btn-inc-aval"
-                        onClick={() => setAvailabilityCount(prev => prev + 1)}
+                        className="btn-danger"
+                        onClick={() => handleRemoveProduct(selectedCategory.name, product._id)}
                       >
-                        +
+                        Remove Product
                       </button>
-                      <span>{availabilityCount}</span>
-                      <button 
-                        className="btn-inc-aval"
-                        onClick={() => setAvailabilityCount(prev => Math.max(prev - 1, 0))}
-                      >
-                        -
-                      </button>
-                      <button 
-                        className="btn-inc-aval"
-                        onClick={() => handleUpdateAvailability(product._id)}
-                      >
-                        Update Availability
-                      </button>
+                      <div className="availability-controls" style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
+                        <button 
+                          className="btn-inc-aval"
+                          onClick={() => setAvailabilityCounts(prev => ({
+                            ...prev,
+                            [product._id]: (prev[product._id] || 0) + 1
+                          }))}
+                        >
+                          +
+                        </button>
+                        <span>{availabilityCounts[product._id] || 0}</span>
+                        <button 
+                          className="btn-inc-aval"
+                          onClick={() => setAvailabilityCounts(prev => ({
+                            ...prev,
+                            [product._id]: Math.max((prev[product._id] || 0) - 1, 0)
+                          }))}
+                        >
+                          -
+                        </button>
+                        <button 
+                          className="btn-inc-aval"
+                          onClick={() => handleUpdateAvailability(product._id)}
+                        >
+                          Update Availability
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <p>No products in this category.</p>
-              )}
+                  ))
+                ) : (
+                  <p>No products in this category.</p>
+                )}
+              </div>
               <button 
                 className="btn-secondary"
                 onClick={() => setShowProductModal(false)}
