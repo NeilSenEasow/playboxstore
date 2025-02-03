@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUsers, FaShoppingCart, FaMoneyBillWave, FaChartLine, FaPlus } from 'react-icons/fa';
+import { FaUsers, FaShoppingCart, FaMoneyBillWave, FaChartLine, FaPlus, FaBoxOpen, FaShoppingBag, FaStore, FaClipboardList } from 'react-icons/fa';
 import './Admin.css';
 
 const Admin = ({ isAuthenticated }) => {
@@ -19,6 +19,12 @@ const Admin = ({ isAuthenticated }) => {
   });
   const [availabilityCount, setAvailabilityCount] = useState(0);
   const [showProductModal, setShowProductModal] = useState(false);
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
+  const [showSellProductsModal, setShowSellProductsModal] = useState(false);
+  const [showSellOrdersModal, setShowSellOrdersModal] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [sellProducts, setSellProducts] = useState([]);
+  const [sellOrders, setSellOrders] = useState([]);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -322,77 +328,171 @@ const Admin = ({ isAuthenticated }) => {
       </div>
 
       <div className="admin-section">
-        <div className="section-header">
-          <h2>Category Management</h2>
+        <div className="admin-buttons-grid">
           <button 
-            className="add-button"
+            className="admin-section-button"
             onClick={() => setShowAddCategory(true)}
           >
-            <FaPlus /> Add Category
+            <FaBoxOpen />
+            <span>Category Management</span>
+          </button>
+
+          <button 
+            className="admin-section-button"
+            onClick={() => setShowOrdersModal(true)}
+          >
+            <FaShoppingBag />
+            <span>Orders</span>
+          </button>
+
+          <button 
+            className="admin-section-button"
+            onClick={() => setShowSellProductsModal(true)}
+          >
+            <FaStore />
+            <span>Sell Products</span>
+          </button>
+
+          <button 
+            className="admin-section-button"
+            onClick={() => setShowSellOrdersModal(true)}
+          >
+            <FaClipboardList />
+            <span>Sell Orders</span>
           </button>
         </div>
 
-        <div className="categories-grid">
-          {categories.map(category => (
-            <div key={category.name} className="category-card">
-              <h3>{category.name} ({category.count})</h3>
-              <p>{category.products.length} Products</p>
-              <div className="form-buttons">
-                <button 
-                  className="btn-secondary"
-                  onClick={() => handleShowProducts(category)}
-                >
-                  View Products
-                </button>
-                <button 
-                  className="btn-primary"
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    setShowAddProduct(true);
-                  }}
-                >
-                  Add Product
-                </button>
-              </div>
-              <button 
-                className="btn-danger"
-                onClick={() => handleRemoveCategory(category.name)}
-              >
-                Remove Category
-              </button>
-            </div>
-          ))}
-        </div>
-
+        {/* Category Management Modal */}
         {showAddCategory && (
           <div className="modal-overlay">
             <div className="modal">
-              <h3>Add New Category</h3>
-              <form onSubmit={handleAddCategory}>
-                <div className="form-group">
-                  <label>Category Name</label>
-                  <input
-                    type="text"
-                    value={newCategory.name}
-                    onChange={(e) => setNewCategory({
-                      ...newCategory,
-                      name: e.target.value,
-                      slug: e.target.value.toLowerCase().replace(/\s+/g, '-')
-                    })}
-                    required
-                  />
-                </div>
-                <div className="form-buttons">
-                  <button type="submit" className="btn-primary">Add Category</button>
-                  <button 
-                    type="button" 
-                    className="btn-secondary"
-                    onClick={() => setShowAddCategory(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+              <h3>Category Management</h3>
+              <div className="categories-grid">
+                {categories.map(category => (
+                  <div key={category.name} className="category-card">
+                    <h3>{category.name} ({category.count})</h3>
+                    <p>{category.products.length} Products</p>
+                    <div className="form-buttons">
+                      <button 
+                        className="btn-secondary"
+                        onClick={() => handleShowProducts(category)}
+                      >
+                        View Products
+                      </button>
+                      <button 
+                        className="btn-primary"
+                        onClick={() => {
+                          setSelectedCategory(category);
+                          setShowAddProduct(true);
+                        }}
+                      >
+                        Add Product
+                      </button>
+                    </div>
+                    <button 
+                      className="btn-danger"
+                      onClick={() => handleRemoveCategory(category.name)}
+                    >
+                      Remove Category
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button 
+                className="btn-secondary"
+                onClick={() => setShowAddCategory(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Orders Modal */}
+        {showOrdersModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Orders Management</h3>
+              <div className="orders-tabs">
+                <button className="tab-button active">Pending</button>
+                <button className="tab-button">In Progress</button>
+                <button className="tab-button">Completed</button>
+              </div>
+              <div className="orders-list">
+                {orders.map(order => (
+                  <div key={order.id} className="order-card">
+                    <h4>Order #{order.id}</h4>
+                    <p>Status: {order.status}</p>
+                    <p>Total: ₹{order.total}</p>
+                    <button className="btn-primary">Update Status</button>
+                  </div>
+                ))}
+              </div>
+              <button 
+                className="btn-secondary"
+                onClick={() => setShowOrdersModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Sell Products Modal */}
+        {showSellProductsModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Sell Products Management</h3>
+              <div className="sell-products-list">
+                {sellProducts.map(product => (
+                  <div key={product.id} className="sell-product-card">
+                    <h4>{product.name}</h4>
+                    <p>Price: ₹{product.price}</p>
+                    <p>Condition: {product.condition}</p>
+                    <div className="status-controls">
+                      <button className="btn-primary">Approve</button>
+                      <button className="btn-danger">Reject</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button 
+                className="btn-secondary"
+                onClick={() => setShowSellProductsModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Sell Orders Modal */}
+        {showSellOrdersModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Sell Orders Management</h3>
+              <div className="sell-orders-tabs">
+                <button className="tab-button active">Pending</button>
+                <button className="tab-button">In Progress</button>
+                <button className="tab-button">Completed</button>
+              </div>
+              <div className="sell-orders-list">
+                {sellOrders.map(order => (
+                  <div key={order.id} className="sell-order-card">
+                    <h4>Sell Order #{order.id}</h4>
+                    <p>Item: {order.itemName}</p>
+                    <p>Status: {order.status}</p>
+                    <p>Offered Price: ₹{order.price}</p>
+                    <button className="btn-primary">Update Status</button>
+                  </div>
+                ))}
+              </div>
+              <button 
+                className="btn-secondary"
+                onClick={() => setShowSellOrdersModal(false)}
+              >
+                Close
+              </button>
             </div>
           </div>
         )}
