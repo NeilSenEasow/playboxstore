@@ -8,16 +8,16 @@ const GameSection = ({ updateCartCount }) => {
   const [hasAnimated, setHasAnimated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [games, setGames] = useState([]);
+
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const apiUrl = `${import.meta.env.VITE_PROD_BASE_URL}/api/mainProducts`; // Use VITE_PROD_BASE_URL for production
-        const response = await fetch(apiUrl);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/category/Games`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setGames(data.filter(product => product.category === 'Games')); // Filter games from mainProducts
+        setGames(data);
       } catch (error) {
         console.error("Error fetching games:", error);
       } finally {
@@ -25,7 +25,7 @@ const GameSection = ({ updateCartCount }) => {
       }
     };
 
-    fetchGames(); // Ensure fetchGames is called only once
+    fetchGames();
 
     const observer = new IntersectionObserver(
       ([entry]) => {

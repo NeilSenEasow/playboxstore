@@ -15,7 +15,9 @@ const Admin = ({ isAuthenticated }) => {
     price: '',
     description: '',
     condition: 'new',
-    availableQuantity: 0
+    image: '',
+    availableQuantity: '',
+    category: ''
   });
   const [availabilityCounts, setAvailabilityCounts] = useState({});
   const [showProductModal, setShowProductModal] = useState(false);
@@ -37,7 +39,7 @@ const Admin = ({ isAuthenticated }) => {
   useEffect(() => {
     const fetchGroupedProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products/grouped`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/grouped`);
         if (!response.ok) {
           throw new Error('Failed to fetch grouped products');
         }
@@ -83,7 +85,7 @@ const Admin = ({ isAuthenticated }) => {
     const fetchOrders = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_PROD_BASE_URL}/api/orders`
+          `${import.meta.env.VITE_API_URL}/api/orders`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch orders');
@@ -111,16 +113,17 @@ const Admin = ({ isAuthenticated }) => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     
-    const productData = {
-      name: newProduct.name,
-      price: parseFloat(newProduct.price),
-      description: newProduct.description,
-      condition: newProduct.condition,
-      availableQuantity: parseInt(newProduct.availableQuantity, 10),
-      category: selectedCategory.name
-    };
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items`, {
+      const productData = {
+        name: newProduct.name,
+        price: parseFloat(newProduct.price),
+        description: newProduct.description,
+        condition: newProduct.condition,
+        image: newProduct.image,
+        availableQuantity: parseInt(newProduct.availableQuantity, 10),
+        category: selectedCategory.name
+      };
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,66 +133,79 @@ const Admin = ({ isAuthenticated }) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error response:', errorData);
-        throw new Error('Failed to add product to API');
+        throw new Error('Failed to add product');
       }
 
-      const data = await response.json();
-      const updatedCategories = categories.map(cat => {
-        if (cat.id === selectedCategory.id) {
+      const savedProduct = await response.json();
+
+      // Update local state
+      setCategories(categories.map(cat => {
+        if (cat.name === selectedCategory.name) {
           return {
             ...cat,
-            products: [...cat.products, { ...productData, _id: data.item._id }]
+            products: [...cat.products, savedProduct]
           };
         }
         return cat;
-      });
-      setCategories(updatedCategories);
+      }));
+
+      // Reset form
       setNewProduct({
         name: '',
         price: '',
         description: '',
         condition: 'new',
-        availableQuantity: 0
+        image: '',
+        availableQuantity: '',
+        category: ''
       });
       setShowAddProduct(false);
     } catch (error) {
       console.error('Error adding product:', error);
+      alert('Failed to add product. Please try again.');
     }
   };
 
   // Update product availability
   const handleUpdateAvailability = async (productId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items/${productId}`, {
-        method: 'PUT',
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/${productId}/availability`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ count: availabilityCounts[productId] || 0 }), 
+        body: JSON.stringify({ 
+          availableQuantity: availabilityCounts[productId] || 0 
+        }), 
       });
+
       if (!response.ok) {
         throw new Error('Failed to update availability');
       }
 
-      // Update the local state if needed
-      const updatedCategories = categories.map(category => {
-        category.products = category.products.map(product =>
-          product._id === productId ? { ...product, availableQuantity: product.availableQuantity + (availabilityCounts[productId] || 0) } : product
-        );
-        return category;
-      });
-      setCategories(updatedCategories);
+      const updatedProduct = await response.json();
+
+      // Update the local state
+      setCategories(categories.map(cat => ({
+        ...cat,
+        products: cat.products.map(prod => 
+          prod._id === productId 
+            ? { ...prod, availableQuantity: updatedProduct.availableQuantity }
+            : prod
+        )
+      })));
       
-      // Reset only the specific product's count
+      // Reset the count for this product
       setAvailabilityCounts(prev => ({
         ...prev,
         [productId]: 0
       }));
+
+      alert('Product quantity updated successfully!');
     } catch (error) {
       console.error('Error updating availability:', error);
+      alert('Failed to update product quantity. Please try again.');
     }
   };
 
@@ -201,7 +217,7 @@ const Admin = ({ isAuthenticated }) => {
       return;
     }
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items/${productId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items/${productId}`, {
         method: "DELETE",
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -236,7 +252,7 @@ const Admin = ({ isAuthenticated }) => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_PROD_BASE_URL}/api/categories/${categoryName}`,
+        `${import.meta.env.VITE_API_URL}/api/categories/${categoryName}`,
         {
           method: 'DELETE',
           headers: {
@@ -506,7 +522,7 @@ const Admin = ({ isAuthenticated }) => {
                           onChange={async (e) => {
                             try {
                               const response = await fetch(
-                                `${import.meta.env.VITE_PROD_BASE_URL}/api/orders/${order._id}/status`,
+                                `${import.meta.env.VITE_API_URL}/api/orders/${order._id}/status`,
                                 {
                                   method: 'PATCH',
                                   headers: {
@@ -610,8 +626,8 @@ const Admin = ({ isAuthenticated }) => {
         {showAddProduct && selectedCategory && (
           <div className="modal-overlay">
             <div className="modal">
-              <h3>Add Product to {selectedCategory.name}</h3>
-              <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
+              <div className="modal-content">
+                <h3>Add Product to {selectedCategory.name}</h3>
                 <form onSubmit={handleAddProduct}>
                   <div className="form-group">
                     <label>Product Name</label>
@@ -654,6 +670,19 @@ const Admin = ({ isAuthenticated }) => {
                     </select>
                   </div>
                   <div className="form-group">
+                    <label>Image URL</label>
+                    <input
+                      type="url"
+                      value={newProduct.image}
+                      onChange={(e) => setNewProduct(prev => ({
+                        ...prev,
+                        image: e.target.value
+                      }))}
+                      placeholder="Enter product image URL"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
                     <label>Available Quantity</label>
                     <input
                       type="number"
@@ -678,27 +707,45 @@ const Admin = ({ isAuthenticated }) => {
                   </div>
                 </form>
               </div>
+              {newProduct.image && (
+                <div className="image-preview">
+                  <img 
+                    src={newProduct.image} 
+                    alt="Product preview" 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'placeholder-image-url';
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}
 
         {showProductModal && selectedCategory && (
           <div className="modal-overlay">
-            <div className="modal" style={{textAlign: 'center'}}>
+            <div className="modal">
               <h3>Products in {selectedCategory.name}</h3>
-              <div style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
-                {selectedCategory.products.length > 0 ? (
-                  selectedCategory.products.map(product => (
-                    <div key={product._id} className="product-card" style={{textAlign: 'center'}}>
+              <div className="products-list">
+                {selectedCategory.products.map(product => (
+                  <div key={product._id} className="product-list-item">
+                    <img 
+                      src={product.image} 
+                      alt={product.name}
+                      className="product-image"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/100';
+                      }}
+                    />
+                    <div className="product-info">
                       <h4>{product.name}</h4>
-                      <p>₹{product.price}</p>
-                      <button 
-                        className="btn-danger"
-                        onClick={() => handleRemoveProduct(selectedCategory.name, product._id)}
-                      >
-                        Remove Product
-                      </button>
-                      <div className="availability-controls" style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
+                      <p>₹{product.price.toLocaleString()}</p>
+                      <p>Quantity: {product.availableQuantity}</p>
+                      <p>Condition: {product.condition}</p>
+                      <p className="description">{product.description}</p>
+                      <div className="availability-controls">
                         <button 
                           className="btn-inc-aval"
                           onClick={() => setAvailabilityCounts(prev => ({
@@ -719,24 +766,52 @@ const Admin = ({ isAuthenticated }) => {
                           -
                         </button>
                         <button 
-                          className="btn-inc-aval"
+                          className="btn-update"
                           onClick={() => handleUpdateAvailability(product._id)}
                         >
-                          Update Availability
+                          Update Quantity
                         </button>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <p>No products in this category.</p>
-                )}
+                    <div className="product-actions">
+                      <button 
+                        className="btn-danger"
+                        onClick={() => handleRemoveProduct(selectedCategory.name, product._id)}
+                      >
+                        Remove
+                      </button>
+                      {/* <button 
+                        className="btn-secondary"
+                        onClick={() => {
+                          setSelectedCategory(selectedCategory);
+                          setShowAddProduct(true);
+                          setShowProductModal(false);
+                        }}
+                      >
+                        Edit
+                      </button> */}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <button 
-                className="btn-secondary"
-                onClick={() => setShowProductModal(false)}
-              >
-                Close
-              </button>
+              <div className="modal-footer">
+                <button 
+                  className="btn-primary"
+                  onClick={() => {
+                    setSelectedCategory(selectedCategory);
+                    setShowAddProduct(true);
+                    setShowProductModal(false);
+                  }}
+                >
+                  Add New Product
+                </button>
+                <button 
+                  className="btn-secondary"
+                  onClick={() => setShowProductModal(false)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}

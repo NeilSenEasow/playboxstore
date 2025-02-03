@@ -35,7 +35,7 @@ const ProductCard = ({ product, onAddToCart }) => {
       </h3>
       <p className="product-price">
         <span className="highlight">
-          ₹{typeof product.price === 'number' ? product.price.toLocaleString() : product.price}
+          ₹{product.price.toLocaleString()}
           {product.rentPrice && '/day'}
         </span>
       </p>
@@ -47,9 +47,9 @@ const ProductCard = ({ product, onAddToCart }) => {
       <div className="product-buttons">
         <button 
           className="btn-primary"
-          onClick={() => onAddToCart(product)}
+          onClick={() => onAddToCart({...product, id: product._id})}
         >
-          {product.rentPrice ? 'Rent Now' : 'Add To Cart'}
+          Add To Cart
         </button>
         <button className="btn-secondary">
           View More

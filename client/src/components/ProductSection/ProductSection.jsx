@@ -12,12 +12,12 @@ const ProductSection = ({ updateCartCount }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/mainProducts`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products/category/Consoles`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setProducts(data.filter(product => product.category === 'Consoles')); // Set the filtered consoles directly from the mainProducts
+        setProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {

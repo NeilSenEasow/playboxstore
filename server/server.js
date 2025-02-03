@@ -101,8 +101,13 @@ app.get("/api", (req, res) => {
 
 // New route to get main products
 app.get("/api/mainProducts", async (req, res) => {
-  const mainProducts = await readMainProductsFile();
-  res.json(mainProducts);
+  try {
+    const products = await Product.find({});
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Error fetching products" });
+  }
 });
 
 // Test route
@@ -174,8 +179,26 @@ app.post('/auth/login', async (req, res) => {
 
 // Get all products
 app.get("/api/products", async (req, res) => {
-  const products = await readProductsFile();
-  res.json(products);
+  try {
+    const products = await Product.find();
+    
+    // Map old API structure for compatibility
+    const mappedProducts = products.map(product => ({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.image || 'https://via.placeholder.com/150', // Fallback image
+      category: product.category,
+      description: product.description,
+      condition: product.condition,
+      availableQuantity: product.availableQuantity
+    }));
+
+    res.json(mappedProducts);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
 });
 
 // Get all items
@@ -666,6 +689,108 @@ app.patch("/api/orders/:orderId/cancel", async (req, res) => {
       error: 'Failed to cancel order',
       details: error.message 
     });
+  }
+});
+
+// Add product endpoint
+app.post("/api/products", async (req, res) => {
+  try {
+    const { name, price, description, condition, image, availableQuantity, category } = req.body;
+
+    // Validate required fields
+    if (!name || !price || !description || !condition || !image || !availableQuantity || !category) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Create new product
+    const product = new Product({
+      name,
+      price,
+      description,
+      condition,
+      image,
+      availableQuantity,
+      category
+    });
+
+    await product.save();
+    res.status(201).json(product);
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({ error: 'Failed to create product' });
+  }
+});
+
+// Update product availability
+app.patch("/api/products/:productId/availability", async (req, res) => {
+  try {
+    const { availableQuantity } = req.body;
+    const { productId } = req.params;
+
+    if (typeof availableQuantity !== 'number' || availableQuantity < 0) {
+      return res.status(400).json({ error: 'Invalid quantity value' });
+    }
+
+    const product = await Product.findByIdAndUpdate(
+      productId,
+      { availableQuantity },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.json(product);
+  } catch (error) {
+    console.error('Error updating product availability:', error);
+    res.status(500).json({ 
+      error: 'Failed to update product availability',
+      details: error.message 
+    });
+  }
+});
+
+// Add endpoint to fetch products by category
+app.get("/api/products/category/:category", async (req, res) => {
+  try {
+    const { category } = req.params;
+    const products = await Product.find({ category });
+    res.json(products);
+  } catch (error) {
+    console.error("Error fetching products by category:", error);
+    res.status(500).json({ message: "Error fetching products" });
+  }
+});
+
+// Add this new endpoint to get user data
+app.get("/api/user", async (req, res) => {
+  try {
+    // Get token from header
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.SECRET);
+    if (!decoded.id) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    // Find user by ID (excluding password)
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    res.status(500).json({ error: 'Error fetching user data' });
   }
 });
 

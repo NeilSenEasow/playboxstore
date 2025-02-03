@@ -64,8 +64,8 @@ function Checkout({ cartItems, clearCart }) {
         throw new Error('Authentication token not found');
       }
 
-      // Fetch user data from MongoDB directly
-      const userResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/users/me`, {
+      // Fetch user data
+      const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -79,49 +79,36 @@ function Checkout({ cartItems, clearCart }) {
       const userData = await userResponse.json();
       const userId = userData._id;
 
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
-
-      // Map cart items to include MongoDB product IDs
-      const mappedCartItems = cartItems.map(item => {
-        const product = products.find(p => p._id === item.id);
-        if (!product) {
-          throw new Error(`Product not found for ID: ${item.id}`);
-        }
-        return {
-          id: product._id,
-          quantity: item.quantity
-        };
-      });
-
-      // Create order with correct format
-      const orderData = {
-        cartItems: mappedCartItems,
-        userId: userId,
-        orderDetails: formData
-      };
-
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/orders`, {
+      // Create order
+      const orderResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify({
+          cartItems: cartItems.map(item => ({
+            id: item.id || item._id,
+            quantity: item.quantity || 1
+          })),
+          userId: userId,
+          orderDetails: formData
+        })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create order');
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order');
       }
 
-      // Clear cart and show success message
+      // Store form data in session storage for payment page
+      sessionStorage.setItem('checkoutFormData', JSON.stringify(formData));
+      
+      // Clear cart and redirect to payment
       clearCart();
-      navigate('/payment-success');
+      navigate('/payment');
     } catch (error) {
-      console.error('Error during checkout:', error);
-      alert('There was an error processing your order. Please try again.');
+      console.error('Checkout error:', error);
+      setError(error.message);
     } finally {
       setIsSubmitting(false);
     }

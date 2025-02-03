@@ -10,6 +10,7 @@ const productSchema = new mongoose.Schema({
     enum: ['new', 'used'],
     required: true 
   },
+  image: { type: String, required: true },
   availableQuantity: { type: Number, required: true },
   category: { type: String, required: true }
 });
