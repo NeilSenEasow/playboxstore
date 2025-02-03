@@ -9,6 +9,19 @@ const orderSchema = new mongoose.Schema({
     type: String, 
     enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'], 
     default: 'Pending' 
+  },
+  shippingAddress: {
+    firstName: String,
+    lastName: String,
+    email: String,
+    phone: String,
+    address: String,
+    street: String,
+    city: String,
+    district: String,
+    state: String,
+    zipcode: String,
+    landmark: String
   }
 }, { timestamps: true });
 

@@ -54,8 +54,18 @@ const Payment = ({ cartItems, clearCart }) => {
 
     setLoading(true);
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/payments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          amount: total,
+          paymentMethod: selectedMethod,
+          orderDetails: formData
+        })
+      });
       
       // Clear cart and session storage
       clearCart();

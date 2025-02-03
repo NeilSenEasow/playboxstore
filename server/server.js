@@ -9,6 +9,7 @@ const path = require("path");
 const User = require("./models/User"); // Import the User model
 const Product = require("./models/Product"); // Import the Product model
 const Admin = require("./models/Admin"); // Ensure this is correct
+const Order = require("./models/Order"); // Import the Order model
 // const Category = require("./models/Category"); // Import the Category model
 
 // Load environment variables
@@ -482,6 +483,188 @@ app.delete("/api/categories/:categoryName", async (req, res) => {
     res.status(500).json({ 
       error: "Error deleting category and products", 
       details: err.message 
+    });
+  }
+});
+
+// Create new order
+app.post("/api/orders", async (req, res) => {
+  try {
+    const { cartItems, userId, orderDetails } = req.body;
+    
+    // Validate required fields
+    if (!cartItems || !userId || !orderDetails) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Create orders for each cart item
+    const orderPromises = cartItems.map(async (item) => {
+      const order = new Order({
+        productId: item.id,
+        userId: userId,
+        quantity: item.quantity || 1,
+        status: 'Pending',
+        orderDate: new Date(),
+        shippingAddress: {
+          firstName: orderDetails.firstName,
+          lastName: orderDetails.lastName,
+          email: orderDetails.email,
+          phone: orderDetails.phone,
+          address: orderDetails.address,
+          street: orderDetails.street,
+          city: orderDetails.city,
+          district: orderDetails.district,
+          state: orderDetails.state,
+          zipcode: orderDetails.zipcode,
+          landmark: orderDetails.landmark
+        }
+      });
+
+      // Save the order
+      const savedOrder = await order.save();
+
+      // Update product availability
+      await Product.findByIdAndUpdate(
+        item.id,
+        { $inc: { availableQuantity: -(item.quantity || 1) } },
+        { new: true }
+      );
+
+      return savedOrder;
+    });
+
+    // Wait for all orders to be created
+    const createdOrders = await Promise.all(orderPromises);
+
+    res.status(201).json({
+      message: 'Orders created successfully',
+      orders: createdOrders
+    });
+
+  } catch (error) {
+    console.error('Error creating orders:', error);
+    res.status(500).json({ 
+      error: 'Failed to create orders',
+      details: error.message 
+    });
+  }
+});
+
+// Get all orders (admin only)
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate('productId')
+      .populate('userId', 'name email')
+      .sort({ orderDate: -1 });
+    
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch orders',
+      details: error.message 
+    });
+  }
+});
+
+// Get orders for a specific user
+app.get("/api/orders/:userId", async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId })
+      .populate('productId')
+      .sort({ orderDate: -1 });
+    
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch orders',
+      details: error.message 
+    });
+  }
+});
+
+// Get specific order by ID
+app.get("/api/orders/order/:orderId", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId)
+      .populate('productId')
+      .populate('userId', 'name email');
+    
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    res.json(order);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch order',
+      details: error.message 
+    });
+  }
+});
+
+// Update order status
+app.patch("/api/orders/:orderId/status", async (req, res) => {
+  try {
+    const { status } = req.body;
+    
+    // Validate status
+    if (!['Pending', 'Shipped', 'Delivered', 'Cancelled'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status value' });
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.orderId,
+      { status },
+      { new: true }
+    ).populate('productId');
+    
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    res.json(order);
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ 
+      error: 'Failed to update order status',
+      details: error.message 
+    });
+  }
+});
+
+// Cancel order
+app.patch("/api/orders/:orderId/cancel", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    if (order.status !== 'Pending') {
+      return res.status(400).json({ error: 'Can only cancel pending orders' });
+    }
+
+    // Update order status to cancelled
+    order.status = 'Cancelled';
+    await order.save();
+
+    // Restore product quantity
+    await Product.findByIdAndUpdate(
+      order.productId,
+      { $inc: { availableQuantity: order.quantity } }
+    );
+
+    res.json({ message: 'Order cancelled successfully', order });
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    res.status(500).json({ 
+      error: 'Failed to cancel order',
+      details: error.message 
     });
   }
 });

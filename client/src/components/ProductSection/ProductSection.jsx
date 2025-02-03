@@ -12,8 +12,7 @@ const ProductSection = ({ updateCartCount }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const apiUrl = `${import.meta.env.VITE_PROD_BASE_URL}/api/mainProducts`; // Use VITE_PROD_BASE_URL for production
-        const response = await fetch(apiUrl);
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

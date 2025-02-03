@@ -716,4 +716,185 @@
   display: flex;
   gap: 10px;
   margin-top: 10px;
+}
+
+.orders-section {
+  background: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
+  color: white;
+}
+
+.orders-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 10px 0;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background: #333;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+  background: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+.tab-button.active {
+  background: #ff4747;
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 71, 71, 0.2);
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.order-card {
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 20px;
+  background: #1a1a1a;
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.order-header span:first-child {
+  color: #ff4747;
+  font-weight: 500;
+}
+
+.order-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.order-status.pending { 
+  background: #ffd700;
+  color: #000;
+}
+
+.order-status.shipped { 
+  background: #0088ff;
+  color: white;
+}
+
+.order-status.delivered { 
+  background: #00cc66;
+  color: white;
+}
+
+.order-status.cancelled { 
+  background: #ff4747;
+  color: white;
+}
+
+.order-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.order-details p {
+  color: #ccc;
+  margin: 5px 0;
+  font-size: 0.95em;
+}
+
+.order-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 15px;
+  border-top: 1px solid #444;
+}
+
+.order-actions select {
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: white;
+  cursor: pointer;
+  font-size: 0.95em;
+  transition: all 0.3s ease;
+}
+
+.order-actions select:hover {
+  border-color: #ff4747;
+}
+
+.order-actions select:focus {
+  outline: none;
+  border-color: #ff4747;
+  box-shadow: 0 0 0 2px rgba(255, 71, 71, 0.2);
+}
+
+/* Update modal styles for better visibility */
+.modal {
+  background-color: #1a1a1a;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.modal h3 {
+  color: #ff4747;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #444;
+}
+
+/* Add scrollbar styling */
+.modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+  background: #555;
 } 

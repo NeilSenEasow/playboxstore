@@ -37,7 +37,7 @@ const Admin = ({ isAuthenticated }) => {
   useEffect(() => {
     const fetchGroupedProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/products/grouped`);
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products/grouped`);
         if (!response.ok) {
           throw new Error('Failed to fetch grouped products');
         }
@@ -78,6 +78,26 @@ const Admin = ({ isAuthenticated }) => {
     totalViews: 68400
   };
 
+  // Add this after other useEffect hooks
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_PROD_BASE_URL}/api/orders`
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders');
+        }
+        const data = await response.json();
+        setOrders(data);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
   // Add a new category
   const handleAddCategory = (e) => {
     e.preventDefault();
@@ -100,10 +120,11 @@ const Admin = ({ isAuthenticated }) => {
       category: selectedCategory.name
     };
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/items`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(productData),
       });
@@ -141,10 +162,11 @@ const Admin = ({ isAuthenticated }) => {
   // Update product availability
   const handleUpdateAvailability = async (productId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/items/${productId}`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({ count: availabilityCounts[productId] || 0 }), 
       });
@@ -179,8 +201,11 @@ const Admin = ({ isAuthenticated }) => {
       return;
     }
     try {
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL || import.meta.env.VITE_API_URL}/api/items/${productId}`, {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/items/${productId}`, {
         method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
       if (!response.ok) {
         const errorData = await response.json();
@@ -211,11 +236,12 @@ const Admin = ({ isAuthenticated }) => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/categories/${categoryName}`,
+        `${import.meta.env.VITE_PROD_BASE_URL}/api/categories/${categoryName}`,
         {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
         }
       );
@@ -457,15 +483,60 @@ const Admin = ({ isAuthenticated }) => {
                 <button className="tab-button">In Progress</button>
                 <button className="tab-button">Completed</button>
               </div>
-              <div className="orders-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
-                {orders.map(order => (
-                  <div key={order.id} className="order-card">
-                    <h4>Order #{order.id}</h4>
-                    <p>Status: {order.status}</p>
-                    <p>Total: ₹{order.total}</p>
-                    <button className="btn-primary">Update Status</button>
-                  </div>
-                ))}
+              <div className="orders-section">
+                <h3>Recent Orders</h3>
+                <div className="orders-list">
+                  {orders.map((order) => (
+                    <div key={order._id} className="order-card">
+                      <div className="order-header">
+                        <span>Order ID: {order._id}</span>
+                        <span className={`order-status ${order.status.toLowerCase()}`}>
+                          {order.status}
+                        </span>
+                      </div>
+                      <div className="order-details">
+                        <p>Product: {order.productId?.name || 'Product Not Found'}</p>
+                        <p>Quantity: {order.quantity}</p>
+                        <p>Customer: {order.shippingAddress.firstName} {order.shippingAddress.lastName}</p>
+                        <p>Date: {new Date(order.orderDate).toLocaleDateString()}</p>
+                      </div>
+                      <div className="order-actions">
+                        <select 
+                          value={order.status}
+                          onChange={async (e) => {
+                            try {
+                              const response = await fetch(
+                                `${import.meta.env.VITE_PROD_BASE_URL}/api/orders/${order._id}/status`,
+                                {
+                                  method: 'PATCH',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                  },
+                                  body: JSON.stringify({ status: e.target.value }),
+                                }
+                              );
+                              if (!response.ok) throw new Error('Failed to update status');
+                              
+                              // Refresh orders after status update
+                              const updatedOrders = orders.map(o => 
+                                o._id === order._id ? { ...o, status: e.target.value } : o
+                              );
+                              setOrders(updatedOrders);
+                            } catch (error) {
+                              console.error('Error updating order status:', error);
+                            }
+                          }}
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
               <button 
                 className="btn-secondary"

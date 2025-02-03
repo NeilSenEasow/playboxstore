@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Checkout.css"
 import { FaHome } from 'react-icons/fa';
@@ -7,7 +7,7 @@ function Checkout({ cartItems, clearCart }) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
-    lastName: '',
+    lastName: '', 
     email: '',
     phone: '',
     address: '',
@@ -21,6 +21,22 @@ function Checkout({ cartItems, clearCart }) {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [products, setProducts] = useState([]);
+
+  // Fetch products from MongoDB
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products`);
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -42,17 +58,70 @@ function Checkout({ cartItems, clearCart }) {
     setIsSubmitting(true);
 
     try {
-      // Validate form data here if needed
-      
-      // Navigate to GPay page instead of directly processing the order
-      navigate('/gpay', { 
-        state: { 
-          amount: cartItems.reduce((total, item) => total + item.price, 0),
-          orderDetails: formData
-        } 
+      // Get user token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      // Fetch user data from MongoDB directly
+      const userResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/users/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
+
+      if (!userResponse.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+
+      const userData = await userResponse.json();
+      const userId = userData._id;
+
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
+
+      // Map cart items to include MongoDB product IDs
+      const mappedCartItems = cartItems.map(item => {
+        const product = products.find(p => p._id === item.id);
+        if (!product) {
+          throw new Error(`Product not found for ID: ${item.id}`);
+        }
+        return {
+          id: product._id,
+          quantity: item.quantity
+        };
+      });
+
+      // Create order with correct format
+      const orderData = {
+        cartItems: mappedCartItems,
+        userId: userId,
+        orderDetails: formData
+      };
+
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create order');
+      }
+
+      // Clear cart and show success message
+      clearCart();
+      navigate('/payment-success');
     } catch (error) {
       console.error('Error during checkout:', error);
+      alert('There was an error processing your order. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
