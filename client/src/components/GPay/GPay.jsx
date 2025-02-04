@@ -6,23 +6,37 @@ import GooglePayButton from '@google-pay/button-react';
 function GPay() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { orderDetails, cartItems } = location.state || {};
-  const amount = location.state?.amount || 0;
+  
+  // Get data from location state
+  if (!location.state || !location.state.amount) {
+    navigate('/payment');
+    return null;
+  }
+
+  const { amount, orderDetails, cartItems } = location.state;
 
   const handlePaymentSuccess = async (paymentRequest) => {
     try {
-      const userId = localStorage.getItem('userId');
-      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
       const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           cartItems,
-          userId,
-          orderDetails
+          orderDetails,
+          paymentDetails: {
+            method: 'GPAY',
+            amount: amount,
+            transactionId: paymentRequest.transactionId || Date.now().toString(),
+            status: 'SUCCESS'
+          }
         })
       });
 
@@ -30,8 +44,18 @@ function GPay() {
         throw new Error('Failed to create order');
       }
 
+      // Clear cart data
+      sessionStorage.removeItem('checkoutFormData');
       localStorage.removeItem('cartItems');
-      navigate('/payment-success');
+
+      // Show success and redirect
+      navigate('/payment-success', {
+        state: {
+          orderId: Date.now().toString(),
+          amount: amount,
+          paymentMethod: 'Google Pay'
+        }
+      });
     } catch (error) {
       console.error('Error creating order:', error);
       alert('There was an error processing your order. Please try again.');
@@ -45,6 +69,22 @@ function GPay() {
         <div className="gpay-header">
           <h2>Google Pay</h2>
           <div className="amount">₹{amount.toLocaleString()}</div>
+        </div>
+
+        <div className="order-summary">
+          <h3>Order Summary</h3>
+          <div className="cart-items">
+            {cartItems.map((item, index) => (
+              <div key={index} className="cart-item">
+                <img src={item.image} alt={item.name} />
+                <div className="item-details">
+                  <h4>{item.name}</h4>
+                  <p>Quantity: {item.quantity || 1}</p>
+                  <p>₹{item.price.toLocaleString()}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <GooglePayButton
@@ -73,22 +113,8 @@ function GPay() {
             ],
             merchantInfo: {
               merchantId: '12345678901234567890',
-              merchantName: 'Demo Merchant',
-              merchantOrigin: window.location.origin,
-              authJwt: 'your_auth_jwt_here',
-              merchantIcon: 'https://your-merchant-icon-url.png',
-              icons: [
-                {
-                  src: 'https://your-icon-url-32x32.png',
-                  sizes: '32x32',
-                  type: 'image/png'
-                },
-                {
-                  src: 'https://your-icon-url-64x64.png',
-                  sizes: '64x64',
-                  type: 'image/png'
-                }
-              ]
+              merchantName: 'PlayBox Store',
+              merchantOrigin: window.location.origin
             },
             transactionInfo: {
               totalPriceStatus: 'FINAL',
@@ -117,6 +143,12 @@ function GPay() {
 
         <div className="gpay-footer">
           <p>Secure Payment via Google Pay</p>
+          <button 
+            className="back-button"
+            onClick={() => navigate('/payment')}
+          >
+            Back to Payment Options
+          </button>
         </div>
       </div>
     </div>

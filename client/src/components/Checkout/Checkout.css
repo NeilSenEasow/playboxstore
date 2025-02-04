@@ -175,3 +175,121 @@ label::after {
     padding: 1rem;
   }
 }
+
+.error-message.global-error {
+  background-color: rgba(255, 71, 71, 0.1);
+  color: #ff4747;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  border: 1px solid rgba(255, 71, 71, 0.2);
+}
+
+.empty-cart-message {
+  text-align: center;
+  padding: 2rem;
+}
+
+.continue-shopping {
+  background-color: #ff4747;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.continue-shopping:hover {
+  background-color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+.submit-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #ff4747;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 2rem;
+}
+
+.submit-button:not(:disabled):hover {
+  background-color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
+.submit-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.submit-button.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.checkout-success {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+}
+
+.success-content {
+  text-align: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(255, 71, 71, 0.2);
+  border: 1px solid rgba(255, 71, 71, 0.1);
+  animation: fadeInUp 0.5s ease forwards;
+  color: white;
+}
+
+.success-icon {
+  font-size: 4rem;
+  color: #4CAF50;
+  margin-bottom: 1rem;
+}
+
+.success-content h2 {
+  margin-bottom: 1rem;
+}
+
+.success-content p {
+  color: #ccc;
+  margin-bottom: 0.5rem;
+}
+
+.order-details {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 71, 71, 0.1);
+}
+
+.redirect-message {
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 2rem;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
