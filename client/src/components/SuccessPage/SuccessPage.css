@@ -1,0 +1,32 @@
+.success-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.success-content {
+  text-align: center;
+  padding: 30px; /* Increased padding for better spacing */
+  border: 2px solid #4caf50; /* Thicker border for better visibility */
+  border-radius: 12px; /* Slightly larger border radius */
+  background-color: #00ff55; /* Keeping background white for contrast */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Stronger shadow for depth */
+}
+
+.success-content > p {
+    color: #000000;
+}
+
+.success-icon {
+  font-size: 60px; /* Increased icon size for better visibility */
+  color: #0044ff; /* Keeping the same color for consistency */
+}
+
+.redirect-message {
+  margin-top: 25px; /* Increased margin for better spacing */
+  font-size: 18px; /* Increased font size for better readability */
+  color: #333; /* Darker color for better contrast */
+  font-weight: bold; /* Bold text for emphasis */
+}

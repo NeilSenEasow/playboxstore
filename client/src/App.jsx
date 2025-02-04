@@ -24,6 +24,7 @@ import UserProfile from './components/UserProfile/UserProfile';
 import './App.css';
 import ErrorBoundary from './ErrorBoundary';
 import GPay from './components/GPay/GPay';
+import SuccessPage from './components/SuccessPage/SuccessPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -226,6 +227,7 @@ function App() {
             <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} clearCart={clearCart} />} />
             <Route path="/checkout" element={<Checkout cartItems={cartItems} clearCart={clearCart} userPreferences={userPreferences} />} />
             <Route path="/payment" element={<Payment cartItems={cartItems} clearCart={clearCart} />} />
+            <Route path="/success" element={<SuccessPage />} />
             <Route 
               path="/admin" 
               element={

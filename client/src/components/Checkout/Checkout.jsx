@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Checkout.css"
-import { FaHome, FaCheckCircle } from 'react-icons/fa';
+import { FaHome } from 'react-icons/fa';
 
 function Checkout({ cartItems, clearCart }) {
   const navigate = useNavigate();
@@ -21,42 +21,22 @@ function Checkout({ cartItems, clearCart }) {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [orderTotal, setOrderTotal] = useState(0);
+  const [products, setProducts] = useState([]);
 
-  // Check authentication on component mount
+  // Fetch products from MongoDB
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/signin', { state: { from: '/checkout' } });
-    }
-  }, [navigate]);
-
-  // Calculate order total
-  useEffect(() => {
-    const subtotal = cartItems.reduce((total, item) => {
-      return total + (item.price * (item.quantity || 1));
-    }, 0);
-    const shipping = 100;
-    const tax = subtotal * 0.18;
-    setOrderTotal(subtotal + shipping + tax);
-  }, [cartItems]);
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.firstName) newErrors.firstName = 'First name is required';
-    if (!formData.lastName) newErrors.lastName = 'Last name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!formData.phone) newErrors.phone = 'Phone number is required';
-    if (!formData.address) newErrors.address = 'Address is required';
-    if (!formData.city) newErrors.city = 'City is required';
-    if (!formData.state) newErrors.state = 'State is required';
-    if (!formData.zipcode) newErrors.zipcode = 'Zipcode is required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products`);
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -75,119 +55,64 @@ function Checkout({ cartItems, clearCart }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Clear any previous errors
-    
-    if (!validateForm()) {
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
       // Get user token from localStorage
       const token = localStorage.getItem('token');
       if (!token) {
-        navigate('/signin', { state: { from: '/checkout' } });
-        return;
+        throw new Error('Authentication token not found');
       }
 
-      // Fetch user ID from the API
-      const userResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/user`, {
-        method: 'GET',
+      // Fetch user data
+      const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user`, {
         headers: {
-          'Authorization': `Bearer ${token}`, // Include token for authentication
-        },
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!userResponse.ok) {
-        throw new Error('Failed to fetch user ID');
+        throw new Error('Failed to fetch user data');
       }
 
       const userData = await userResponse.json();
-      const userId = userData.id; // Assuming the user ID is in the response
+      const userId = userData._id;
 
-      // Prepare order data
-      const orderData = {
-        cartItems: cartItems.map(item => ({
-          id: item.id, // Use the product ID from the cart
-          quantity: item.quantity || 1 // Default to 1 if quantity is undefined
-        })),
-        userId: userId,
-        orderDetails: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          street: formData.street,
-          city: formData.city,
-          district: formData.district,
-          state: formData.state,
-          zipcode: formData.zipcode,
-          landmark: formData.landmark,
-        }
-      };
-
-      // Send order data to the backend API
-      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/orders`, {
+      // Create order
+      const orderResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include token for authentication
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({
+          cartItems: cartItems.map(item => ({
+            id: item.id || item._id,
+            quantity: item.quantity || 1
+          })),
+          userId: userId,
+          orderDetails: formData
+        })
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to place order');
+      if (!orderResponse.ok) {
+        throw new Error('Failed to create order');
       }
 
-      // Show success state
-      setShowSuccess(true);
+      // Store form data in session storage for payment page
+      sessionStorage.setItem('checkoutFormData', JSON.stringify(formData));
       
-      // Clear cart after 3 seconds and redirect
-      setTimeout(() => {
-        clearCart();
-        navigate('/');
-      }, 3000);
-
+      // Clear cart and redirect to success page
+      clearCart();
+      navigate('/success');
     } catch (error) {
       console.error('Checkout error:', error);
-      setError(error.message || 'An error occurred during checkout');
+      setError(error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (showSuccess) {
-    return (
-      <div className="checkout-success">
-        <div className="success-content">
-          <FaCheckCircle className="success-icon" />
-          <h2>Order Placed Successfully!</h2>
-          <p>Thank you for your purchase.</p>
-          <div className="order-details">
-            <p>Order ID: #{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-            <p>Amount Paid: ₹{orderTotal.toLocaleString()}</p>
-          </div>
-          <p className="redirect-message">Redirecting to home page...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!cartItems?.length) {
-    return (
-      <div className="checkout-container">
-        <div className="empty-cart-message">
-          <h2>Your cart is empty</h2>
-          <button onClick={() => navigate('/')} className="continue-shopping">
-            Continue Shopping
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="checkout-container">
@@ -195,12 +120,6 @@ function Checkout({ cartItems, clearCart }) {
         <FaHome size={24} color="#ff4747" />
         <h2>Add address</h2>
       </div>
-
-      {error && (
-        <div className="error-message global-error">
-          {error}
-        </div>
-      )}
 
       <form className="checkout-form" onSubmit={handleSubmit}>
         <div className="form-row">
@@ -336,10 +255,10 @@ function Checkout({ cartItems, clearCart }) {
 
         <button 
           type="submit" 
-          className={`submit-button ${isSubmitting ? 'loading' : ''}`}
+          className={`confirm-order-btn ${isSubmitting ? 'submitting' : ''}`}
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Processing...' : 'Continue to Payment'}
+          {isSubmitting ? 'Processing...' : 'Confirm Order'}
         </button>
       </form>
     </div>
