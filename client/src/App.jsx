@@ -104,8 +104,18 @@ function App() {
 
   const updateCartCount = (item) => {
     setCartItems(prevItems => {
-      const newItems = [...prevItems, item];
-      return newItems;
+      const existingItem = prevItems.find(cartItem => cartItem.id === item.id);
+      if (existingItem) {
+        // If the item already exists, update its quantity
+        return prevItems.map(cartItem => 
+          cartItem.id === item.id 
+            ? { ...cartItem, quantity: cartItem.quantity + 1 } // Increment quantity
+            : cartItem
+        );
+      } else {
+        // If it doesn't exist, add it to the cart with quantity 1
+        return [...prevItems, { ...item, quantity: 1 }];
+      }
     });
     
     setUserPreferences(prev => ({

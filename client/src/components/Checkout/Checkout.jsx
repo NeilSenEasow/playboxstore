@@ -33,22 +33,6 @@ function Checkout({ cartItems, clearCart }) {
     }
   }, [navigate]);
 
-  // Fetch products from MongoDB
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products`);
-        if (!response.ok) throw new Error('Failed to fetch products');
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setError('Failed to fetch products');
-      }
-    };
-    fetchProducts();
-  }, []);
-
   // Calculate order total
   useEffect(() => {
     const subtotal = cartItems.reduce((total, item) => {
@@ -107,9 +91,57 @@ function Checkout({ cartItems, clearCart }) {
         return;
       }
 
-      // Simulate order processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      // Fetch user ID from the API
+      const userResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/user`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Include token for authentication
+        },
+      });
+
+      if (!userResponse.ok) {
+        throw new Error('Failed to fetch user ID');
+      }
+
+      const userData = await userResponse.json();
+      const userId = userData.id; // Assuming the user ID is in the response
+
+      // Prepare order data
+      const orderData = {
+        cartItems: cartItems.map(item => ({
+          id: item.id, // Use the product ID from the cart
+          quantity: item.quantity || 1 // Default to 1 if quantity is undefined
+        })),
+        userId: userId,
+        orderDetails: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          street: formData.street,
+          city: formData.city,
+          district: formData.district,
+          state: formData.state,
+          zipcode: formData.zipcode,
+          landmark: formData.landmark,
+        }
+      };
+
+      // Send order data to the backend API
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include token for authentication
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to place order');
+      }
+
       // Show success state
       setShowSuccess(true);
       

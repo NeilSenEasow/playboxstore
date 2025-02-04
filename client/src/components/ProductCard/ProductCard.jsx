@@ -47,7 +47,7 @@ const ProductCard = ({ product, onAddToCart }) => {
       <div className="product-buttons">
         <button 
           className="btn-primary"
-          onClick={() => onAddToCart({...product, id: product._id})}
+          onClick={() => onAddToCart({ ...product, id: product._id })}
         >
           Add To Cart
         </button>

@@ -73,7 +73,7 @@ const ProductSection = ({ updateCartCount }) => {
             <ProductCard 
               key={product.id || index}
               product={product}
-              onAddToCart={() => updateCartCount(product)}
+              onAddToCart={updateCartCount}
               style={{ 
                 animationDelay: `${index * 0.1}s`
               }}

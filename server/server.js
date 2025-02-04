@@ -26,7 +26,7 @@ for (const envVar of requiredEnvVars) {
 
 // Initialize Express app
 const app = express();
-const port = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002;
 
 // Middleware
 app.use(cors());
@@ -795,8 +795,8 @@ app.get("/api/user", async (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
 //TRIGGER A CHANGE - FOR render.com

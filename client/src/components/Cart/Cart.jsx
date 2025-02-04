@@ -35,8 +35,7 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
       return;
     }
     window.scrollTo(0, 0); // Scroll to top before navigating
-    const totalCost = calculateTotal(groupedItems); // Calculate total cost
-    navigate('/checkout', { state: { totalCost } }); // Pass total cost as state
+    navigate('/checkout'); // Navigate to checkout
   };
 
   const handleDeleteItem = (itemId) => {
@@ -63,9 +62,28 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
   const handleQuantityChange = (itemId, change) => {
     setCartItems(prevItems => 
       prevItems.map(item => 
-        item.id === itemId ? { ...item, quantity: Math.max(1, (item.quantity || 0) + change) } : item
+        item.id === itemId 
+          ? { ...item, quantity: Math.max(1, (item.quantity || 0) + change) } 
+          : item
       )
     );
+  };
+
+  const addToCart = (newItem) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item.id === newItem.id);
+      if (existingItem) {
+        // If the item already exists, update its quantity
+        return prevItems.map(item => 
+          item.id === newItem.id 
+            ? { ...item, quantity: item.quantity + newItem.quantity } 
+            : item
+        );
+      } else {
+        // If it doesn't exist, add it to the cart
+        return [...prevItems, newItem];
+      }
+    });
   };
 
   const groupedItems = cartItems.reduce((acc, item) => {
@@ -126,7 +144,7 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
           <ul className="cart-list">
             {groupedItems.map((item) => (
               <li key={item.id} className="cart-item">
-                <img src={item.image} alt={item.name} className="cart-item-image" />
+                <img src={`${import.meta.env.VITE_PROD_BASE_URL}${item.image}`} alt={item.name} className="cart-item-image" />
                 <div className="cart-item-details">
                   <h3 className="cart-item-name">{item.name}</h3>
                   <p className="cart-item-price">
