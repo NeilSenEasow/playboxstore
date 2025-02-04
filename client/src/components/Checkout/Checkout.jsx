@@ -65,7 +65,7 @@ function Checkout({ cartItems, clearCart }) {
       }
 
       // Fetch user data
-      const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user`, {
+      const userResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/user`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ function Checkout({ cartItems, clearCart }) {
       const userId = userData._id;
 
       // Create order
-      const orderResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
+      const orderResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
