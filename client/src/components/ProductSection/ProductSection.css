@@ -117,19 +117,24 @@
     justify-content: center;
     align-items: center;
 }
-  
-.loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 3px solid #1a1a1a;
-    border-top: 3px solid #ff4747;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+
+.loader {
+  width: 60px;
+  aspect-ratio: 2;
+  --_g: no-repeat radial-gradient(circle closest-side,#000 90%,#0000);
+  background: 
+    var(--_g) 0%   50%,
+    var(--_g) 50%  50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100%/3) 50%;
+  animation: l3 1s infinite linear;
 }
-  
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+
+@keyframes l3 {
+    20%{background-position:0%   0%, 50%  50%,100%  50%}
+    40%{background-position:0% 100%, 50%   0%,100%  50%}
+    60%{background-position:0%  50%, 50% 100%,100%   0%}
+    80%{background-position:0%  50%, 50%  50%,100% 100%}
 }
 
 .product-card {
@@ -168,13 +173,15 @@
   
 .product-name {
     max-height: 2.4em; 
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow: visible; /* Allow overflow to be visible */
+    text-overflow: clip; /* Disable ellipsis */
+    white-space: normal; /* Allow wrapping */
+    box-sizing: border-box; /* Ensure padding is included in the height */
 }
-  
+
 .product-name .highlight {
     color: red;
+    display: inline; /* Change to inline to allow wrapping */
 }
   
 .product-price {
