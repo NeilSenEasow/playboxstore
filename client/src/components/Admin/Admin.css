@@ -916,9 +916,9 @@
 }
 
 .product-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
+  width: 100%; /* Set width to 100% to fit the container */
+  height: 100%; /* Set height to auto to maintain aspect ratio */
+  object-fit: contain; /* Change to contain to fit images within the box */
   border-radius: 8px;
 }
 
