@@ -917,7 +917,6 @@
 
 .product-image {
   width: 100%; /* Set width to 100% to fit the container */
-  height: auto; /* Set height to auto to maintain aspect ratio */
   object-fit: cover; /* Change to cover to fill the box while maintaining aspect ratio */
   border-radius: 8px;
   background-image: url('/api/products'); /* Add image from /api/products */
