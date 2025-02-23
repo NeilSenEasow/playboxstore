@@ -51,9 +51,9 @@ const ProductCard = ({ product, onAddToCart }) => {
         >
           Add To Cart
         </button>
-        <button className="btn-secondary">
+        {/* <button className="btn-secondary">
           View More
-        </button>
+        </button> */}
       </div>
     </div>
   );

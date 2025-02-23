@@ -27,6 +27,7 @@ const Admin = ({ isAuthenticated }) => {
   const [orders, setOrders] = useState([]);
   const [sellProducts, setSellProducts] = useState([]);
   const [sellOrders, setSellOrders] = useState([]);
+  const [products, setProducts] = useState([]);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -35,8 +36,46 @@ const Admin = ({ isAuthenticated }) => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Fetch grouped products from the database
+  // // Fetch grouped products from the database
+  // useEffect(() => {
+  //   const fetchGroupedProducts = async () => {
+  //     try {
+  //       const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products/grouped`);
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch grouped products');
+  //       }
+  //       const data = await response.json();
+  //       // Process the grouped data to set it in state
+  //       setCategories(data.map(item => ({
+  //         name: item._id, // Category name
+  //         count: item.count,
+  //         products: item.products // Array of products under this category
+  //       })));
+  //       console.log('Fetched grouped products:', data);
+  //     } catch (error) {
+  //       console.error('Error fetching grouped products:', error);
+  //     }
+  //   };
+
+  //   fetchGroupedProducts();
+  // }, []);
+
+  // Fetch products from the API
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data); // Set the fetched products
+        console.log('Fetched products:', data); // Log the fetched products for debugging
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
     const fetchGroupedProducts = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products/grouped`);
@@ -56,6 +95,8 @@ const Admin = ({ isAuthenticated }) => {
       }
     };
 
+    // Call the fetch functions
+    fetchProducts();
     fetchGroupedProducts();
   }, []);
 
@@ -730,15 +771,15 @@ const Admin = ({ isAuthenticated }) => {
               <div className="products-list">
                 {selectedCategory.products.map(product => (
                   <div key={product._id} className="product-list-item">
-                    <img 
+                    {/* <img 
                       src={product.image} 
                       alt={product.name}
                       className="product-image"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = 'https://via.placeholder.com/100';
+                        e.target.src = 'https://via.placeholder.com/100'; // Fallback image
                       }}
-                    />
+                    /> */}
                     <div className="product-info">
                       <h4>{product.name}</h4>
                       <p>₹{product.price.toLocaleString()}</p>
@@ -795,16 +836,6 @@ const Admin = ({ isAuthenticated }) => {
                 ))}
               </div>
               <div className="modal-footer">
-                <button 
-                  className="btn-primary"
-                  onClick={() => {
-                    setSelectedCategory(selectedCategory);
-                    setShowAddProduct(true);
-                    setShowProductModal(false);
-                  }}
-                >
-                  Add New Product
-                </button>
                 <button 
                   className="btn-secondary"
                   onClick={() => setShowProductModal(false)}
