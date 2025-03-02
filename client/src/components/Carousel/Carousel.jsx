@@ -17,7 +17,7 @@ const GameCarousel = () => {
         showThumbs={false} 
         autoPlay 
         infiniteLoop
-        showStatus={false}
+        // showStatus={false}
         renderArrowPrev={(onClickHandler, hasPrev) =>
           hasPrev && renderArrow('prev', onClickHandler)
         }

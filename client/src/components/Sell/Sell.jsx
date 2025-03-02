@@ -1,13 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Sell.css';
 
-import PS5Image from '../../assets/games/Game1.png';
-import XboxImage from '../../assets/games/Game2.png';
-import SwitchImage from '../../assets/games/Game3.png';
-import PS4Image from '../../assets/games/Game4.png';
-import ControllerImage from '../../assets/console/console1.png';
-import PS3Image from '../../assets/console/console2.png';
-
 const Sell = () => {
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
