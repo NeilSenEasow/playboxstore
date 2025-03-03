@@ -10,6 +10,7 @@ const User = require("./models/User"); // Import the User model
 const Product = require("./models/Product"); // Import the Product model
 const Admin = require("./models/Admin"); // Ensure this is correct
 const Order = require("./models/Order"); // Import the Order model
+const Sell = require("./models/Sell"); // Import the Sell model
 // const Category = require("./models/Category"); // Import the Category model
 
 // Load environment variables
@@ -26,7 +27,7 @@ for (const envVar of requiredEnvVars) {
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
@@ -259,6 +260,8 @@ app.post("/api/items", async (req, res) => {
     res.status(500).json({ error: "Error adding item: " + err.message }); // Provide more specific error message
   }
 });
+
+
 
 app.put("/api/items/:id", async (req, res) => {
   try {
@@ -793,6 +796,47 @@ app.get("/api/user", async (req, res) => {
     res.status(500).json({ error: 'Error fetching user data' });
   }
 });
+
+// Add endpoint to sell a product
+app.post("/api/sell-product", async (req, res) => {
+  try {
+    const { name, price, description, condition, contactNumber, availableQuantity, image } = req.body;
+
+    // Validate required fields
+    if (!name || !price || !description || !condition || !contactNumber) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Create new sell item
+    const sellItem = new Sell({
+      name,
+      price,
+      description,
+      condition,
+      image: image || 'https://via.placeholder.com/150', // Use provided image or default
+      availableQuantity: availableQuantity || 1, // Use provided quantity or default to 1
+      category: 'Sell' // Set category as 'Sell'
+    });
+
+    await sellItem.save();
+    res.status(201).json(sellItem);
+  } catch (error) {
+    console.error('Error selling product:', error);
+    res.status(500).json({ error: 'Failed to sell product' });
+  }
+});
+
+// Endpoint to get all sell products
+app.get("/api/sell-products", async (req, res) => {
+  try {
+    const sellProducts = await Sell.find({});
+    res.json(sellProducts);
+  } catch (error) {
+    console.error('Error fetching sell products:', error);
+    res.status(500).json({ error: 'Failed to fetch sell products' });
+  }
+});
+
 
 // Start the server
 app.listen(PORT, () => {
