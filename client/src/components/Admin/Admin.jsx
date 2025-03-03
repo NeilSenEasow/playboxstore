@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUsers, FaShoppingCart, FaMoneyBillWave, FaChartLine, FaPlus, FaBoxOpen, FaShoppingBag, FaStore, FaClipboardList } from 'react-icons/fa';
 import './Admin.css';
@@ -28,6 +28,14 @@ const Admin = ({ isAuthenticated }) => {
   const [sellProducts, setSellProducts] = useState([]);
   const [sellOrders, setSellOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  
+  // Refs for modal content
+  const categoryModalRef = useRef(null);
+  const productModalRef = useRef(null);
+  const ordersModalRef = useRef(null);
+  const sellProductsModalRef = useRef(null);
+  const sellOrdersModalRef = useRef(null);
+  const addProductModalRef = useRef(null);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -140,6 +148,35 @@ const Admin = ({ isAuthenticated }) => {
 
     fetchOrders();
   }, []);
+
+  // Handle click outside modal
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showAddCategory && categoryModalRef.current && !categoryModalRef.current.contains(event.target)) {
+        setShowAddCategory(false);
+      }
+      if (showProductModal && productModalRef.current && !productModalRef.current.contains(event.target)) {
+        setShowProductModal(false);
+      }
+      if (showOrdersModal && ordersModalRef.current && !ordersModalRef.current.contains(event.target)) {
+        setShowOrdersModal(false);
+      }
+      if (showSellProductsModal && sellProductsModalRef.current && !sellProductsModalRef.current.contains(event.target)) {
+        setShowSellProductsModal(false);
+      }
+      if (showSellOrdersModal && sellOrdersModalRef.current && !sellOrdersModalRef.current.contains(event.target)) {
+        setShowSellOrdersModal(false);
+      }
+      if (showAddProduct && addProductModalRef.current && !addProductModalRef.current.contains(event.target)) {
+        setShowAddProduct(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showAddCategory, showProductModal, showOrdersModal, showSellProductsModal, showSellOrdersModal, showAddProduct]);
 
   // Add a new category
   const handleAddCategory = (e) => {
@@ -472,7 +509,7 @@ const Admin = ({ isAuthenticated }) => {
         {/* Category Management Modal */}
         {showAddCategory && (
           <div className="modal-overlay">
-            <div className="modal" style={{ width: '80%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto' }}>
+            <div ref={categoryModalRef} className="modal" style={{ width: '80%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto' }}>
               <h3>Category Management</h3>
               
               {/* Add Category Form */}
@@ -533,7 +570,7 @@ const Admin = ({ isAuthenticated }) => {
         {/* Orders Modal */}
         {showOrdersModal && (
           <div className="modal-overlay">
-            <div className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
+            <div ref={ordersModalRef} className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
               <h3>Orders Management</h3>
               <div className="orders-tabs">
                 <button className="tab-button active">Pending</button>
@@ -608,7 +645,7 @@ const Admin = ({ isAuthenticated }) => {
         {/* Sell Products Modal */}
         {showSellProductsModal && (
           <div className="modal-overlay">
-            <div className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
+            <div ref={sellProductsModalRef} className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
               <h3>Sell Products Management</h3>
               <div className="sell-products-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
                 {sellProducts.map(product => (
@@ -636,7 +673,7 @@ const Admin = ({ isAuthenticated }) => {
         {/* Sell Orders Modal */}
         {showSellOrdersModal && (
           <div className="modal-overlay">
-            <div className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
+            <div ref={sellOrdersModalRef} className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
               <h3>Sell Orders Management</h3>
               <div className="sell-orders-tabs">
                 <button className="tab-button active">Pending</button>
@@ -666,7 +703,7 @@ const Admin = ({ isAuthenticated }) => {
 
         {showAddProduct && selectedCategory && (
           <div className="modal-overlay">
-            <div className="modal">
+            <div ref={addProductModalRef} className="modal">
               <div className="modal-content">
                 <h3>Add Product to {selectedCategory.name}</h3>
                 <form onSubmit={handleAddProduct}>
@@ -766,7 +803,7 @@ const Admin = ({ isAuthenticated }) => {
 
         {showProductModal && selectedCategory && (
           <div className="modal-overlay">
-            <div className="modal">
+            <div ref={productModalRef} className="modal">
               <h3>Products in {selectedCategory.name}</h3>
               <div className="products-list">
                 {selectedCategory.products.map(product => (

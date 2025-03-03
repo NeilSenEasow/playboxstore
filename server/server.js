@@ -11,7 +11,6 @@ const Product = require("./models/Product"); // Import the Product model
 const Admin = require("./models/Admin"); // Ensure this is correct
 const Order = require("./models/Order"); // Import the Order model
 const Sell = require("./models/Sell"); // Import the Sell model
-// const Category = require("./models/Category"); // Import the Category model
 
 // Load environment variables
 dotenv.config();
