@@ -28,6 +28,7 @@ const Admin = ({ isAuthenticated }) => {
   const [sellProducts, setSellProducts] = useState([]);
   const [sellOrders, setSellOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  const [unapprovedSellProducts, setUnapprovedSellProducts] = useState([]);
   
   // Refs for modal content
   const categoryModalRef = useRef(null);
@@ -147,6 +148,31 @@ const Admin = ({ isAuthenticated }) => {
     };
 
     fetchOrders();
+  }, []);
+
+  // Fetch unapproved sell products
+  useEffect(() => {
+    const fetchUnapprovedSellProducts = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/sell-products?approved=false`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch unapproved sell products');
+        }
+        const data = await response.json();
+        setUnapprovedSellProducts(data.map(product => ({
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          condition: product.condition,
+          quantity: product.availableQuantity,
+          shippingAddress: product.shippingAddress
+        })));
+      } catch (error) {
+        console.error('Error fetching unapproved sell products:', error);
+      }
+    };
+
+    fetchUnapprovedSellProducts();
   }, []);
 
   // Handle click outside modal
@@ -371,6 +397,29 @@ const Admin = ({ isAuthenticated }) => {
       initialCounts[product._id] = 0;
     });
     setAvailabilityCounts(initialCounts);
+  };
+
+  // Approve a sell product
+  const handleApproveSellProduct = async (productId) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/sell-products/${productId}/approve`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to approve sell product');
+      }
+
+      // Refresh the list of unapproved products
+      const updatedProducts = unapprovedSellProducts.filter(product => product._id !== productId);
+      setUnapprovedSellProducts(updatedProducts);
+    } catch (error) {
+      console.error('Error approving sell product:', error);
+    }
   };
 
   return (
@@ -646,16 +695,18 @@ const Admin = ({ isAuthenticated }) => {
         {showSellProductsModal && (
           <div className="modal-overlay">
             <div ref={sellProductsModalRef} className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
-              <h3>Sell Products Management</h3>
+              <h3>Unapproved Sell Products</h3>
               <div className="sell-products-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
-                {sellProducts.map(product => (
-                  <div key={product.id} className="sell-product-card">
+                {unapprovedSellProducts.map(product => (
+                  <div key={product._id} className="sell-product-card">
                     <h4>{product.name}</h4>
                     <p>Price: ₹{product.price}</p>
                     <p>Condition: {product.condition}</p>
+                    <p>Quantity: {product.quantity}</p>
+                    <p>Shipping Address: {product.shippingAddress.firstName} {product.shippingAddress.lastName}, {product.shippingAddress.city}</p>
                     <div className="status-controls">
-                      <button className="btn-primary">Approve</button>
-                      <button className="btn-danger">Reject</button>
+                      <button className="btn-primary" onClick={() => handleApproveSellProduct(product._id)}>Approve</button>
+                      <button className="btn-danger" onClick={() => handleRemoveProduct(product._id)}>Reject</button>
                     </div>
                   </div>
                 ))}

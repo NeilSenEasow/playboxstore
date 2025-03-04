@@ -11,6 +11,7 @@ import Footer from './components/Footer/Footer';
 import Cart from './components/Cart/Cart';
 import Buy from './components/Buy/Buy';
 import Sell from './components/Sell/Sell';
+import SellForm from './components/Sell/SellForm';
 import Rent from './components/Rent/Rent';
 import Checkout from './components/Checkout/Checkout';
 import SearchResults from './components/SearchResults/SearchResults';
@@ -206,6 +207,10 @@ function App() {
               } 
             />
             <Route 
+              path="/sell-form" 
+              element={<SellForm />}
+            />
+            <Route 
               path="/buy" 
               element={
                 <Buy 
@@ -238,7 +243,6 @@ function App() {
             />
             <Route path="/signin" element={<SignIn onSignIn={handleLogin} />} />
             <Route path="/signup" element={<SignUp />} />
-            {/* <Route path="/profile" element={<UserProfile />} /> */}
             <Route 
               path="/profile" 
               element={

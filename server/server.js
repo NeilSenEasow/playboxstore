@@ -161,7 +161,7 @@ app.post('/auth/login', async (req, res) => {
     }
 
     // If not an admin, check if the user exists
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }); 
     if (user) {
       const isPasswordValid = await user.comparePassword(password);
       if (isPasswordValid) {
@@ -799,36 +799,72 @@ app.get("/api/user", async (req, res) => {
 // Add endpoint to sell a product
 app.post("/api/sell-product", async (req, res) => {
   try {
-    const { name, price, description, condition, contactNumber, availableQuantity, image } = req.body;
+    const { 
+      userId, 
+      quantity = 1, 
+      status = 'Pending', 
+      shippingAddress, 
+      name, 
+      category, 
+      condition, 
+      description, 
+      price, 
+      contactNumber, 
+      image 
+    } = req.body;
 
     // Validate required fields
-    if (!name || !price || !description || !condition || !contactNumber) {
-      return res.status(400).json({ error: 'All fields are required' });
+    if (!userId || !shippingAddress) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     // Create new sell item
     const sellItem = new Sell({
+      userId,
+      quantity,
+      status,
+      shippingAddress,
       name,
-      price,
-      description,
+      category,
       condition,
-      image: image || 'https://via.placeholder.com/150', // Use provided image or default
-      availableQuantity: availableQuantity || 1, // Use provided quantity or default to 1
-      category: 'Sell' // Set category as 'Sell'
+      description,
+      price,
+      contactNumber,
+      image,
+      sellDate: new Date()
     });
 
     await sellItem.save();
     res.status(201).json(sellItem);
   } catch (error) {
     console.error('Error selling product:', error);
-    res.status(500).json({ error: 'Failed to sell product' });
+    res.status(500).json({ error: 'Failed to sell product', details: error.message });
   }
 });
 
-// Endpoint to get all sell products
+// Approve a sell product
+app.patch("/api/sell-products/:id/approve", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedProduct = await Sell.findByIdAndUpdate(id, { approved: true }, { new: true });
+
+    if (!updatedProduct) {
+      return res.status(404).json({ error: 'Sell product not found' });
+    }
+
+    res.json(updatedProduct);
+  } catch (error) {
+    console.error('Error approving sell product:', error);
+    res.status(500).json({ error: 'Failed to approve sell product' });
+  }
+});
+
+// Get all sell products with optional approval filter
 app.get("/api/sell-products", async (req, res) => {
   try {
-    const sellProducts = await Sell.find({});
+    const { approved } = req.query;
+    const filter = approved !== undefined ? { approved: approved === 'true' } : {};
+    const sellProducts = await Sell.find(filter);
     res.json(sellProducts);
   } catch (error) {
     console.error('Error fetching sell products:', error);
