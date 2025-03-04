@@ -45,30 +45,6 @@ const Admin = ({ isAuthenticated }) => {
     }
   }, [isAuthenticated, navigate]);
 
-  // // Fetch grouped products from the database
-  // useEffect(() => {
-  //   const fetchGroupedProducts = async () => {
-  //     try {
-  //       const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/products/grouped`);
-  //       if (!response.ok) {
-  //         throw new Error('Failed to fetch grouped products');
-  //       }
-  //       const data = await response.json();
-  //       // Process the grouped data to set it in state
-  //       setCategories(data.map(item => ({
-  //         name: item._id, // Category name
-  //         count: item.count,
-  //         products: item.products // Array of products under this category
-  //       })));
-  //       console.log('Fetched grouped products:', data);
-  //     } catch (error) {
-  //       console.error('Error fetching grouped products:', error);
-  //     }
-  //   };
-
-  //   fetchGroupedProducts();
-  // }, []);
-
   // Fetch products from the API
   useEffect(() => {
     const fetchProducts = async () => {
@@ -130,7 +106,7 @@ const Admin = ({ isAuthenticated }) => {
     totalViews: 68400
   };
 
-  // Add this after other useEffect hooks
+  // Fetch orders
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -173,6 +149,24 @@ const Admin = ({ isAuthenticated }) => {
     };
 
     fetchUnapprovedSellProducts();
+  }, []);
+
+  // Fetch all sell products
+  useEffect(() => {
+    const fetchSellProducts = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/sell-products`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch sell products');
+        }
+        const data = await response.json();
+        setSellProducts(data);
+      } catch (error) {
+        console.error('Error fetching sell products:', error);
+      }
+    };
+
+    fetchSellProducts();
   }, []);
 
   // Handle click outside modal
@@ -694,26 +688,31 @@ const Admin = ({ isAuthenticated }) => {
         {/* Sell Products Modal */}
         {showSellProductsModal && (
           <div className="modal-overlay">
-            <div ref={sellProductsModalRef} className="modal" style={{ width: '80%', maxWidth: '1200px' }}>
-              <h3>Unapproved Sell Products</h3>
-              <div className="sell-products-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden' }}>
-                {unapprovedSellProducts.map(product => (
-                  <div key={product._id} className="sell-product-card">
-                    <h4>{product.name}</h4>
-                    <p>Price: ₹{product.price}</p>
-                    <p>Condition: {product.condition}</p>
-                    <p>Quantity: {product.quantity}</p>
-                    <p>Shipping Address: {product.shippingAddress.firstName} {product.shippingAddress.lastName}, {product.shippingAddress.city}</p>
-                    <div className="status-controls">
-                      <button className="btn-primary" onClick={() => handleApproveSellProduct(product._id)}>Approve</button>
-                      <button className="btn-danger" onClick={() => handleRemoveProduct(product._id)}>Reject</button>
+            <div ref={sellProductsModalRef} className="modal" style={{ width: '80%', maxWidth: '1200px', padding: '20px', borderRadius: '8px', backgroundColor: '#333', color: '#fff', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+              <h3 style={{ color: '#ff0000', fontSize: '24px', marginBottom: '20px' }}>Sell Products</h3>
+              <div className="sell-products-list" style={{ maxHeight: '500px', overflowY: 'auto', overflowX: 'hidden', border: '1px solid #ddd', borderRadius: '4px', padding: '10px', backgroundColor: '#444' }}>
+                {sellProducts.length > 0 ? (
+                  sellProducts.map(product => (
+                    <div key={product._id} className="sell-product-card" style={{ padding: '15px', margin: '10px 0', border: '1px solid #f0f0f0', borderRadius: '4px', backgroundColor: '#555' }}>
+                      <h4 style={{ color: '#ffcc00', fontSize: '20px', marginBottom: '10px' }}>{product.name}</h4>
+                      <p style={{ margin: '5px 0', fontWeight: 'bold' }}><span style={{ color: '#fff' }}>Price:</span> ₹{product.price}</p>
+                      <p style={{ margin: '5px 0', fontWeight: 'bold' }}><span style={{ color: '#fff' }}>Condition:</span> {product.condition}</p>
+                      <p style={{ margin: '5px 0', fontWeight: 'bold' }}><span style={{ color: '#fff' }}>Quantity:</span> {product.availableQuantity}</p>
+                      <p style={{ margin: '5px 0', fontWeight: 'bold' }}><span style={{ color: '#fff' }}>Shipping Address:</span> {product.shippingAddress.firstName} {product.shippingAddress.lastName}, {product.shippingAddress.city}</p>
+                      <div className="status-controls" style={{ marginTop: '10px' }}>
+                        <button className="btn-primary" onClick={() => handleApproveSellProduct(product._id)} style={{ marginRight: '10px' }}>Approve</button>
+                        <button className="btn-danger" onClick={() => handleRemoveProduct(product._id)}>Reject</button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p style={{ color: '#ccc', fontStyle: 'italic', textAlign: 'center' }}>No sell products available.</p>
+                )}
               </div>
               <button 
                 className="btn-secondary"
                 onClick={() => setShowSellProductsModal(false)}
+                style={{ marginTop: '20px', backgroundColor: '#ff0000', color: '#fff' }}
               >
                 Close
               </button>
