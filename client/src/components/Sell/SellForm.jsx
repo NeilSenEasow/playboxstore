@@ -361,15 +361,26 @@ const SellForm = () => {
         </div>
       </form>
 
-      {/* Status Messages */}
       {submitStatus.success && (
-        <div className="success-message">
-          Item submitted successfully! Our team will review it shortly.
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="modal" style={{ padding: '20px', backgroundColor: '#333', borderRadius: '8px', maxWidth: '500px', width: '100%', color: '#fff' }}>
+            <h3>Success</h3>
+            <p>Item submitted successfully! Our team will review it shortly.</p>
+            <button className="btn-secondary" onClick={() => setSubmitStatus({ ...submitStatus, success: false })}>
+              Close
+            </button>
+          </div>
         </div>
       )}
       {submitStatus.error && (
-        <div className="error-message">
-          Error: {submitStatus.error}
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div className="modal" style={{ padding: '20px', backgroundColor: '#333', borderRadius: '8px', maxWidth: '500px', width: '100%', color: '#fff' }}>
+            <h3>Error</h3>
+            <p>Error: {submitStatus.error}</p>
+            <button className="btn-secondary" onClick={() => setSubmitStatus({ ...submitStatus, error: null })}>
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>
