@@ -229,7 +229,6 @@ const SellForm = () => {
             value={newItem.image}
             onChange={handleNewItemChange}
             placeholder="Enter image URL"
-            required
           />
         </div>
         

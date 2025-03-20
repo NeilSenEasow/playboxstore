@@ -28,7 +28,7 @@ const sellSchema = new mongoose.Schema({
   condition: { type: String, required: true }, // Item condition
   description: { type: String, required: true }, // Item description
   price: { type: Number, required: true }, // Item price
-  image: { type: String, required: true } // Item image
+  image: { type: String, required: false } // Item image
 }, { timestamps: true });
 
 sellSchema.index({ productId: 1, userId: 1 }); // Adding a compound index for better query performance

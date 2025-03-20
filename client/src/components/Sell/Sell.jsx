@@ -69,7 +69,11 @@ const Sell = () => {
               style={{ animationDelay: `${index * 0.2}s` }}
             >
               <div className="sell-item-image-container">
-                <img src={item.image} alt={item.name} className="sell-item-image" />
+                {item.image ? (
+                  <img src={item.image} alt={item.name} className="sell-item-image" />
+                ) : (
+                  <p style={{ textAlign: 'center' }}>No image available</p>
+                )}
                 <span className="condition-badge">{item.condition || 'Used'}</span>
               </div>
               <div className="sell-item-content">
