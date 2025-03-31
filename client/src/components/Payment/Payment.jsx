@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { FaCreditCard, FaWallet, FaCheckCircle, FaSpinner, FaGooglePay } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaCheckCircle } from 'react-icons/fa';
 import './Payment.css';
 
 const Payment = ({ cartItems, clearCart }) => {
   const navigate = useNavigate();
-  const [selectedMethod, setSelectedMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [formData, setFormData] = useState({
-    cardNumber: '',
-    cardName: '',
-    expiry: '',
-    cvv: ''
-  });
   const [orderDetails, setOrderDetails] = useState(null);
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     const checkoutData = sessionStorage.getItem('checkoutFormData');
@@ -38,60 +32,15 @@ const Payment = ({ cartItems, clearCart }) => {
         totalAmount,
         items: cartItems
       });
+
+      // Set form data from checkout
+      setFormData(parsedData);
     }
   }, [cartItems]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
-    try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Show success state
-      setShowSuccess(true);
-      
-      // Clear cart and session storage
-      clearCart();
-      sessionStorage.removeItem('checkoutFormData');
-      
-      // Redirect after 3 seconds
-      setTimeout(() => {
-        navigate('/');
-      }, 3000);
-    } catch (error) {
-      console.error('Payment error:', error);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleGPayClick = () => {
-    // Calculate total amount
-    const subtotal = cartItems.reduce((total, item) => {
-      return total + (item.price * (item.quantity || 1));
-    }, 0);
-    const shipping = 100; // Fixed shipping cost
-    const tax = subtotal * 0.18; // 18% tax
-    const totalAmount = subtotal + shipping + tax;
-
-    // Navigate to GPay with required data
-    navigate('/gpay', {
-      state: {
-        amount: totalAmount,
-        orderDetails: formData,
-        cartItems: cartItems
-      }
-    });
+  const handlePayPalClick = () => {
+    // Redirect to PayPal authentication
+    window.location.href = `${import.meta.env.VITE_PROD_BASE_URL}/auth/paypal`;
   };
 
   if (showSuccess) {
@@ -141,111 +90,23 @@ const Payment = ({ cartItems, clearCart }) => {
         </div>
       </div>
 
-      <div className="payment-methods">
-        <h3>Select Payment Method</h3>
-        {/* <div 
-          className={`payment-method ${selectedMethod === 'card' ? 'selected' : ''}`}
-          onClick={() => setSelectedMethod('card')}
-        >
-          <FaCreditCard />
-          <span>Credit/Debit Card</span>
-        </div> */}
-        <div 
-          className={`payment-method ${selectedMethod === 'gpay' ? 'selected' : ''}`}
-          onClick={() => setSelectedMethod('gpay')}
-        >
-          <FaGooglePay />
-          <span>Google Pay</span>
-        </div>
-        {/* <div 
-          className={`payment-method ${selectedMethod === 'wallet' ? 'selected' : ''}`}
-          onClick={() => setSelectedMethod('wallet')}
-        >
-          <FaWallet />
-          <span>Wallet</span>
-        </div> */}
+      <div className="user-details">
+        <h3>User Details</h3>
+        <p>Name: {formData.firstName} {formData.lastName}</p>
+        <p>Email: {formData.email}</p>
+        <p>Phone: {formData.phone}</p>
+        <p>Address: {formData.address}, {formData.street}, {formData.city}, {formData.district}, {formData.state}, {formData.zipcode}</p>
       </div>
 
-      {selectedMethod === 'card' && (
-        <form onSubmit={handleSubmit} className="card-details">
-          <div className="form-group">
-            <label>Card Number</label>
-            <input
-              type="text"
-              name="cardNumber"
-              placeholder="1234 5678 9012 3456"
-              value={formData.cardNumber}
-              onChange={handleInputChange}
-              required
-              maxLength="19"
-            />
-          </div>
-          <div className="form-group">
-            <label>Cardholder Name</label>
-            <input
-              type="text"
-              name="cardName"
-              placeholder="John Doe"
-              value={formData.cardName}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Expiry Date</label>
-              <input
-                type="text"
-                name="expiry"
-                placeholder="MM/YY"
-                value={formData.expiry}
-                onChange={handleInputChange}
-                required
-                maxLength="5"
-              />
-            </div>
-            <div className="form-group">
-              <label>CVV</label>
-              <input
-                type="password"
-                name="cvv"
-                placeholder="123"
-                value={formData.cvv}
-                onChange={handleInputChange}
-                required
-                maxLength="3"
-              />
-            </div>
-          </div>
-          <button 
-            type="submit" 
-            className={`pay-now-btn ${isProcessing ? 'loading' : ''}`}
-            disabled={isProcessing}
-          >
-            {isProcessing ? (
-              <>
-                <FaSpinner className="spinner" />
-                Processing...
-              </>
-            ) : (
-              `Pay ₹${orderDetails.totalAmount.toLocaleString()}`
-            )}
-          </button>
-        </form>
-      )}
-
-      {selectedMethod === 'gpay' && (
-        <div className="gpay-section">
-          <button 
-            onClick={handleGPayClick}
-            className="gpay-button"
-          >
-            <FaGooglePay />
-            Pay with Google Pay
-          </button>
-          <p className="gpay-note">You will be redirected to Google Pay to complete your payment</p>
+      <div className="payment-methods">
+        <h3>Select Payment Method</h3>
+        <div 
+          className={`payment-method`}
+          onClick={handlePayPalClick}
+        >
+          <span>PayPal</span>
         </div>
-      )}
+      </div>
     </div>
   );
 };

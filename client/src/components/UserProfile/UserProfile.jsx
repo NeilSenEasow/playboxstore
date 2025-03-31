@@ -1,44 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { FaUser, FaShoppingBag, FaGamepad, FaWallet, FaHistory, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaUser, FaShoppingBag, FaMapMarkerAlt, FaHistory } from 'react-icons/fa';
 import './UserProfile.css';
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
-  const [recentActivity, setRecentActivity] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-    
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error('No token found');
+        setError('No authentication token found. Please log in.');
+        setIsLoading(false);
         return;
       }
 
       try {
         const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/user`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+          headers: { 'Authorization': `Bearer ${token}` },
         });
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
+
+        if (!response.ok) throw new Error('Failed to fetch user data');
         const data = await response.json();
         setUser(data);
 
-        // Fetch recent activity (orders, rentals, etc.)
-        const activityResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/user/activity`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+        const ordersResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/orders?userId=${data._id}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
         });
-        if (activityResponse.ok) {
-          const activityData = await activityResponse.json();
-          setRecentActivity(activityData);
+
+        if (ordersResponse.ok) {
+          const ordersData = await ordersResponse.json();
+          setRecentOrders(ordersData);
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setIsLoading(false);
       }
@@ -47,38 +44,27 @@ const UserProfile = () => {
     fetchUserData();
   }, []);
 
-  if (isLoading) {
-    return <div className="loading-spinner"></div>;
-  }
-
-  if (!user) {
-    return <div>Error loading profile</div>;
-  }
+  if (isLoading) return <div className="loading-spinner"></div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!user) return <div>Error loading profile</div>;
 
   return (
     <div className="user-profile">
       <div className="profile-sidebar">
-        <div className="profile-avatar">
-          {user.name ? user.name[0].toUpperCase() : 'U'}
-        </div>
+        <div className="profile-avatar">{user.name?.charAt(0).toUpperCase() || 'U'}</div>
         <h2 className="profile-name">{user.name}</h2>
         <p className="profile-email">{user.email}</p>
-        <div className="profile-status">
-          {user.membershipStatus || 'Regular Member'}
-        </div>
+        <div className="profile-status">{user.membershipStatus || 'Regular Member'}</div>
       </div>
 
       <div className="profile-main">
+        {/* Account Information */}
         <section className="profile-section">
-          <h3 className="section-title">
-            <FaUser /> Account Information
-          </h3>
+          <h3 className="section-title"><FaUser /> Account Information</h3>
           <div className="info-grid">
             <div className="info-item">
               <div className="info-label">Member Since</div>
-              <div className="info-value">
-                {new Date(user.dateJoined).toLocaleDateString()}
-              </div>
+              <div className="info-value">{new Date(user.dateJoined).toLocaleDateString()}</div>
             </div>
             <div className="info-item">
               <div className="info-label">Phone Number</div>
@@ -95,43 +81,34 @@ const UserProfile = () => {
           </div>
         </section>
 
+        {/* Shipping Address */}
         <section className="profile-section">
-          <h3 className="section-title">
-            <FaMapMarkerAlt /> Shipping Address
-          </h3>
+          <h3 className="section-title"><FaMapMarkerAlt /> Shipping Address</h3>
           <div className="info-grid">
             <div className="info-item">
               <div className="info-label">Address</div>
-              <div className="info-value">
-                {user.address || 'No address saved'}
-              </div>
+              <div className="info-value">{user.address || 'No address saved'}</div>
             </div>
           </div>
         </section>
 
+        {/* Recent Orders */}
         <section className="profile-section">
-          <h3 className="section-title">
-            <FaHistory /> Recent Activity
-          </h3>
+          <h3 className="section-title"><FaHistory /> Recent Orders</h3>
           <div className="activity-list">
-            {recentActivity.length > 0 ? (
-              recentActivity.map((activity, index) => (
-                <div key={index} className="activity-item">
-                  <div className="activity-icon">
-                    {activity.type === 'purchase' ? <FaShoppingBag /> : 
-                     activity.type === 'rental' ? <FaGamepad /> : 
-                     activity.type === 'wallet' ? <FaWallet /> : <FaClock />}
-                  </div>
+            {recentOrders.length > 0 ? (
+              recentOrders.map((order) => (
+                <div key={order._id} className="activity-item">
+                  <div className="activity-icon"><FaShoppingBag /></div>
                   <div className="activity-details">
-                    <div className="activity-title">{activity.description}</div>
-                    <div className="activity-date">
-                      {new Date(activity.date).toLocaleDateString()}
-                    </div>
+                    <div className="activity-title">Order ID: {order._id}</div>
+                    <div className="activity-date">{new Date(order.orderDate).toLocaleDateString()}</div>
+                    <div className="activity-status">Status: {order.status}</div>
                   </div>
                 </div>
               ))
             ) : (
-              <p>No recent activity</p>
+              <p>No recent orders</p>
             )}
           </div>
         </section>

@@ -79,33 +79,12 @@ function Checkout({ cartItems, clearCart }) {
       const userData = await userResponse.json();
       const userId = userData._id;
 
-      // Create order
-      const orderResponse = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/orders`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          cartItems: cartItems.map(item => ({
-            id: item.id || item._id,
-            quantity: item.quantity || 1
-          })),
-          userId: userId,
-          orderDetails: formData
-        })
-      });
-
-      if (!orderResponse.ok) {
-        throw new Error('Failed to create order');
-      }
-
       // Store form data in session storage for payment page
       sessionStorage.setItem('checkoutFormData', JSON.stringify(formData));
-      
-      // Clear cart and redirect to success page
+
+      // Clear cart and redirect to payment page
       clearCart();
-      navigate('/success');
+      navigate('/payment');
     } catch (error) {
       console.error('Checkout error:', error);
       setError(error.message);

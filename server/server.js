@@ -12,6 +12,10 @@ const Admin = require("./models/Admin"); // Ensure this is correct
 const Order = require("./models/Order"); // Import the Order model
 const Sell = require("./models/Sell"); // Import the Sell model
 
+var passport = require('passport')
+var util = require('util')
+var PayPalStrategy = require('passport-paypal').Strategy;
+
 // Load environment variables
 dotenv.config();
 
@@ -872,6 +876,28 @@ app.get("/api/sell-products", async (req, res) => {
   }
 });
 
+// Payment using PayPal
+app.get('/auth/paypal', 
+  passport.authenticate('paypal', { failureRedirect: '/login' }));
+
+app.get('/auth/paypal/callback', 
+  passport.authenticate('paypal', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
+passport.use(new PayPalStrategy({
+  returnURL: 'http://localhost:5000/auth/paypal/callback', // Ensure this matches your server URL
+  realm: 'http://localhost:5000/'
+},
+function(identifier, profile, done) {
+  // asynchronous verification, for effect...
+  process.nextTick(function () {
+    profile.identifier = identifier;
+    return done(null, profile);
+  });
+}));
 
 // Start the server
 app.listen(PORT, () => {
