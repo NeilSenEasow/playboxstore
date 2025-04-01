@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCheckCircle } from 'react-icons/fa';
 import './Payment.css';
-
+//Updating payment
 const Payment = ({ cartItems, clearCart }) => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
