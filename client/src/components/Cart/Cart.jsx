@@ -1,140 +1,138 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BsCart4 } from 'react-icons/bs';
-import { FaTrashAlt } from 'react-icons/fa';  // Trash icon
+import { FaTrashAlt } from 'react-icons/fa';
 import './Cart.css';
 
-const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
+// Assuming cartItems already has aggregated quantities if items were added multiple times
+const Cart = ({ cartItems = [], setCartItems, removeFromCart, clearCart }) => {
   const navigate = useNavigate();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
-  const [isClearingCart, setIsClearingCart] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null); // Store the whole item or just ID
+  const [isClearingCart, setIsClearingCart] = useState(false); // Flag for clear cart confirmation
 
-  const formatPrice = (price) => {
-    if (typeof price === 'number') {
-      return price;
+  // Helper to safely get price (handles potential rentPrice and ensures number)
+  const getItemPrice = (item) => {
+    const price = item?.rentPrice ?? item?.price ?? 0; // Use ?? nullish coalescing
+    // Remove currency symbols and commas if necessary, then convert to number
+    if (typeof price === 'string') {
+        const numericString = price.replace(/[^0-9.]/g, ''); // Keep only numbers and decimal point
+        return parseFloat(numericString) || 0;
     }
-    // If price is a string like "₹1,999.00", convert to number
-    const numericPrice = price?.replace(/[^\d]/g, '');
-    return numericPrice ? parseInt(numericPrice) : 0;
+    return Number(price) || 0; // Ensure it's a number
   };
 
+  // Calculate total based on current cartItems
   const calculateTotal = (items) => {
-    if (!items || !items.length) return 0;
-    
     return items.reduce((total, item) => {
-      const itemPrice = item.rentPrice || item.price || 0; // Handle both regular and rental prices
-      const quantity = item.quantity || 1; // Default to 1 if quantity is undefined
-      return total + (formatPrice(itemPrice) * quantity); 
+      const price = getItemPrice(item);
+      const quantity = Number(item.quantity) || 1; // Default quantity to 1 if invalid/missing
+      return total + (price * quantity);
     }, 0);
   };
 
-  const handleCheckout = () => {
-    if (cartItems.length === 0) {
-      alert('Your cart is empty!');
-      return;
-    }
-    window.scrollTo(0, 0); // Scroll to top before navigating
-    navigate('/checkout'); // Navigate to checkout
+  const handleQuantityChange = (itemId, change) => {
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === itemId
+          // Ensure quantity doesn't go below 1
+          ? { ...item, quantity: Math.max(1, (Number(item.quantity) || 0) + change) }
+          : item
+      ).filter(item => item.quantity > 0) // Optionally remove if quantity becomes 0 (though handled by Math.max(1,...))
+    );
   };
 
-  const handleDeleteItem = (itemId) => {
-    setItemToDelete(cartItems.find(item => item.id === itemId));
+  // --- Deletion Logic ---
+  const initiateDeleteItem = (itemId) => {
+    // Find the item name for the confirmation message
+    const item = cartItems.find(item => item.id === itemId);
+    setItemToDelete(item); // Store the item (or just its ID and name)
+    setIsClearingCart(false); // Ensure we know it's single item deletion
     setShowConfirmDialog(true);
   };
 
-  const handleClearCart = () => {
+  const initiateClearCart = () => {
+    if (cartItems.length === 0) return; // Don't show dialog if cart is empty
     setIsClearingCart(true);
+    setItemToDelete(null); // No specific item being deleted
     setShowConfirmDialog(true);
   };
 
   const handleConfirmDelete = () => {
     if (isClearingCart) {
-      clearCart();
-      setIsClearingCart(false);
+      clearCart(); // Call clearCart passed from parent
     } else if (itemToDelete) {
-      removeFromCart(itemToDelete.id);
-      setItemToDelete(null);
+      removeFromCart(itemToDelete.id); // Call removeFromCart passed from parent
     }
+    closeConfirmDialog();
+  };
+
+  const closeConfirmDialog = () => {
     setShowConfirmDialog(false);
+    setItemToDelete(null);
+    setIsClearingCart(false);
   };
 
-  const handleQuantityChange = (itemId, change) => {
-    setCartItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId 
-          ? { ...item, quantity: Math.max(1, (item.quantity || 0) + change) } 
-          : item
-      )
-    );
-  };
-
-  const addToCart = (newItem) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === newItem.id);
-      if (existingItem) {
-        // If the item already exists, update its quantity
-        return prevItems.map(item => 
-          item.id === newItem.id 
-            ? { ...item, quantity: item.quantity + newItem.quantity } 
-            : item
-        );
-      } else {
-        // If it doesn't exist, add it to the cart
-        return [...prevItems, newItem];
-      }
-    });
-  };
-
-  const groupedItems = cartItems.reduce((acc, item) => {
-    const existingItem = acc.find(i => i.id === item.id);
-    if (existingItem) {
-      existingItem.quantity += item.quantity || 0; // Ensure quantity is a number
-    } else {
-      acc.push({ ...item });
+  // --- Navigation ---
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      alert('Your cart is empty! Please add items before proceeding.');
+      return;
     }
-    return acc;
-  }, []);
+    window.scrollTo(0, 0); // Scroll to top for better UX
+    navigate('/checkout'); // Navigate to checkout page
+  };
+
+  const totalAmount = calculateTotal(cartItems);
 
   return (
     <div className="cart-container">
+      {/* Confirmation Dialog Modal */}
       {showConfirmDialog && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>Confirm Delete</h3>
+            <h3>Confirm Action</h3>
             <p>
-              {isClearingCart 
-                ? 'Are you sure you want to clear all items from your cart?' 
-                : `Are you sure you want to remove "${itemToDelete?.name}" from your cart?`}
+              {isClearingCart
+                ? 'Are you sure you want to remove all items from your cart?'
+                : `Are you sure you want to remove "${itemToDelete?.name || 'this item'}" from your cart?`}
             </p>
             <div className="modal-buttons">
-              <button className="btn-primary" onClick={handleConfirmDelete}>Yes, Delete</button>
-              <button className="btn-secondary" onClick={() => {
-                setShowConfirmDialog(false);
-                setItemToDelete(null);
-                setIsClearingCart(false);
-              }}>Cancel</button>
+              <button className="btn-primary confirm-delete-btn" onClick={handleConfirmDelete}>
+                Yes, {isClearingCart ? 'Clear All' : 'Remove'}
+              </button>
+              <button className="btn-secondary" onClick={closeConfirmDialog}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Cart Header */}
       <div className="cart-header">
         <h2 className="cart-title">
-          <BsCart4 size={30} style={{ marginRight: '10px' }} /> Your Cart
+          <BsCart4 size={30} style={{ marginRight: '10px', verticalAlign: 'middle' }} />
+          Your Shopping Cart
         </h2>
         {cartItems.length > 0 && (
-          <button className="clear-cart-button" onClick={handleClearCart}>
+          <button
+            className="clear-cart-button"
+            onClick={initiateClearCart}
+            title="Clear all items from cart"
+          >
             Clear Cart
           </button>
         )}
       </div>
-      {groupedItems.length === 0 ? (
+
+      {/* Cart Content */}
+      {cartItems.length === 0 ? (
         <div className="empty-cart">
-          <p>Your cart is empty</p>
-          <button 
+          <p>Your cart is currently empty.</p>
+          <button
             className="btn-secondary"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/')} // Navigate to home or products page
           >
             Continue Shopping
           </button>
@@ -142,49 +140,50 @@ const Cart = ({ cartItems, setCartItems, removeFromCart, clearCart }) => {
       ) : (
         <>
           <ul className="cart-list">
-            {groupedItems.map((item) => (
-              <li key={item.id} className="cart-item">
-                <img src={`${import.meta.env.VITE_PROD_BASE_URL}${item.image}`} alt={item.name} className="cart-item-image" />
+            {cartItems.map((item) => (
+              <li key={item.id} className="cart-item"> {/* Ensure item.id is unique */}
+                {/* <img
+                  src={`${import.meta.env.VITE_PROD_BASE_URL}${item.image}`}
+                  alt={item.name || 'Product image'}
+                  className="cart-item-image"
+                /> */}
                 <div className="cart-item-details">
-                  <h3 className="cart-item-name">{item.name}</h3>
+                  <h3 className="cart-item-name">{item.name || 'Unnamed Item'}</h3>
                   <p className="cart-item-price">
-                    ₹{formatPrice(item.rentPrice || item.price).toLocaleString()}
-                    {item.rentPrice ? '/day' : ''}
+                    ₹{getItemPrice(item).toLocaleString()}
+                    {item.rentPrice ? <span className="rent-indicator"> /day</span> : ''}
                   </p>
                   <div className="quantity-controls">
-                    <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
-                    <span>{item.quantity || 1}</span> {/* Default to 1 if quantity is undefined */}
+                    <button onClick={() => handleQuantityChange(item.id, -1)} disabled={(item.quantity || 1) <= 1}>-</button>
+                    <span>{item.quantity || 1}</span>
                     <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
                   </div>
                 </div>
-                <button 
+                <button
                   className="delete-item-button"
-                  onClick={() => handleDeleteItem(item.id)}
-                  title="Remove item"
+                  onClick={() => initiateDeleteItem(item.id)}
+                  title={`Remove ${item.name || 'item'}`}
                 >
-                  <FaTrashAlt size={18} color="#ff4747" />
+                  <FaTrashAlt size={18} />
                 </button>
               </li>
             ))}
           </ul>
+
+          {/* Cart Summary */}
           <div className="cart-summary">
             <div className="cart-total">
-              <span>Total:</span>
-              <span>₹{calculateTotal(groupedItems).toLocaleString()}</span>
+              <span>Total Amount:</span>
+              {/* Format total amount */}
+              <span>₹{totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="cart-buttons">
-              <button 
-                className="checkout-button"
+              <button
+                className="checkout-button btn-primary" // Added btn-primary for consistency
                 onClick={handleCheckout}
               >
                 Proceed to Checkout
               </button>
-              {/* <button 
-                className="btn-secondary"
-                onClick={handleClearCart}
-              >
-                Clear Cart
-              </button> */}
             </div>
           </div>
         </>
