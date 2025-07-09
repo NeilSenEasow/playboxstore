@@ -63,12 +63,20 @@ function App() {
 
   // Fetch data from backend
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_PROD_BASE_URL + '/api/products' || VITE_API_URL + '/products'; // Use local API URL
-    console.log(apiUrl);
+    // Determine the API URL based on the environment (production or development)
+    const BASE_URL = import.meta.env.PROD
+      ? import.meta.env.VITE_PROD_BASE_URL
+      : import.meta.env.VITE_API_URL;
+
+    // Construct the full API URL for products
+    const apiUrl = `${BASE_URL}/api/products`;
+    
+    console.log("Fetching from API URL:", apiUrl); // Log the URL being used
+
     fetch(apiUrl)
       .then(response => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error(`Network response was not ok: ${response.statusText}`);
         }
         return response.json();
       })
@@ -269,4 +277,3 @@ function App() {
 }
 
 export default App;
-//testing commit

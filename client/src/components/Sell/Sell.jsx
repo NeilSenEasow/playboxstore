@@ -12,7 +12,8 @@ const Sell = () => {
   useEffect(() => {
     const fetchSellItems = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/sell-products');
+        // const response = await fetch('http://localhost:5000/api/sell-products');
+        const response = await fetch(`${import.meta.env.VITE_PROD_BASE_URL}/api/sell-products`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
